@@ -1,0 +1,3048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL — Learn SQL by Building Sacred Cities</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Tiro+Telugu:ital@0;1&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --off-white: #FAFBFC;
+            --warm-gray: #F8F9FA;
+            --charcoal: #2B2D30;
+            --dark-gray: #1E1F22;
+            --text-black: #000000;
+            --text-gray: #2D3436;
+            --cyan: #6B9BD1;
+            --sage: #7EBB9B;
+            --amber: #E8B86D;
+            --terminal-border: #404347;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *:before,
+        *:after {
+            content: "";
+            position: absolute;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: radial-gradient(circle at 50% 20%, var(--warm-gray) 0%, var(--white) 50%);
+            color: var(--text-gray);
+            overflow-x: hidden;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            color: var(--text-black);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .terminal-window {
+            width: min(1200px, 90vw);
+            background: var(--charcoal);
+            border-radius: 12px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+            position: relative;
+        }
+
+        .terminal-header {
+            background: linear-gradient(to bottom, #3a3d42 0%, var(--charcoal) 100%);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--terminal-border);
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .terminal-button.red { background: #FF5F57; }
+        .terminal-button.yellow { background: #FEBC2E; }
+        .terminal-button.green { background: #28C840; }
+
+        .terminal-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #8B8E93;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .terminal-content {
+            display: flex;
+            height: 600px;
+            position: relative;
+        }
+
+        .terminal-code {
+            flex: 1;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #D4D4D4;
+            overflow-y: auto;
+        }
+
+        .terminal-visualization {
+            flex: 1;
+            background: #a9c1ed;
+            border-left: 1px solid var(--terminal-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prompt {
+            color: var(--cyan);
+            margin-right: 0.5rem;
+        }
+
+        .keyword { color: #C586C0; font-weight: 500; }
+        .string { color: var(--sage); }
+        .function { color: #DCDCAA; }
+        .comment { color: #6A9955; font-style: italic; }
+        .number { color: #B5CEA8; }
+
+        .code-line {
+            opacity: 0;
+            animation: typeIn 0.3s ease-out forwards;
+        }
+
+        .code-line:nth-child(1) { animation-delay: 0.6s; }
+        .code-line:nth-child(2) { animation-delay: 0.8s; }
+        .code-line:nth-child(3) { animation-delay: 1.0s; }
+        .code-line:nth-child(4) { animation-delay: 1.2s; }
+        .code-line:nth-child(5) { animation-delay: 1.4s; }
+        .code-line:nth-child(6) { animation-delay: 1.6s; }
+        .code-line:nth-child(7) { animation-delay: 1.8s; }
+        .code-line:nth-child(8) { animation-delay: 2.0s; }
+        .code-line:nth-child(9) { animation-delay: 2.2s; }
+        .code-line:nth-child(10) { animation-delay: 2.4s; }
+        .code-line:nth-child(11) { animation-delay: 2.6s; }
+        .code-line:nth-child(12) { animation-delay: 2.8s; }
+        .code-line:nth-child(13) { animation-delay: 3.0s; }
+        .code-line:nth-child(14) { animation-delay: 3.2s; }
+        .code-line:nth-child(15) { animation-delay: 3.4s; }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2em;
+            background: var(--cyan);
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+            vertical-align: text-bottom;
+        }
+
+        /* Cityscape Styles */
+        .scene {
+            width: 100%;
+            height: 100%;
+            background-color: #E4F2FF;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+        }
+
+        .scene.night {
+            opacity: 0.8;
+            background-color: #3F6B91;
+        }
+
+        .container-city {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: visible;
+        }
+
+        .container-city:before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-color: #918686;
+            bottom: 0px;
+            z-index: 200;
+        }
+
+        .skyscrapers {
+            position: absolute;
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            bottom: 20px;
+            left: 0;
+            padding-top: 100px;
+            opacity: 0.3;
+        }
+
+        .skyscraper {
+            background-color: #D6D6D6;
+            position: relative;
+        }
+
+        .skyscraper-1 {
+            width: 80px;
+            height: 250px;
+            margin-right: 20px;
+        }
+
+        .skyscraper-2 {
+            width: 100px;
+            height: 320px;
+            margin-right: 15px;
+        }
+
+        .skyscraper-3 {
+            width: 120px;
+            height: 400px;
+        }
+
+        .skyscraper-4 {
+            width: 90px;
+            height: 300px;
+            margin-left: 15px;
+        }
+
+        .skyscraper-5 {
+            width: 75px;
+            height: 350px;
+            margin-left: 20px;
+        }
+
+        .houses {
+            position: absolute;
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            bottom: 20px;
+            left: 0;
+            z-index: 50;
+        }
+
+        /* Dharamshala (House 1) */
+        .dharamshala {
+            background-color: #EDC181;
+            width: 120px;
+            height: 220px;
+            position: relative;
+            border-top: 6px solid #D9B176;
+            border-right: 6px solid #D9B176;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .dharamshala:hover {
+            animation: bounce 0.5s ease;
+            z-index: 101;
+        }
+
+        .dharamshala:before {
+            background-color: #666961;
+            height: 12px;
+            width: 124px;
+            right: -6px;
+            top: -18px;
+        }
+
+        .dharamshala-windows {
+            margin-top: 16px;
+        }
+
+        .window {
+            width: 32px;
+            height: 48px;
+            position: relative;
+        }
+
+        .window:after {
+            width: 40px;
+            height: 8px;
+            bottom: -2px;
+            left: -10px;
+        }
+
+        .door {
+            width: 44px;
+            height: 66px;
+            position: relative;
+            top: 9px;
+            margin: 6px;
+        }
+
+        .door:before {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: #F9BD82;
+            top: 50%;
+            right: 4px;
+        }
+
+        .house-windows-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: contain;
+        }
+
+        .dharamshala-window {
+            background-color: #B2C7E6;
+            border: 6px solid #666961;
+            margin: 10px;
+        }
+
+        .dharamshala-window.window-night {
+            background-color: #FFE9AB;
+            box-shadow: inset 0px 0px 5px 1px #3F6B91;
+        }
+
+        .dharamshala-window:before {
+            width: 20px;
+            height: 4px;
+            background-color: #666961;
+            bottom: 50%;
+        }
+
+        .dharamshala-window:after {
+            background-color: #7C7F76;
+            border-top: 3px solid #93968C;
+        }
+
+        .dharamshala-door {
+            background-color: #93968C;
+            border: 6px solid #666961;
+        }
+
+        .vrindavan-billboard {
+            width: 100px;
+            height: 35px;
+            background-color: #006747;
+            border: 2px solid #FFFFFF;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .billboard-text {
+            font-family: 'Tiro Telugu', serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+        }
+
+        /* Temples (House 2) */
+        .temples {
+            background-color: #CEAE99;
+            width: 180px;
+            height: 280px;
+            position: relative;
+            border-top: 42px solid #B89B88;
+            cursor: pointer;
+        }
+
+        .temples:hover {
+            animation: bounce 0.5s ease;
+            z-index: 101;
+        }
+
+        .temples:before {
+            background-color: #997071;
+            width: 196px;
+            height: 14px;
+            top: -22px;
+            left: -8px;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .temples:after {
+            background-color: #997071;
+            width: 204px;
+            height: 14px;
+            top: -42px;
+            left: -12px;
+        }
+
+        .temples-windows {
+            margin-top: 10px;
+        }
+
+        .temples-window {
+            background-color: #CCE1FF;
+            border: 6px solid #997071;
+            margin: 10px;
+        }
+
+        .temples-window.window-night {
+            background-color: #FFE9AB;
+            box-shadow: inset 0px 0px 5px 1px #3F6B91;
+        }
+
+        .temples-window:before {
+            width: 20px;
+            height: 4px;
+            background-color: #997071;
+            bottom: 70%;
+        }
+
+        .temples-window:after {
+            background-color: #A87B7C;
+            border-top: 3px solid #C28E8F;
+        }
+
+        .temples-door {
+            background-color: #705253;
+            border: 6px solid #997071;
+            top: 38px;
+        }
+
+        /* Ashrams (House 3) */
+        .ashrams-container {
+            width: 130px;
+            height: 140px;
+            position: relative;
+        }
+
+        .ashrams {
+            width: 130px;
+            height: 140px;
+            background-color: #EA8A85;
+            border: 6px solid #C97C78;
+            border-bottom: none;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .ashrams:hover {
+            animation: bounce 0.5s ease;
+            z-index: 99;
+        }
+
+        .ashrams:after {
+            background: linear-gradient(to bottom, #B65951, #B65951 50%, #964A43 50%, #964A43);
+            background-size: 100% 8px;
+            width: 130px;
+            height: 50px;
+            left: -6px;
+            top: -56px;
+            clip-path: polygon(17.5% 0%, 82.5% 0%, 100% 100%, 0% 100%);
+        }
+
+        .ashrams-chimney {
+            position: relative;
+            background-color: #B3A6A6;
+            width: 18px;
+            height: 8px;
+            border-bottom: 4px solid #C7BABA;
+            top: -70px;
+            right: -90px;
+        }
+
+        .ashrams-chimney:before {
+            background-color: #EADADB;
+            width: 22px;
+            height: 6px;
+            top: -6px;
+            left: -2px;
+            z-index: 102;
+        }
+
+        .smoke {
+            position: absolute;
+            z-index: 101;
+            width: 110px;
+            height: 170px;
+            top: -170px;
+            left: -45px;
+            pointer-events: none;
+        }
+
+        .smoke span {
+            display: block;
+            position: absolute;
+            bottom: -28px;
+            left: 20px;
+            height: 0px;
+            width: 0px;
+            border: 35px solid #fff;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0.2);
+        }
+
+        @keyframes smokeL {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translate(0, 0);
+            }
+            10% {
+                opacity: 0.5;
+                transform: scale(0.5) translate(-10px, -30px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translate(-20px, -150px);
+            }
+        }
+
+        @keyframes smokeR {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translate(0, 0);
+            }
+            10% {
+                opacity: 0.5;
+                transform: scale(0.5) translate(10px, -30px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translate(20px, -150px);
+            }
+        }
+
+        .smoke .s0 { animation: smokeL 10s 0s infinite; }
+        .smoke .s1 { animation: smokeR 10s 1s infinite; }
+        .smoke .s2 { animation: smokeL 10s 2s infinite; }
+        .smoke .s3 { animation: smokeR 10s 3s infinite; }
+        .smoke .s4 { animation: smokeL 10s 4s infinite; }
+        .smoke .s5 { animation: smokeR 10s 5s infinite; }
+        .smoke .s6 { animation: smokeL 10s 6s infinite; }
+        .smoke .s7 { animation: smokeR 10s 7s infinite; }
+        .smoke .s8 { animation: smokeL 10s 8s infinite; }
+        .smoke .s9 { animation: smokeR 10s 9s infinite; }
+
+        .ashrams-windows {
+            margin-top: 0px;
+        }
+
+        .ashrams-window {
+            background-color: #B2C7E6;
+            border: 6px solid #964A43;
+            margin: 12px;
+            height: 42px;
+        }
+
+        .ashrams-window.window-night {
+            background-color: #FFE9AB;
+            box-shadow: inset 0px 0px 5px 1px #3F6B91;
+        }
+
+        .ashrams-door {
+            margin-top: -8px;
+            background-color: #964A43;
+            border: 6px solid #B65951;
+            border-bottom: none;
+            height: 58px;
+        }
+
+        /* Pilgrims (House 4) */
+        .pilgrims {
+            background: linear-gradient(to bottom, #BABDB0, #BABDB0 40%, #CED1C3 40%, #CED1C3);
+            background-size: 100% 8px;
+            width: 90px;
+            height: 200px;
+            border-top: 40px solid #CED1C3;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .pilgrims:hover {
+            animation: bounce 0.5s ease;
+            z-index: 101;
+        }
+
+        .pilgrims:before {
+            width: 98px;
+            height: 40px;
+            border-top: 6px solid #5A6666;
+            border-bottom: 6px solid #5A6666;
+            top: -40px;
+            left: -4px;
+        }
+
+        .pilgrims:after {
+            width: 0;
+            height: 0;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 20px solid #738282;
+            top: -60px;
+        }
+
+        .pilgrims-windows {
+            margin-top: -20px;
+        }
+
+        .pilgrims-window {
+            width: 45px;
+            height: 45px;
+            background-color: #CCE1FF;
+            border: 6px solid #5A6666;
+            margin: 10px;
+        }
+
+        .pilgrims-window.window-night {
+            background-color: #FFE9AB;
+            box-shadow: inset 0px 0px 5px 1px #3F6B91;
+        }
+
+        .pilgrims-window:before {
+            width: 4px;
+            left: 15px;
+            height: 100%;
+            background-color: #5A6666;
+        }
+
+        .pilgrims-window:after {
+            background-color: #738282;
+            border-top: 3px solid #8B9E9E;
+            width: 53px;
+            height: 8px;
+            bottom: -2px;
+            left: -10px;
+        }
+
+        .pilgrims-door {
+            left: 20px;
+            background-color: #5A6666;
+            border: 6px solid #738282;
+            border-bottom: none;
+            height: 58px;
+            width: 36px;
+        }
+
+        @keyframes bounce {
+            from, 20%, 53%, 80%, to {
+                animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+                transform: translate3d(0, 0, 0);
+            }
+            40%, 43% {
+                animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+                transform: translate3d(0, 5px, 0);
+            }
+            70% {
+                animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+                transform: translate3d(0, 2px, 0);
+            }
+            90% {
+                transform: translate3d(0, 1px, 0);
+            }
+        }
+
+        /* Loading Animation Styles */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes buildingFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(100px) scale(0.8);
+            }
+            60% {
+                transform: translateY(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes sectionFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(60px) scale(0.98);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-6px) scale(1.01);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+        @keyframes skeletonPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Building Loading States */
+        .dharamshala,
+        .temples,
+        .ashrams,
+        .pilgrims {
+            position: relative;
+        }
+
+        .dharamshala.loading,
+        .temples.loading,
+        .ashrams.loading,
+        .pilgrims.loading {
+            opacity: 1;
+            animation: buildingFadeIn 0.8s ease-out forwards;
+        }
+
+        .dharamshala.loading {
+            animation-delay: 0.2s;
+        }
+
+        .temples.loading {
+            animation-delay: 0.4s;
+        }
+
+        .ashrams.loading {
+            animation-delay: 0.6s;
+        }
+
+        .pilgrims.loading {
+            animation-delay: 0.8s;
+        }
+
+        .dharamshala.loaded {
+            animation: buildingFadeIn 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        .temples.loaded {
+            animation: buildingFadeIn 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+        }
+
+        .ashrams.loaded {
+            animation: buildingFadeIn 0.8s ease-out forwards;
+            animation-delay: 0.6s;
+        }
+
+        .pilgrims.loaded {
+            animation: buildingFadeIn 0.8s ease-out forwards;
+            animation-delay: 0.8s;
+        }
+
+        /* Section Loading Skeleton */
+        .section-loading {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(
+                90deg,
+                rgba(248, 249, 250, 0.3) 0%,
+                rgba(248, 249, 250, 0.6) 50%,
+                rgba(248, 249, 250, 0.3) 100%
+            );
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+            border-radius: 12px;
+            min-height: 200px;
+        }
+
+        .section-loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--cyan);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Section reveal animations */
+        .game-features,
+        .progression-section,
+        .features,
+        .cta-section {
+            opacity: 0;
+        }
+
+        .game-features.visible,
+        .progression-section.visible,
+        .features.visible,
+        .cta-section.visible {
+            animation: sectionFadeIn 0.8s ease-out forwards;
+        }
+
+        /* Game cards loading animation */
+        .game-card {
+            opacity: 0;
+        }
+
+        .game-card.visible {
+            animation: sectionFadeIn 0.6s ease-out forwards;
+        }
+
+        .game-card:nth-child(1).visible { animation-delay: 0.1s; }
+        .game-card:nth-child(2).visible { animation-delay: 0.2s; }
+        .game-card:nth-child(3).visible { animation-delay: 0.3s; }
+        .game-card:nth-child(4).visible { animation-delay: 0.4s; }
+
+        /* Feature cards loading animation */
+        .feature {
+            opacity: 0;
+        }
+
+        .feature.visible {
+            animation: sectionFadeIn 0.6s ease-out forwards;
+        }
+
+        .feature:nth-child(1).visible { animation-delay: 0.1s; }
+        .feature:nth-child(2).visible { animation-delay: 0.2s; }
+        .feature:nth-child(3).visible { animation-delay: 0.3s; }
+
+        /* Checkpoint loading animation */
+        .checkpoint {
+            opacity: 0;
+        }
+
+        .checkpoint.visible {
+            animation: sectionFadeIn 0.5s ease-out forwards;
+        }
+
+        .checkpoint:nth-child(1).visible { animation-delay: 0.1s; }
+        .checkpoint:nth-child(2).visible { animation-delay: 0.2s; }
+        .checkpoint:nth-child(3).visible { animation-delay: 0.3s; }
+        .checkpoint:nth-child(4).visible { animation-delay: 0.4s; }
+        .checkpoint:nth-child(5).visible { animation-delay: 0.5s; }
+        .checkpoint:nth-child(6).visible { animation-delay: 0.6s; }
+
+        /* Street elements */
+        .streetlamp {
+            position: absolute;
+            bottom: 20px;
+            width: 4px;
+            height: 100px;
+            background-color: #677575;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        .streetlamp:before {
+            width: 8px;
+            height: 20px;
+            background-color: #809191;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            bottom: 0;
+            left: -2px;
+        }
+
+        .streetlamp:after {
+            width: 12px;
+            height: 12px;
+            background-color: #809191;
+            border-radius: 50%;
+            left: -4px;
+            top: -10px;
+        }
+
+        .streetlamp-glow {
+            position: absolute;
+            z-index: 102;
+            width: 12px;
+            height: 12px;
+            top: -10px;
+            left: -4px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 60px 30px #fff;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .streetlamp:hover > .streetlamp-glow {
+            opacity: 1;
+        }
+
+        #streetlamp-1 {
+            left: 60px;
+        }
+
+        #streetlamp-2 {
+            left: 380px;
+        }
+
+        .tree-container {
+            position: absolute;
+            width: 75px;
+            height: 148px;
+            z-index: 200;
+            bottom: 20px;
+        }
+
+        #tree-1 {
+            left: 25px;
+        }
+
+        #tree-2 {
+            right: 25px;
+        }
+
+        .tree {
+            width: 10px;
+            height: 75px;
+            background-color: #936161;
+            margin-left: 9px;
+            border-top: 5px solid #704A4A;
+            bottom: 8px;
+            position: absolute;
+            left: 26px;
+        }
+
+        .tree:before {
+            background-color: #91DBA6;
+            width: 75px;
+            height: 40px;
+            border-radius: 60px 60px 90px 90px;
+            left: -35px;
+            margin-top: -45px;
+        }
+
+        .tree:after {
+            background-color: #91DBA6;
+            width: 40px;
+            height: 60px;
+            border-radius: 60px 80px 60px 90px;
+            margin-top: -70px;
+            left: -15px;
+            transform: rotate(-10deg);
+        }
+
+        .tree-base {
+            position: relative;
+            width: 26px;
+            height: 4px;
+            background-color: #BFB2B3;
+            top: -15px;
+            margin-top: 144px;
+            left: 26px;
+        }
+
+        .tree-base:before {
+            width: 36px;
+            height: 15px;
+            top: -4px;
+            left: -4px;
+            background: repeating-linear-gradient(
+                to right,
+                #F4F7F2,
+                #F4F7F2 6px,
+                transparent 6px,
+                transparent 10px
+            );
+        }
+
+        .tree-base:after {
+            width: 42px;
+            height: 8px;
+            background-color: #BFB2B3;
+            top: 11px;
+            left: -7px;
+        }
+
+        .cloud {
+            position: absolute;
+            width: 100px;
+            height: 30px;
+            background-color: #fff;
+            border-radius: 100px;
+            opacity: 0.8;
+        }
+
+        .cloud:after,
+        .cloud:before {
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .cloud:after {
+            width: 50px;
+            height: 50px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud:before {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 15px;
+        }
+
+        #cloud-1 {
+            top: 60px;
+            left: -100px;
+            transform: scale(0.35);
+            animation: clouds 20s linear infinite;
+            animation-delay: 5s;
+        }
+
+        #cloud-2 {
+            top: 120px;
+            left: -150px;
+            transform: scale(0.25);
+            animation: clouds 24s linear infinite;
+            animation-delay: 1s;
+        }
+
+        @keyframes clouds {
+            0% {
+                left: -100px;
+            }
+            100% {
+                left: 110%;
+            }
+        }
+
+        .building-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--cyan);
+            text-align: center;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(107, 155, 209, 0.5);
+        }
+
+        .sun {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #FDF381;
+            left: 130px;
+            top: 80px;
+            z-index: 5;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .grayscale {
+            filter: grayscale(1);
+        }
+
+        /* Walking Person Styles */
+        .walking-person {
+            position: absolute;
+            bottom: 20px;
+            left: -100px;
+            z-index: 150;
+            animation: walkAcross 12s linear infinite;
+        }
+
+        .walking-person.slow {
+            animation: walkAcrossSlow 16s linear infinite;
+            animation-delay: 4s;
+        }
+
+        @keyframes walkAcross {
+            0% {
+                left: -100px;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes walkAcrossSlow {
+            0% {
+                left: -100px;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .man {
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            height: 310px;
+            width: 60px;
+            z-index: 150;
+            animation: bounce 1.5s ease-in-out infinite;
+            transform: scale(0.25);
+            transform-origin: bottom center;
+        }
+
+        .man.slow {
+            animation: bounceSlow 2s ease-in-out infinite;
+        }
+
+        .man:after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            bottom: -50px;
+            left: -20px;
+            transform: scale(1, 0.1);
+            animation: shadow 1.5s ease-in-out forwards infinite;
+        }
+
+        .man.slow:after {
+            animation: shadowSlow 2s ease-in-out forwards infinite;
+        }
+
+        /* Woman styles */
+        .woman {
+            display: flex;
+            position: relative;
+            flex-direction: column;
+            height: 310px;
+            width: 60px;
+            z-index: 150;
+            animation: bounce 1.5s ease-in-out infinite;
+            transform: scale(0.25);
+            transform-origin: bottom center;
+        }
+
+        .woman.slow {
+            animation: bounceSlow 2s ease-in-out infinite;
+        }
+
+        .woman:after {
+            content: "";
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            bottom: -50px;
+            left: -20px;
+            transform: scale(1, 0.1);
+            animation: shadow 1.5s ease-in-out forwards infinite;
+        }
+
+        .woman.slow:after {
+            animation: shadowSlow 2s ease-in-out forwards infinite;
+        }
+
+        /* Woman-specific styles - Saree */
+        .woman .head__hair {
+            background: #2a2a2a !important;
+            width: 60px !important;
+            height: 30px !important;
+            border-radius: 50% !important;
+            top: -8px !important;
+            left: -5px !important;
+        }
+
+        /* Hide mustache/nose for woman */
+        .woman .head__nose {
+            display: none !important;
+        }
+
+        /* Blouse (top) */
+        .woman .body {
+            background: #c83771 !important;
+            height: 65px !important;
+            border-radius: 10px !important;
+        }
+
+        .woman .body__belly {
+            background: #b02d5f !important;
+        }
+
+        /* Saree drape (pelvis area) */
+        .woman .pelvis {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c83771 50%, #ff6b9d 100%) !important;
+            border-top: 5px solid #ffd700 !important;
+            width: 70px !important;
+            height: 60px !important;
+            border-radius: 50% 50% 60% 60% !important;
+            margin-left: -26px !important;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%) !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Blouse sleeves */
+        .woman .arm__top {
+            background: #c83771 !important;
+            width: 16px !important;
+        }
+
+        .woman .arm__fore {
+            background: #e2c5b5 !important;
+            width: 14px !important;
+        }
+
+        /* Saree pleats/bottom - legs covered */
+        .woman .leg__top {
+            background: linear-gradient(to bottom, #ff6b9d 0%, #ff8fb3 100%) !important;
+            width: 28px !important;
+            border-radius: 0 !important;
+        }
+
+        .woman .leg__fore {
+            background: linear-gradient(to bottom, #ff8fb3 0%, #ffaac8 100%) !important;
+            width: 24px !important;
+        }
+
+        .woman .leg__fore:after {
+            background: #8b4513 !important;
+            width: 32px !important;
+        }
+
+        .head {
+            width: 50px;
+            height: 60px;
+            background: #e2ddc5;
+            border-radius: 25px 30px 15px 30px;
+            position: relative;
+            animation: bop_head 1.5s ease-in-out backwards infinite;
+        }
+
+        .head:after {
+            content: "";
+            display: block;
+            height: 32px;
+            width: 25px;
+            z-index: 2;
+            background: #e2ddc5;
+            position: absolute;
+            bottom: -10px;
+            left: 2px;
+            transform: rotateZ(20deg);
+        }
+
+        .head__eye {
+            width: 3px;
+            height: 5px;
+            background: #000;
+            position: absolute;
+            top: 20px;
+            right: 7px;
+            border-radius: 3px;
+        }
+
+        .head__eye:before {
+            content: "";
+            width: 8px;
+            height: 3px;
+            background: rgba(0, 0, 0, 0.2);
+            position: absolute;
+        }
+
+        .head__eye:after {
+            content: "";
+            height: 5px;
+            width: 12px;
+            border-radius: 10px 5px 0 0;
+            background: #15141c;
+            display: block;
+            margin-top: -8px;
+            margin-left: -2px;
+            position: absolute;
+        }
+
+        .head__hair {
+            width: 30px;
+            height: 25px;
+            background: #15141c;
+            border-radius: 10px 20px 5px 0;
+        }
+
+        .man.slow .head__hair {
+            width: 45px;
+            height: 35px;
+            border-radius: 25px 25px 20px 20px;
+        }
+
+        .head__hair:after {
+            content: "";
+            display: block;
+            width: 30px;
+            height: 10px;
+            background: #15141c;
+            position: absolute;
+            left: 12px;
+            top: -2px;
+            border-radius: 5px 0 5px 0;
+        }
+
+        .man.slow .head__hair:after {
+            width: 35px;
+            height: 30px;
+            left: 5px;
+            top: 15px;
+            border-radius: 20px;
+        }
+
+        .head__ear {
+            position: relative;
+            background: #e2ddc5;
+            height: 15px;
+            width: 12px;
+            z-index: 3;
+            border-radius: 5px 5px 2px 8px;
+            margin: -3px 0 0 6px;
+            transform: rotateZ(-5deg);
+            box-shadow: -3px 2px 5px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        .head__nose {
+            background: #e2ddc5;
+            height: 15px;
+            width: 10px;
+            position: absolute;
+            right: -8px;
+            top: 25px;
+            border-radius: 0 10px 5px 0;
+        }
+
+        .head__nose:after {
+            content: "";
+            display: block;
+            background: #15141c;
+            height: 8px;
+            width: 12px;
+            position: absolute;
+            bottom: -7px;
+            left: -7px;
+            border-radius: 10px 5px 5px 0;
+        }
+
+        .man.slow .head__nose:after {
+            display: none;
+        }
+
+        .body {
+            position: relative;
+            background: #7b7a82;
+            height: 90px;
+            width: 40px;
+            margin-top: 5px;
+            z-index: 2;
+            margin-left: -10px;
+            border-radius: 45px 70px 20px 20px;
+            transform: rotateZ(-3deg);
+        }
+
+        .man.slow .body {
+            background: #5a8a6f;
+            width: 44px;
+            border-radius: 50px 75px 25px 25px;
+        }
+
+        .body__belly {
+            width: 40px;
+            height: 40px;
+            background: #7b7a82;
+            position: absolute;
+            top: 47px;
+            left: 2px;
+        }
+
+        .man.slow .body__belly {
+            background: #5a8a6f;
+            width: 42px;
+            opacity: 0.3;
+        }
+
+        .arm {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            z-index: 6;
+            top: 80px;
+            left: -15px;
+        }
+
+        .arm__top {
+            width: 20px;
+            height: 48px;
+            background: #7b7a82;
+            border-radius: 10px 10px 4px 4px;
+            position: absolute;
+            transform-origin: center top;
+        }
+
+        .man.slow .arm__top {
+            background: #5a8a6f;
+            width: 17px;
+        }
+
+        .arm__fore {
+            width: 18px;
+            height: 40px;
+            background: #7b7a82;
+            border-radius: 4px 4px 10px 10px;
+            position: absolute;
+            top: 48px;
+            transform-origin: center top;
+        }
+
+        .man.slow .arm__fore {
+            background: #5a8a6f;
+            width: 15px;
+        }
+
+        .arm__fore:after {
+            content: "";
+            width: 18px;
+            height: 12px;
+            background: #e2ddc5;
+            border-radius: 4px 4px 10px 10px;
+            position: absolute;
+            bottom: 0;
+        }
+
+        .arm.back {
+            z-index: 1;
+        }
+
+        .man.slow .arm.back .arm__top {
+            animation: swing_back_slow 2s ease-in-out alternate infinite;
+        }
+
+        .man.slow .arm.back .arm__fore {
+            animation: bend_back_slow 2s ease-in-out alternate infinite;
+        }
+
+        .arm.front .arm__top {
+            animation: swing_arm 1.5s ease-in-out alternate infinite;
+        }
+
+        .man.slow .arm.front .arm__top {
+            animation: swing_arm_slow 2s ease-in-out alternate infinite;
+        }
+
+        .arm.front .arm__fore {
+            animation: bend_arm 1.5s ease-in-out alternate infinite;
+        }
+
+        .man.slow .arm.front .arm__fore {
+            animation: bend_arm_slow 2s ease-in-out alternate infinite;
+        }
+
+        .pelvis {
+            border-top: 5px solid #604d25;
+            background: #4a4d5b;
+            width: 43px;
+            height: 30px;
+            margin-left: -13px;
+            border-radius: 4px 4px 20px 20px;
+            transform: rotateZ(10deg);
+            z-index: 2;
+            margin-top: -6px;
+        }
+
+        .man.slow .pelvis {
+            background: #9b5a6f;
+            border-top-color: #5a8a6f;
+            width: 60px;
+            height: 45px;
+            margin-left: -21px;
+            border-radius: 50%;
+            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+        }
+
+        .leg {
+            perspective: 1000px;
+        }
+
+        .leg__top {
+            background: #4a4d5b;
+            transform-origin: 50% 0px;
+            height: 70px;
+            width: 25px;
+            margin-top: -15px;
+            margin-left: -2px;
+            z-index: 5;
+            position: absolute;
+            border-radius: 0 0 30px 10px;
+        }
+
+        .man.slow .leg__top {
+            background: #e2ddc5;
+            width: 20px;
+            margin-top: -25px;
+        }
+
+        .leg__fore {
+            background: #4a4d5b;
+            height: 80px;
+            width: 20px;
+            position: absolute;
+            bottom: -70px;
+            transform-origin: 50% 0px;
+        }
+
+        .man.slow .leg__fore {
+            background: #e2ddc5;
+            width: 18px;
+        }
+
+        .leg__fore:after {
+            content: "";
+            display: block;
+            width: 40px;
+            height: 12px;
+            background: #111111;
+            position: absolute;
+            border-radius: 0 10px 5px 0;
+            left: 0;
+            bottom: -10px;
+        }
+
+        .leg.back {
+            opacity: 1;
+            z-index: -1;
+        }
+
+        .leg.back .leg__top {
+            background: #383a44;
+            margin-top: -20px;
+        }
+
+        .man.slow .leg.back .leg__top {
+            background: #d4cdb5;
+            margin-top: -30px;
+        }
+
+        .leg.back .leg__fore {
+            background: #383a44;
+        }
+
+        .man.slow .leg.back .leg__fore {
+            background: #d4cdb5;
+        }
+
+        .leg.back .leg__top {
+            animation: leg_top_back 1.5s ease-in-out alternate infinite;
+        }
+
+        .man.slow .leg.back .leg__top {
+            animation: leg_top_back_slow 2s ease-in-out alternate infinite;
+        }
+
+        .leg.back .leg__fore {
+            animation: leg_fore_back 1.5s ease-in-out forwards infinite;
+        }
+
+        .man.slow .leg.back .leg__fore {
+            animation: leg_fore_back_slow 2s ease-in-out forwards infinite;
+        }
+
+        .leg .leg__top {
+            animation: leg_top 1.5s ease-in-out alternate infinite;
+        }
+
+        .man.slow .leg .leg__top {
+            animation: leg_top_slow 2s ease-in-out alternate infinite;
+        }
+
+        .leg .leg__fore {
+            animation: leg_fore 1.5s ease-in-out forwards infinite;
+        }
+
+        .man.slow .leg .leg__fore {
+            animation: leg_fore_slow 2s ease-in-out forwards infinite;
+        }
+
+        @keyframes swing_arm {
+            0%, 100% { transform: rotateZ(70deg); }
+            50% { transform: rotateZ(-30deg); }
+        }
+
+        @keyframes swing_arm_slow {
+            0%, 100% { transform: rotateZ(70deg); }
+            50% { transform: rotateZ(-30deg); }
+        }
+
+        @keyframes swing_back {
+            0%, 100% { transform: rotateZ(-30deg); }
+            50% { transform: rotateZ(70deg); }
+        }
+
+        @keyframes swing_back_slow {
+            0%, 100% { transform: rotateZ(-30deg); }
+            50% { transform: rotateZ(70deg); }
+        }
+
+        @keyframes bend_arm {
+            0%, 100% { transform: rotateZ(-70deg); }
+            50% { transform: rotateZ(10deg); }
+        }
+
+        @keyframes bend_arm_slow {
+            0%, 100% { transform: rotateZ(-70deg); }
+            50% { transform: rotateZ(10deg); }
+        }
+
+        @keyframes bend_back {
+            0%, 100% { transform: rotateZ(10deg); }
+            50% { transform: rotateZ(-70deg); }
+        }
+
+        @keyframes bend_back_slow {
+            0%, 100% { transform: rotateZ(10deg); }
+            50% { transform: rotateZ(-70deg); }
+        }
+
+        @keyframes leg_top {
+            0%,
+            100% {
+                transform: rotate(-20deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        @keyframes leg_top_slow {
+            0%,
+            100% {
+                transform: rotate(-20deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        @keyframes leg_fore {
+            0%,
+            20%,
+            50% {
+                transform: rotateZ(0deg);
+            }
+            0% {
+                bottom: -70px;
+            }
+            15% {
+                bottom: -74px;
+            }
+            60% {
+                bottom: -70px;
+            }
+            80% {
+                transform: rotate(50deg);
+            }
+        }
+
+        @keyframes leg_fore_slow {
+            0%,
+            20%,
+            50% {
+                transform: rotateZ(0deg);
+            }
+            0% {
+                bottom: -70px;
+            }
+            15% {
+                bottom: -74px;
+            }
+            60% {
+                bottom: -70px;
+            }
+            80% {
+                transform: rotate(50deg);
+            }
+        }
+
+        @keyframes leg_top_back {
+            0%,
+            100% {
+                transform: rotate(10deg);
+            }
+            50% {
+                transform: rotate(-20deg);
+            }
+        }
+
+        @keyframes leg_top_back_slow {
+            0%,
+            100% {
+                transform: rotate(10deg);
+            }
+            50% {
+                transform: rotate(-20deg);
+            }
+        }
+
+        @keyframes leg_fore_back {
+            0% {
+                transform: rotate(0deg);
+            }
+            30% {
+                transform: rotate(45deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            65% {
+                bottom: -73px;
+            }
+            80% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes leg_fore_back_slow {
+            0% {
+                transform: rotate(0deg);
+            }
+            30% {
+                transform: rotate(45deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            65% {
+                bottom: -73px;
+            }
+            80% {
+                transform: rotate(0deg);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(0.25) translateY(0); }
+            25%, 75% { transform: scale(0.25) translateY(-8px); }
+            50% { transform: scale(0.25) translateY(0); }
+        }
+
+        @keyframes bounceSlow {
+            0%, 100% { transform: scale(0.25) translateY(0); }
+            25%, 75% { transform: scale(0.25) translateY(-8px); }
+            50% { transform: scale(0.25) translateY(0); }
+        }
+
+        @keyframes bop_head {
+            0%, 50%, 100% { transform: translateY(0); }
+            25%, 75% { transform: translateY(-4px); }
+        }
+
+        @keyframes shadow {
+            0%, 50%, 100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+            25%, 75% {
+                transform: scale(0.7);
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes shadowSlow {
+            0%, 50%, 100% {
+                transform: scale(1);
+                opacity: 0.2;
+            }
+            25%, 75% {
+                transform: scale(0.7);
+                opacity: 0.4;
+            }
+        }
+
+        /* Game Features Section */
+        .game-features {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+            background: linear-gradient(135deg, var(--off-white) 0%, var(--white) 100%);
+            border-radius: 24px;
+            padding: 4rem 3rem;
+        }
+
+        .game-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--text-black);
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        .game-card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .game-card h4 {
+            font-size: 1.3rem;
+            color: var(--text-black);
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .game-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-gray);
+        }
+
+        /* Progression Section */
+        .progression-section {
+            max-width: 100%;
+            width: 100%;
+            margin: 6rem auto;
+            padding: 0 1rem;
+            overflow: hidden;
+        }
+
+        .progression-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--text-black);
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .progression-subtitle {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .snake-path-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .snake-path-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .snake-path {
+            min-width: 1800px;
+            width: 1800px;
+            height: 100%;
+        }
+
+        .snake-path path {
+            stroke-dasharray: 8 8;
+            stroke-dashoffset: 0;
+            animation: snakeMove 20s linear infinite;
+        }
+
+        @keyframes snakeMove {
+            0% {
+                stroke-dashoffset: 0;
+            }
+            100% {
+                stroke-dashoffset: 160;
+            }
+        }
+
+        .checkpoint {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .checkpoint:nth-child(2) { 
+            left: 90px; 
+            top: 60%; 
+        }
+        .checkpoint:nth-child(3) { 
+            left: 342px; 
+            top: 20%; 
+        }
+        .checkpoint:nth-child(4) { 
+            left: 594px; 
+            top: 50%; 
+        }
+        .checkpoint:nth-child(5) { 
+            left: 846px; 
+            top: 15%; 
+        }
+        .checkpoint:nth-child(6) { 
+            left: 1098px; 
+            top: 45%; 
+        }
+        .checkpoint:nth-child(7) { 
+            left: 1350px; 
+            top: 18%; 
+        }
+        .checkpoint:nth-child(8) { 
+            left: 1602px; 
+            top: 50%; 
+        }
+
+        .checkpoint-marker {
+            width: 60px;
+            height: 60px;
+            background: var(--white);
+            border: 3px solid var(--text-black);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        .checkpoint-marker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        .checkpoint.unlocked .checkpoint-marker {
+            background: var(--text-black);
+            color: var(--white);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .checkpoint.active .checkpoint-marker {
+            background: var(--cyan);
+            border-color: var(--cyan);
+            color: var(--white);
+            box-shadow: 0 0 30px var(--cyan);
+        }
+
+        .checkpoint.locked .checkpoint-marker {
+            background: #E0E0E0;
+            border-color: #CCCCCC;
+            color: #999999;
+            cursor: not-allowed;
+        }
+
+        .checkpoint.locked .checkpoint-marker:hover {
+            transform: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkpoint.locked .checkpoint-label,
+        .checkpoint.locked .checkpoint-description {
+            position: relative;
+            user-select: none;
+        }
+
+        .checkpoint.locked .checkpoint-label::after,
+        .checkpoint.locked .checkpoint-description::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 2px,
+                rgba(0, 0, 0, 0.15) 4px
+            );
+            pointer-events: none;
+        }
+
+        .checkpoint.locked .checkpoint-label {
+            background: #F5F5F5;
+            color: #999999;
+        }
+
+        .checkpoint.locked .level-indicator {
+            background: #E0E0E0;
+            color: #999999;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .checkpoint-label {
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            white-space: nowrap;
+        }
+
+        .checkpoint-description {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            text-align: center;
+            max-width: 120px;
+        }
+
+        .level-indicator {
+            display: inline-block;
+            background: var(--amber);
+            color: var(--text-black);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Features Section */
+        .features {
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature h3 {
+            font-size: 1.5rem;
+            color: var(--text-black);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .feature p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-gray);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 6rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            color: var(--text-black);
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--text-black);
+            color: var(--white);
+            padding: 1.25rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1.2em;
+            background: var(--white);
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--warm-gray);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 4rem;
+        }
+
+        .footer-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 2rem 1rem 1rem;
+            }
+
+            .hero-title {
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
+                margin-bottom: 0.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: clamp(0.875rem, 2vw, 1rem);
+                margin-bottom: 1.5rem;
+            }
+
+            .terminal-window {
+                width: 95vw;
+                border-radius: 8px;
+            }
+
+            .terminal-header {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .terminal-title {
+                font-size: 0.65rem;
+            }
+
+            .terminal-content {
+                flex-direction: column;
+                height: auto;
+                min-height: 500px;
+            }
+
+            .terminal-code {
+                font-size: 0.7rem;
+                padding: 1rem;
+                min-height: 250px;
+                max-height: 250px;
+                overflow-y: auto;
+            }
+
+            .terminal-visualization {
+                border-left: none;
+                border-top: 1px solid var(--terminal-border);
+                min-height: 300px;
+                height: 300px;
+                width: 100%;
+                display: flex;
+                align-items: stretch;
+            }
+
+            .scene {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+
+            .container-city {
+                width: 100%;
+                height: 100%;
+                flex: 1;
+            }
+
+            .skyscrapers {
+                padding: 20px 5px;
+            }
+
+            .skyscraper-1 {
+                width: 50px;
+                height: 150px;
+            }
+
+            .skyscraper-2 {
+                width: 60px;
+                height: 200px;
+            }
+
+            .skyscraper-3 {
+                width: 70px;
+                height: 250px;
+            }
+
+            .skyscraper-4 {
+                width: 55px;
+                height: 180px;
+            }
+
+            .skyscraper-5 {
+                width: 45px;
+                height: 220px;
+            }
+
+            .houses {
+                flex-wrap: wrap;
+                padding: 5px;
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .dharamshala {
+                width: 80px;
+                height: 150px;
+            }
+
+            .temples {
+                width: 120px;
+                height: 120px;
+            }
+
+            .ashrams-container {
+                width: 90px;
+                height: 100px;
+            }
+
+            .game-features {
+                padding: 2rem 1rem;
+            }
+
+            .progression-section {
+                margin: 3rem auto;
+                padding: 0 1rem;
+                width: 100%;
+                overflow: visible;
+            }
+
+            .progression-title {
+                font-size: 1.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .progression-subtitle {
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .snake-path-container {
+                height: 400px;
+                margin-bottom: 1rem;
+                overflow-x: auto;
+                overflow-y: hidden;
+                width: 100%;
+                padding-bottom: 1rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .snake-path-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .snake-path {
+                min-width: 1600px;
+                width: 1600px;
+            }
+
+            .checkpoint {
+                gap: 0.5rem;
+                position: absolute;
+            }
+
+            .checkpoint:nth-child(2) { 
+                left: 80px; 
+                top: 55%; 
+            }
+            .checkpoint:nth-child(3) { 
+                left: 304px; 
+                top: 10%; 
+            }
+            .checkpoint:nth-child(4) { 
+                left: 528px; 
+                top: 50%; 
+            }
+            .checkpoint:nth-child(5) { 
+                left: 752px; 
+                top: 8%; 
+            }
+            .checkpoint:nth-child(6) { 
+                left: 976px; 
+                top: 48%; 
+            }
+            .checkpoint:nth-child(7) { 
+                left: 1200px; 
+                top: 12%; 
+            }
+            .checkpoint:nth-child(8) { 
+                left: 1424px; 
+                top: 50%; 
+            }
+
+            .checkpoint-marker {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+
+            .checkpoint-label {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.5rem;
+                white-space: nowrap;
+            }
+
+            .checkpoint-description {
+                font-size: 0.65rem;
+                max-width: 90px;
+            }
+
+            .level-indicator {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.4rem;
+            }
+
+            .vrindavan-billboard {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .terminal-window {
+                width: 98vw;
+            }
+
+            .terminal-code {
+                font-size: 0.65rem;
+                padding: 0.75rem;
+                min-height: 200px;
+                max-height: 200px;
+            }
+
+            .terminal-visualization {
+                min-height: 250px;
+                height: 250px;
+            }
+
+            .dharamshala {
+                width: 70px;
+                height: 130px;
+            }
+
+            .temples {
+                width: 100px;
+                height: 100px;
+            }
+
+            .ashrams-container {
+                width: 75px;
+                height: 85px;
+            }
+
+            .game-features {
+                padding: 1.5rem 1rem;
+            }
+
+            .progression-section {
+                margin: 2rem auto;
+                padding: 0 0.75rem;
+                width: 100%;
+                overflow: visible;
+            }
+
+            .progression-title {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .progression-subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .snake-path-container {
+                height: 350px;
+                margin-bottom: 1rem;
+                overflow-x: auto;
+                overflow-y: hidden;
+                width: 100%;
+                padding-bottom: 1rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .snake-path-container::-webkit-scrollbar {
+                display: none;
+            }
+
+            .snake-path {
+                min-width: 1400px;
+                width: 1400px;
+            }
+
+            .checkpoint:nth-child(2) { 
+                left: 70px; 
+                top: 58%; 
+            }
+            .checkpoint:nth-child(3) { 
+                left: 266px; 
+                top: 12%; 
+            }
+            .checkpoint:nth-child(4) { 
+                left: 462px; 
+                top: 55%; 
+            }
+            .checkpoint:nth-child(5) { 
+                left: 658px; 
+                top: 10%; 
+            }
+            .checkpoint:nth-child(6) { 
+                left: 854px; 
+                top: 52%; 
+            }
+            .checkpoint:nth-child(7) { 
+                left: 1050px; 
+                top: 14%; 
+            }
+            .checkpoint:nth-child(8) { 
+                left: 1246px; 
+                top: 54%; 
+            }
+
+            .checkpoint-marker {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+
+            .checkpoint-label {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.4rem;
+                border-radius: 5px;
+                white-space: nowrap;
+            }
+
+            .checkpoint-description {
+                font-size: 0.6rem;
+                max-width: 75px;
+            }
+
+            .level-indicator {
+                font-size: 0.6rem;
+                padding: 0.1rem 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1 class="hero-title">Build SQL like a <span class="city-text" data-text="city"><span class="city-letters"><span class="city-letter">c</span><span class="city-letter">i</span><span class="city-letter">t</span><span class="city-letter">y</span></span></span></h1>
+        <p class="hero-subtitle">Learn database design by building a sacred city — One query at a time</p>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                </div>
+                <div class="terminal-title">vrindavan@sql — zsh — 80x24</div>
+            </div>
+
+            <div class="terminal-content">
+                <div class="terminal-code">
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Create the city database</span></div>
+                    <div class="code-line"><span class="keyword">CREATE DATABASE</span> Vrindavan;</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Create your first table</span></div>
+                    <div class="code-line"><span class="keyword">CREATE TABLE</span> dharamshala (</div>
+                    <div class="code-line">  id <span class="keyword">SERIAL PRIMARY KEY</span>,</div>
+                    <div class="code-line">  name <span class="keyword">VARCHAR</span>(<span class="number">100</span>)</div>
+                    <div class="code-line">);</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Add some residents</span></div>
+                    <div class="code-line"><span class="keyword">INSERT INTO</span> dharamshala <span class="keyword">VALUES</span></div>
+                    <div class="code-line">  (<span class="number">1</span>, <span class="string">'Swapanth'</span>),</div>
+                    <div class="code-line">  (<span class="number">2</span>, <span class="string">'Hemanth'</span>);</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> dharamshala<span class="cursor"></span></div>
+                </div>
+
+                <div class="terminal-visualization">
+                    <div class="scene">
+                        <div class="vrindavan-billboard">
+                            <div class="billboard-text">వృందావనం</div>
+                        </div>
+                        <div class="container-city">
+                            <div class="sun"></div>
+                            
+                            <div id="cloud-1" class="cloud"></div>
+                            <div id="cloud-2" class="cloud"></div>
+
+                            <div class="skyscrapers">
+                                <div class="skyscraper skyscraper-1"></div>
+                                <div class="skyscraper skyscraper-2"></div>
+                                <div class="skyscraper skyscraper-3"></div>
+                                <div class="skyscraper skyscraper-4"></div>
+                                <div class="skyscraper skyscraper-5"></div>
+                            </div>
+
+                            <div class="houses">
+                                <div class="dharamshala loading">
+                                    <div class="dharamshala-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window dharamshala-window"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="window dharamshala-window"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="door dharamshala-door"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="building-label">dharamshala</div>
+                                </div>
+
+                                <div class="temples loading">
+                                    <div class="temples-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="door temples-door"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="building-label">temples</div>
+                                </div>
+
+                                <div class="ashrams-container">
+                                    <div class="ashrams loading">
+                                        <div class="ashrams-chimney">
+                                            <div class="smoke">
+                                                <span class="s0"></span>
+                                                <span class="s1"></span>
+                                                <span class="s2"></span>
+                                                <span class="s3"></span>
+                                                <span class="s4"></span>
+                                                <span class="s5"></span>
+                                                <span class="s6"></span>
+                                                <span class="s7"></span>
+                                                <span class="s8"></span>
+                                                <span class="s9"></span>
+                                            </div>
+                                        </div>
+                                        <div class="ashrams-windows">
+                                            <div class="house-windows-row">
+                                                <div class="window ashrams-window"></div>
+                                                <div class="window ashrams-window"></div>
+                                            </div>
+                                            <div class="house-windows-row">
+                                                <div class="window ashrams-window"></div>
+                                                <div class="door ashrams-door"></div>
+                                            </div>
+                                        </div>
+                                        <div class="building-label">ashrams</div>
+                                    </div>
+                                </div>
+
+                                <div class="pilgrims loading">
+                                    <div class="pilgrims-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window pilgrims-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="door pilgrims-door"></div>
+                                    <div class="building-label">pilgrims</div>
+                                </div>
+                            </div>
+
+                            <div class="streetlamp" id="streetlamp-1">
+                                <div class="streetlamp-glow"></div>
+                            </div>
+                            <div class="streetlamp" id="streetlamp-2">
+                                <div class="streetlamp-glow"></div>
+                            </div>
+
+                            <div class="tree-container" id="tree-1">
+                                <div class="tree"></div>
+                                <div class="tree-base"></div>
+                            </div>
+
+                            <div class="tree-container" id="tree-2">
+                                <div class="tree"></div>
+                                <div class="tree-base"></div>
+                            </div>
+
+                            <!-- Walking Person -->
+                            <div class="walking-person">
+                                <div class="man">
+                                    <div class="arm front">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="arm back">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="head">
+                                        <div class="head__hair"></div>
+                                        <div class="head__ear"></div>
+                                        <div class="head__nose"></div>
+                                        <div class="head__eye"></div>
+                                    </div>
+
+                                    <div class="body">
+                                        <div class="body__belly"></div>
+                                    </div>
+                                    <div class="pelvis"></div>
+                                    <div class="leg">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                    <div class="leg back">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Walking Person 2 (Woman - Slower) -->
+                            <div class="walking-person slow">
+                                <div class="woman slow">
+                                    <div class="arm front">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="arm back">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="head">
+                                        <div class="head__hair"></div>
+                                        <div class="head__ear"></div>
+                                        <div class="head__nose"></div>
+                                        <div class="head__eye"></div>
+                                    </div>
+
+                                    <div class="body">
+                                        <div class="body__belly"></div>
+                                    </div>
+                                    <div class="pelvis"></div>
+                                    <div class="leg">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                    <div class="leg back">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p style="margin-top: 2rem; color: var(--text-gray); text-align: center;">
+            💡 Click on any building to see animations! Hover over street lamps for effects.
+        </p>
+    </section>
+
+    <section class="game-features">
+        <h2 class="game-title">🎮 Learning disguised as a game</h2>
+        <div class="game-grid">
+            <div class="game-card">
+                <div class="game-card-icon">🏆</div>
+                <h4>Quest-based learning</h4>
+                <p>Each SQL concept is a mission. Complete quests, unlock achievements, and level up your database skills.</p>
+            </div>
+            <div class="game-card">
+                <div class="game-card-icon">⚡</div>
+                <h4>Instant feedback</h4>
+                <p>See your queries run in real-time. Watch your city react. Debug with visual clues, not error logs.</p>
+            </div>
+            <div class="game-card">
+                <div class="game-card-icon">🌆</div>
+                <h4>Build, don't memorize</h4>
+                <p>No flashcards. No lectures. Just you, a terminal, and a city waiting to be built from scratch.</p>
+            </div>
+            <div class="game-card">
+                <div class="game-card-icon">📊</div>
+                <h4>Progress that shows</h4>
+                <p>Your skyline is your portfolio. Each building represents mastery. Share your city with the world.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="progression-section">
+        <h2 class="progression-title">Your learning path</h2>
+        <p class="progression-subtitle">From SQL newbie to database architect</p>
+
+        <div class="snake-path-container">
+            <svg class="snake-path" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid meet">
+                <path id="snakePath" d="M 60 240 Q 200 80, 300 200 T 600 200 Q 750 100, 900 180 Q 1000 220, 1080 160 T 1150 200" 
+                      stroke="rgba(107, 155, 209, 0.2)" 
+                      stroke-width="4" 
+                      fill="none" 
+                      stroke-dasharray="8 8"/>
+            </svg>
+            
+            <div class="checkpoint unlocked">
+                <div class="checkpoint-marker">1</div>
+                <div class="checkpoint-label">
+                    Hello World
+                    <div class="level-indicator">LVL 1-5</div>
+                </div>
+                <div class="checkpoint-description">SELECT, FROM, WHERE basics</div>
+            </div>
+
+            <div class="checkpoint unlocked">
+                <div class="checkpoint-marker">2</div>
+                <div class="checkpoint-label">
+                    First Village
+                    <div class="level-indicator">LVL 6-12</div>
+                </div>
+                <div class="checkpoint-description">CREATE, INSERT, UPDATE ops</div>
+            </div>
+
+            <div class="checkpoint active">
+                <div class="checkpoint-marker">3</div>
+                <div class="checkpoint-label">
+                    Growing Town
+                    <div class="level-indicator">LVL 13-20</div>
+                </div>
+                <div class="checkpoint-description">JOINs and relationships</div>
+            </div>
+
+            <div class="checkpoint">
+                <div class="checkpoint-marker">4</div>
+                <div class="checkpoint-label">
+                    City Builder
+                    <div class="level-indicator">LVL 21-30</div>
+                </div>
+                <div class="checkpoint-description">Subqueries, indexes, optimization</div>
+            </div>
+
+            <div class="checkpoint">
+                <div class="checkpoint-marker">5</div>
+                <div class="checkpoint-label">
+                    Architect
+                    <div class="level-indicator">LVL 31-40</div>
+                </div>
+                <div class="checkpoint-description">Advanced patterns, performance tuning</div>
+            </div>
+
+            <div class="checkpoint locked">
+                <div class="checkpoint-marker">🔒</div>
+                <div class="checkpoint-label">
+                    Database Master
+                    <div class="level-indicator">LVL 41-50</div>
+                </div>
+                <div class="checkpoint-description">Transactions, concurrency, replication</div>
+            </div>
+
+            <div class="checkpoint locked">
+                <div class="checkpoint-marker">🔒</div>
+                <div class="checkpoint-label">
+                    SQL Legend
+                    <div class="level-indicator">LVL 51+</div>
+                </div>
+                <div class="checkpoint-description">Enterprise architecture, scaling</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature">
+            <div class="feature-icon">🏗️</div>
+            <h3>Build from scratch</h3>
+            <p>Start with nothing. Type CREATE TABLE and watch your city grow. Every query is a construction project.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔗</div>
+            <h3>Connect everything</h3>
+            <p>JOINs become highways. Indexes become express lanes. See your data relationships light up in real-time.</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🚀</div>
+            <h3>Level up naturally</h3>
+            <p>Village to metropolis. Simple SELECTs to complex subqueries. Your skills scale with your skyline.</p>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <h2 class="cta-title">Ready to build?</h2>
+        <button class="cta-button">
+            > START_BUILDING<span class="cta-cursor"></span>
+        </button>
+    </section>
+
+    <footer class="footer">
+        <p class="footer-text">swapanthvakapalli@gmail.com</p>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            console.log("Vrindavan SQL City ready!");
+
+            // Simulate loading for buildings with staggered animation
+            setTimeout(function() {
+                $('.dharamshala').removeClass('loading').addClass('loaded');
+            }, 300);
+
+            setTimeout(function() {
+                $('.temples').removeClass('loading').addClass('loaded');
+            }, 500);
+
+            setTimeout(function() {
+                $('.ashrams').removeClass('loading').addClass('loaded');
+            }, 700);
+
+            setTimeout(function() {
+                $('.pilgrims').removeClass('loading').addClass('loaded');
+            }, 900);
+
+            // Intersection Observer for section animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Animate children if they exist
+                        const cards = entry.target.querySelectorAll('.game-card');
+                        cards.forEach(card => card.classList.add('visible'));
+
+                        const features = entry.target.querySelectorAll('.feature');
+                        features.forEach(feature => feature.classList.add('visible'));
+
+                        const checkpoints = entry.target.querySelectorAll('.checkpoint');
+                        checkpoints.forEach(checkpoint => checkpoint.classList.add('visible'));
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all major sections
+            const sections = document.querySelectorAll('.game-features, .progression-section, .features, .cta-section, .footer');
+            sections.forEach(section => observer.observe(section));
+
+            // Night mode toggle on pilgrims click
+            $(".pilgrims").click(function() {
+                $(".scene").toggleClass("night");
+                $(".window").toggleClass("window-night");
+            });
+
+            // Grayscale toggle on streetlamp hover
+            $(".streetlamp").hover(function() {
+                $(".scene").toggleClass("grayscale");
+            });
+
+            // Building hover effects are handled by CSS
+            console.log("Click pilgrims building for night mode!");
+            console.log("Hover street lamps for grayscale effect!");
+            console.log("🏗️ Buildings loading with animations...");
+
+            // Auto-scroll snake path in loop
+            const snakeContainer = document.querySelector('.snake-path-container');
+            if (snakeContainer) {
+                let scrollDirection = 1; // 1 for forward, -1 for backward
+                let scrollSpeed = 1; // pixels per frame
+                
+                function autoScroll() {
+                    if (!snakeContainer) return;
+                    
+                    const maxScroll = snakeContainer.scrollWidth - snakeContainer.clientWidth;
+                    const currentScroll = snakeContainer.scrollLeft;
+                    
+                    // Scroll forward
+                    if (scrollDirection === 1) {
+                        if (currentScroll >= maxScroll) {
+                            scrollDirection = -1; // Reverse direction
+                        } else {
+                            snakeContainer.scrollLeft += scrollSpeed;
+                        }
+                    }
+                    // Scroll backward
+                    else {
+                        if (currentScroll <= 0) {
+                            scrollDirection = 1; // Forward direction
+                        } else {
+                            snakeContainer.scrollLeft -= scrollSpeed;
+                        }
+                    }
+                    
+                    requestAnimationFrame(autoScroll);
+                }
+                
+                // Start auto-scroll
+                autoScroll();
+                
+                // Pause on hover
+                snakeContainer.addEventListener('mouseenter', () => {
+                    scrollSpeed = 0;
+                });
+                
+                snakeContainer.addEventListener('mouseleave', () => {
+                    scrollSpeed = 1;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
