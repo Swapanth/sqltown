@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer Demo - SQL Town</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .footer-wrapper {
+            background: #f5f5f5;
+            padding: 4rem 2rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-newsletter {
+            margin-bottom: 4rem;
+        }
+
+        .footer-newsletter-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            color: var(--text-black);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0;
+            max-width: 500px;
+            background: white;
+            border-radius: 50px;
+            padding: 0.3rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .newsletter-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0.9rem 1.5rem;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            background: transparent;
+            color: var(--text-black);
+        }
+
+        .newsletter-input::placeholder {
+            color: #999;
+        }
+
+        .newsletter-button {
+            background: var(--text-black);
+            color: white;
+            border: none;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .newsletter-button:hover {
+            background: #333;
+            transform: scale(1.02);
+        }
+
+        .newsletter-privacy {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 1rem;
+        }
+
+        .newsletter-privacy a {
+            color: var(--cyan);
+            text-decoration: none;
+        }
+
+        .newsletter-privacy a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--text-black);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-black);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-icon:hover {
+            background: var(--text-black);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-column h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-black);
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-column ul li a {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--cyan);
+            padding-left: 5px;
+        }
+
+        .footer-column ul li a.highlight {
+            color: var(--cyan);
+        }
+
+        .footer-logo {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 8rem;
+            font-weight: 800;
+            color: #E67350;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            margin: 0;
+            position: relative;
+            user-select: none;
+        }
+
+        .footer-logo-text::after {
+            font-size: 2rem;
+            position: absolute;
+            top: 1rem;
+            margin-left: 0.5rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 2rem 0 1rem;
+        }
+
+        .footer-bottom-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .footer-links {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .newsletter-form {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .newsletter-button {
+                width: 100%;
+            }
+
+            .footer-logo-text {
+                font-size: 4rem;
+            }
+
+            .footer-logo-text::after {
+                font-size: 1.5rem;
+                top: 0.5rem;
+            }
+
+            .footer-social {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <footer class="footer-wrapper">
+        <div class="footer-container">
+            <!-- Newsletter Section -->
+            <div class="footer-newsletter">
+                <p class="footer-newsletter-text">Join to our SQL Town waitlist to get early access and updates!</p>
+                
+                <form class="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                    <button type="submit" class="newsletter-button">Join Waitlist</button>
+                </form>
+                
+                <p class="newsletter-privacy">
+                    By joining, you agree to our <a href="#">Privacy Policy</a> and consent to receive updates from us.
+                </p>
+
+              
+            </div>
+
+            <!-- Footer Links -->
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Sitemap</h3>
+                    <ul>
+                        <li><a href="/features.php#game-features">Quest-based Learning</a></li>
+                        <li><a href="index.php#progression-section">Learning Path</a></li>
+                        <li><a href="index.php#features">Core Features</a></li>
+                        <li><a href="index.php#demo-section">Play Demo</a></li>
+                        <li><a href="index.php#cta-section">Careers & Join</a></li>
+                        <li><a href="index.php#faq-section">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Partners</h3>
+                    <ul>
+                        <li><a href="#">Developers</a></li>
+                        <li><a href="#">Tech Companies</a></li>
+                        <li><a href="#">Enterprise</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#">Premium Learning</a></li>
+                        <li><a href="#">Community Platform</a></li>
+                        <li><a href="#">Career Placement</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Large Logo -->
+            <div class="footer-logo">
+                <h2 class="footer-logo-text">sqltown</h2>
+            </div>
+
+            <!-- Bottom Copyright -->
+            <div class="footer-bottom">
+                <p class="footer-bottom-text">© 2026 SQL Town. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelector('.newsletter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('.newsletter-input').value;
+            alert('Thank you for subscribing! 🎉\nEmail: ' + email);
+            this.reset();
+        });
+    </script>
+</body>
+</html>

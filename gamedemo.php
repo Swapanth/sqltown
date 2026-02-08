@@ -1,0 +1,2776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Try SQL City — Free Interactive Demo</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/css-doodle@0.34.5/css-doodle.min.js"></script>
+    <style>
+        :root {
+            --white: #FFFFFF;
+            --off-white: #FAFBFC;
+            --warm-gray: #F8F9FA;
+            --charcoal: #2B2D30;
+            --dark-gray: #1E1F22;
+            --text-black: #000000;
+            --text-gray: #2D3436;
+            --cyan: #6B9BD1;
+            --sage: #7EBB9B;
+            --amber: #E8B86D;
+            --terminal-border: #404347;
+            --success: #4CAF50;
+            --error: #ff4757;
+            --ground: #42aa46;
+            --tan: #a7ac5c;
+            --green2: #878822;
+            --brown: #211610;
+            --brightgreen: #4a560c;
+            --graygreen: #303b2b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: radial-gradient(circle at 50% 20%, var(--warm-gray) 0%, var(--white) 50%);
+            color: var(--text-gray);
+            overflow-x: hidden;
+        }
+
+        .idkhero {
+            min-height: 30vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .idkhero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            color: var(--text-black);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .idkhero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        /* Game Container */
+        .idkgame-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            
+        }
+
+        /* Interactive Terminal */
+        .idkinteractive-terminal {
+            background: var(--charcoal);
+            width: 100%;
+            min-height: 100vh;
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .idkterminal-header {
+            background: linear-gradient(to bottom, #3a3d42 0%, var(--charcoal) 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--terminal-border);
+        }
+
+        .idkterminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .idkterminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .idkterminal-button.idkred { background: #FF5F57; }
+        .idkterminal-button.idkyellow { background: #FEBC2E; }
+        .idkterminal-button.idkgreen { background: #28C840; }
+
+        .idkterminal-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #8B8E93;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .idkterminal-workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: calc(100vh - 60px);
+        }
+
+        .idkterminal-input-area {
+            background: var(--charcoal);
+            padding: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--terminal-border);
+            overflow-y: auto;
+        }
+
+        /* Story inside terminal */
+        .idkterminal-story {
+            color: #D4D4D4;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+            line-height: 2;
+        }
+
+        .idkterminal-story .idkstory-line {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .idkterminal-story .idkstory-line.idkvisible {
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .idkterminal-story .idkemoji {
+            font-size: 1.5rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .idkterminal-story .idkhighlight {
+            color: var(--amber);
+            font-weight: 600;
+        }
+
+        .idkterminal-story .idktask-highlight {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .idkterminal-story .idkemphasis {
+            color: var(--sage);
+            font-style: italic;
+        }
+
+        .idkterminal-story .idkdivider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--cyan), transparent);
+            margin: 2rem 0;
+            opacity: 0.3;
+        }
+
+        .idkprompt-line {
+            color: var(--cyan);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .idksql-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--terminal-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.15rem;
+            color: #D4D4D4;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s;
+            line-height: 1.8;
+        }
+
+        .idksql-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(107, 155, 209, 0.1);
+        }
+
+        .idkrun-button {
+            background: transparent;
+            color: var(--sage);
+            border: 2px solid var(--sage);
+            padding: 0.75rem 1.5rem;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .idkrun-button:hover {
+            background: var(--sage);
+            color: var(--charcoal);
+        }
+
+        .idkrun-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #4a4a4a;
+            color: #4a4a4a;
+        }
+
+        .idkhints-section {
+            background: rgba(126, 187, 155, 0.05);
+            border: 1px solid #3a3a3a;
+            border-radius: 3px;
+            padding: 0.75rem;
+            margin-top: auto;
+        }
+
+        .idkhints-section h4 {
+            color: #666;
+            margin-bottom: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 400;
+        }
+
+        .idkhint {
+            color: #6a6a6a;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .idkhint-button {
+            background: transparent;
+            border: 1px solid #444;
+            color: #777;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.15s;
+            text-transform: lowercase;
+        }
+
+        .idkhint-button:hover {
+            border-color: #666;
+            color: #888;
+            background: rgba(126, 187, 155, 0.03);
+        }
+
+        .idkhint-counter {
+            display: inline-block;
+            font-size: 0.7rem;
+            color: #555;
+            margin-left: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Visualization Area */
+        .idkcity-view {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            perspective: 1200px;
+            --off-white: #FAFBFC;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E8F4F8 50%, #f5f0f0 100%);
+            overflow: hidden;
+        }
+
+        .idkvillage-scene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .idkvillage-ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to bottom, #90EE90 0%, #7EC850 100%);
+            border-radius: 0 0 0 0;
+        }
+
+        .idkvillage-path {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40%;
+            background: linear-gradient(to bottom, #C19A6B 0%, #A67C52 100%);
+            clip-path: polygon(40% 0%, 60% 0%, 70% 100%, 30% 100%);
+        }
+
+        .idkvillage-sign {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            background: #8B4513;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 0.7rem;
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: signFloat 3s ease-in-out infinite;
+        }
+
+        .idkvillage-sign::before {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 30px;
+            background: #654321;
+        }
+
+        @keyframes signFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .idkvillage-tree {
+            position: absolute;
+            bottom: 25%;
+            width: 40px;
+            height: 60px;
+        }
+
+        .idkvillage-tree:nth-child(1) { left: 15%; }
+        .idkvillage-tree:nth-child(2) { left: 25%; }
+        .idkvillage-tree:nth-child(3) { right: 15%; }
+        .idkvillage-tree:nth-child(4) { right: 25%; }
+
+        .idktree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 25px;
+            background: #8B4513;
+        }
+
+        .idktree-leaves {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: #228B22;
+            border-radius: 50%;
+            box-shadow: 
+                -10px -5px 0 5px #2E8B57,
+                10px -5px 0 5px #2E8B57,
+                0 -10px 0 5px #3CB371;
+        }
+
+        .idkvillage-cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            animation: cloudFloat 20s linear infinite;
+        }
+
+        .idkvillage-cloud:nth-child(1) {
+            top: 10%;
+            left: -100px;
+            width: 80px;
+            height: 30px;
+            animation-delay: 0s;
+        }
+
+        .idkvillage-cloud:nth-child(2) {
+            top: 20%;
+            left: -150px;
+            width: 60px;
+            height: 25px;
+            animation-delay: 7s;
+        }
+
+        .idkvillage-cloud:nth-child(3) {
+            top: 15%;
+            left: -200px;
+            width: 90px;
+            height: 35px;
+            animation-delay: 14s;
+        }
+
+        @keyframes cloudFloat {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* Advanced Clouds */
+        .idkclouds {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            transform: translateZ(0);
+            pointer-events: none;
+        }
+
+        .idkcloud {
+            position: absolute;
+            top: 20%;
+            width: 120px;
+            right: 0;
+            opacity: 1;
+        }
+
+        .idkcloud.idkfront {
+            z-index: 9;
+        }
+
+        .idkcloud.idkdistant {
+            z-index: 1;
+        }
+
+        .idkcloud.idkbackground {
+            z-index: 1;
+        }
+
+        .idkcloud.idksmaller {
+            width: 60px;
+            margin-top: 80px;
+        }
+
+        .idkcloud.idksmall {
+            width: 80px;
+            margin-top: 40px;
+        }
+
+        .idkcloud.idkbig {
+            width: 140px;
+            margin-top: 60px;
+        }
+
+        .idkcloud.idkmassive {
+            width: 180px;
+            margin-top: 30px;
+        }
+
+        .idkcloud {
+            -webkit-animation-name: idkcloud-movement;
+            -webkit-animation-timing-function: linear;
+            -webkit-animation-direction: forwards;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-duration: 25s;
+
+            -moz-animation-name: idkcloud-movement;
+            -moz-animation-timing-function: linear;
+            -moz-animation-direction: forwards;
+            -moz-animation-iteration-count: infinite;
+            -moz-animation-duration: 25s;
+
+            animation-name: idkcloud-movement;
+            animation-timing-function: linear;
+            animation-direction: forwards;
+            animation-iteration-count: infinite;
+            animation-duration: 25s;
+        }
+
+        .idkslow {
+            -webkit-animation-duration: 30s;
+            -moz-animation-duration: 30s;
+            animation-duration: 30s;
+        }
+
+        .idkslower {
+            -webkit-animation-duration: 35s;
+            -moz-animation-duration: 35s;
+            animation-duration: 35s;
+        }
+
+        .idkslowest {
+            -webkit-animation-duration: 40s;
+            -moz-animation-duration: 40s;
+            animation-duration: 40s;
+        }
+
+        .idksuper-slow {
+            -webkit-animation-duration: 50s;
+            -moz-animation-duration: 50s;
+            animation-duration: 50s;
+        }
+
+        @-webkit-keyframes idkcloud-movement {
+            0% {
+                opacity: 0;
+                -webkit-transform: translateX(100%);
+                -moz-transform: translateX(100%);
+                transform: translateX(100%);
+            }
+            5% {
+                opacity: 0.8;
+            }
+            95% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                -webkit-transform: translateX(calc(-100vw));
+                -moz-transform: translateX(calc(-100vw));
+                transform: translateX(calc(-100vw));
+            }
+        }
+
+        @keyframes idkcloud-movement {
+            0% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            5% {
+                opacity: 0.8;
+            }
+            95% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(calc(-100vw));
+            }
+        }
+
+        /* Loading Fog Effect */
+        .idkfog-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, 
+                rgba(10, 17, 40, 0.85) 0%,
+                rgba(26, 31, 58, 0.75) 40%,
+                rgba(45, 53, 97, 0.65) 100%);
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: background 2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .idkfog-overlay.idkactive {
+            opacity: 1;
+        }
+
+        .idkfog-overlay.idkdawn {
+            background: linear-gradient(to bottom, 
+                rgba(74, 93, 139, 0.6) 0%,
+                rgba(123, 143, 176, 0.4) 40%,
+                rgba(184, 197, 217, 0.2) 100%);
+        }
+
+        .idkfog-overlay.idkmorning {
+            background: linear-gradient(to bottom, 
+                rgba(135, 206, 235, 0.3) 0%,
+                rgba(176, 226, 255, 0.15) 50%,
+                rgba(230, 243, 255, 0.05) 100%);
+        }
+
+        /* Moon */
+        .idkmoon {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #FFF8DC 0%, #F0E68C 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.8),
+                inset -8px -8px 10px rgba(0, 0, 0, 0.1);
+            opacity: 1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .idkmoon.idkhidden {
+            opacity: 0;
+        }
+
+        /* Stars */
+        .idkstars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .idkstars.idkhidden {
+            opacity: 0;
+        }
+
+        .idkstar {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Loading Sun Animation */
+        .idkloading-sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .idkloading-sun.idkactive {
+            opacity: 1;
+        }
+
+        .idkloading-sun-core {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+            animation: sunPulseLoading 2s ease-in-out infinite;
+        }
+
+        @keyframes sunPulseLoading {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .idkloading-rays {
+            width: 100%;
+            height: 100%;
+            animation: loadingRotate 3s linear infinite;
+        }
+
+        .idkloading-ray {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(to bottom, #FFD700, transparent);
+            transform-origin: center -20px;
+        }
+
+        .idkloading-ray:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg); }
+        .idkloading-ray:nth-child(2) { transform: translate(-50%, -50%) rotate(45deg); }
+        .idkloading-ray:nth-child(3) { transform: translate(-50%, -50%) rotate(90deg); }
+        .idkloading-ray:nth-child(4) { transform: translate(-50%, -50%) rotate(135deg); }
+        .idkloading-ray:nth-child(5) { transform: translate(-50%, -50%) rotate(180deg); }
+        .idkloading-ray:nth-child(6) { transform: translate(-50%, -50%) rotate(225deg); }
+        .idkloading-ray:nth-child(7) { transform: translate(-50%, -50%) rotate(270deg); }
+        .idkloading-ray:nth-child(8) { transform: translate(-50%, -50%) rotate(315deg); }
+
+        @keyframes loadingRotate {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Welcome Billboard */
+        .idkwelcome-billboard {
+            position: absolute;
+            bottom: 45%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 280px;
+            min-height: 120px;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c2e 50%, #2d5016 100%);
+            border: 4px solid #8B4513;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            z-index: 50;
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .idkwelcome-billboard.idkvisible {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Left wooden pole */
+        .idkwelcome-billboard::before {
+            content: '';
+            position: absolute;
+            bottom: -500px;
+            left: 20px;
+            width: 16px;
+            height: 500px;
+            background: linear-gradient(to right, #654321 0%, #8B4513 50%, #654321 100%);
+            border-radius: 8px;
+            box-shadow: 
+                inset -2px 0 5px rgba(0, 0, 0, 0.3),
+                2px 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: -1;
+        }
+
+        /* Right wooden pole */
+        .idkwelcome-billboard::after {
+            content: '';
+            position: absolute;
+            bottom: -500px;
+            right: 20px;
+            width: 16px;
+            height: 500px;
+            background: linear-gradient(to right, #654321 0%, #8B4513 50%, #654321 100%);
+            border-radius: 8px;
+            box-shadow: 
+                inset -2px 0 5px rgba(0, 0, 0, 0.3),
+                2px 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: -1;
+        }
+
+        .idkwelcome-billboard-text {
+            text-align: center;
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .idkwelcome-billboard-text .idkwelcome {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .idkwelcome-billboard-text .idktown-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .idkwelcome-billboard-text .idksubtitle {
+            font-size: 0.85rem;
+            color: #b8e6b8;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        /* Tree Split Animation */
+        #forestCanvas.idksplit-left {
+            animation: moveLeft 2s ease-out forwards;
+        }
+
+        #forestCanvas.idksplit-right {
+            animation: moveRight 2s ease-out forwards;
+        }
+
+        @keyframes moveLeft {
+            to {
+                transform: translateX(-30%);
+            }
+        }
+
+        @keyframes moveRight {
+            to {
+                transform: translateX(30%);
+            }
+        }
+
+        .idkvillage-sun {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            animation: sunPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        #sun {
+            position: absolute;
+            z-index: -10;
+            top: 15%;
+            right: 20%;
+            width: 60px;
+            height: 60px;
+            opacity: 1;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #sun.idkhidden {
+            opacity: 0;
+        }
+
+        .idksun-core {
+            position: absolute;
+            top: 34%;
+            left: 60%;
+            transform: translate(-50%, -50%);
+            width: 45px;
+            height: 45px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.9),
+                        0 0 60px rgba(255, 165, 0, 0.5);
+        }
+
+        .idksun-rays {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            animation: sunRotate 60s linear infinite;
+        }
+
+       
+        @keyframes sunRotate {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+  
+        .idktree {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: -5;
+        }
+
+        .idktree__1, .idktree__2, .idktree__3, .idktree__5 {
+            width: 0;
+            height: 0;
+            border-radius: 10%;
+        }
+
+        .idktree__5 {
+            border: 20px solid transparent;
+            border-bottom: 25px solid var(--tan);
+        }
+
+        .idktree__1 {
+            border: 45px solid transparent;
+            border-bottom: 50px solid var(--green2);
+            margin-top: -60px;
+        }
+
+        .idktree__2 {
+            border: 60px solid transparent;
+            border-bottom: 65px solid var(--brightgreen);
+            margin-top: -80px;
+        }
+
+        .idktree__3 {
+            border: 70px solid transparent;
+            border-bottom: 80px solid var(--graygreen);
+            margin-top: -100px;
+        }
+
+        .idktree__4 {
+            width: 10px;
+            height: 50px;
+            background: var(--brown);
+        }
+
+        #grass {
+            position: absolute;
+            bottom: 0px;
+            left: 0%;
+            width: 110%;
+            height: 80px;
+            z-index: 10;
+            overflow: visible;
+        }
+
+        #grassCanvas {
+            display: block;
+            position: absolute;
+            bottom: 0;
+            margin-top: -20px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: brightness(1);
+            transition: filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #grassCanvas.idknight {
+            filter: brightness(0.3) contrast(0.8);
+        }
+
+        #bug {
+            transform-origin: 0% 100%;
+            transform: rotate(100deg);
+            animation: walk 200s infinite ease-in-out;
+        }
+
+        /* Hide bug in city view */
+        .idkcity #bug {
+            display: none;
+        }
+
+        @keyframes walk {
+            to {
+                transform: translateX(102vw) rotate(90deg);
+            }
+        }
+
+        #forest {
+            position: absolute;
+            width: 130%;
+            margin-left: -50px;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+            z-index: -8;
+        }
+
+        #forestCanvas {
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -8;
+            filter: brightness(1);
+            transition: filter 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #forestCanvas.idknight {
+            filter: brightness(0.3) contrast(0.8);
+        }
+
+        css-doodle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -7;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        css-doodle.idkshow-butterflies {
+            opacity: 1;
+        }
+
+        .idkempty-lot {
+            position: absolute;
+            bottom: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 60px;
+            border: 3px dashed rgba(107, 155, 209, 0.4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            animation: lotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes lotPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .idkempty-lot::after {
+            content: '?';
+            font-size: 2rem;
+            color: var(--cyan);
+            font-weight: 800;
+            opacity: 0.6;
+        }
+
+        .idkcity {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 2rem;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-bottom: 2rem;
+            z-index: 10;
+        }
+
+        /* Street elements - from index.css */
+        .idkstreetlamp {
+            position: absolute;
+            bottom: 20px;
+            width: 4px;
+            height: 100px;
+            background-color: #677575;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        .idkstreetlamp:before {
+            width: 8px;
+            height: 20px;
+            background-color: #809191;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            bottom: 0;
+            left: -2px;
+        }
+
+        .idkstreetlamp:after {
+            width: 12px;
+            height: 12px;
+            background-color: #809191;
+            border-radius: 50%;
+            left: -4px;
+            top: -10px;
+        }
+
+        .idkstreetlamp-glow {
+            position: absolute;
+            z-index: 102;
+            width: 12px;
+            height: 12px;
+            top: -10px;
+            left: -4px;
+            border-radius: 50%;
+            background-color: #FFE680;
+            box-shadow: 0 0 40px 20px rgba(255, 230, 128, 0.6);
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .idkstreetlamp:hover > .idkstreetlamp-glow {
+            opacity: 1;
+            box-shadow: 0 0 60px 30px #fff;
+        }
+
+        #streetlamp-1 {
+            left: 60px;
+        }
+
+        #streetlamp-2 {
+            left: 220px;
+        }
+
+        #streetlamp-3 {
+            left: 380px;
+        }
+
+        .idktree-container {
+            position: absolute;
+            width: 75px;
+            height: 148px;
+            z-index: 200;
+            bottom: 20px;
+        }
+
+        #tree-1 {
+            left: 25px;
+        }
+
+        #tree-2 {
+            right: 25px;
+        }
+
+        .idktree {
+            width: 10px;
+            height: 75px;
+            background-color: #936161;
+            margin-left: 9px;
+            border-top: 5px solid #704A4A;
+            bottom: 8px;
+            position: absolute;
+            left: 26px;
+        }
+
+        .idktree:before {
+            content: "";
+            background-color: #91DBA6;
+            width: 75px;
+            height: 40px;
+            border-radius: 60px 60px 90px 90px;
+            left: -35px;
+            margin-top: -45px;
+        }
+
+        .idktree:after {
+            content: "";
+            background-color: #91DBA6;
+            width: 40px;
+            height: 60px;
+            border-radius: 60px 80px 60px 90px;
+            margin-top: -70px;
+            left: -15px;
+            transform: rotate(-10deg);
+        }
+
+        .idktree-base {
+            position: relative;
+            width: 26px;
+            height: 4px;
+            background-color: #BFB2B3;
+            top: -15px;
+            margin-top: 144px;
+            left: 26px;
+        }
+
+        .idktree-base:before {
+            content: "";
+            position: absolute;
+            width: 36px;
+            height: 15px;
+            top: -4px;
+            left: -4px;
+            background: repeating-linear-gradient(to right,
+                    #F4F7F2,
+                    #F4F7F2 6px,
+                    transparent 6px,
+                    transparent 10px);
+        }
+
+        .idktree-base:after {
+            content: "";
+            position: absolute;
+            width: 42px;
+            height: 8px;
+            background-color: #BFB2B3;
+            top: 11px;
+            left: -7px;
+        }
+
+        /* Ground/Road for city view */
+        .idkcity:before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-color: #918686;
+            bottom: 0px;
+            z-index: 200;
+        }
+
+        /* Vrindavan Billboard - small version */
+        .idkvrindavan-billboard {
+            min-width: 80px;
+            max-width: 200px;
+            width: auto;
+            height: 28px;
+            background-color: #006747;
+            border: 2px solid #FFFFFF;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.8s ease-out;
+            padding: 0 12px;
+        }
+
+        .idkvrindavan-billboard.idkvisible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .idkbillboard-text {
+            font-family: 'Tiro Telugu', serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #FFFFFF;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Building Label */
+        .idkbuilding-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--cyan);
+            text-align: center;
+            white-space: nowrap;
+            text-shadow: 0 0 10px rgba(107, 155, 209, 0.5);
+            background: rgba(43, 45, 48, 0.8);
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+
+        /* Skyscrapers - Background buildings */
+        .idkskyscrapers {
+            position: absolute;
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            bottom: 20px;
+            left: 0;
+            padding-top: 100px;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .idkskyscraper {
+            background-color: #D6D6D6;
+            position: relative;
+        }
+
+        .idkskyscraper-1 {
+            width: 80px;
+            height: 250px;
+            margin-right: 20px;
+        }
+
+        .idkskyscraper-2 {
+            width: 100px;
+            height: 320px;
+            margin-right: 15px;
+        }
+
+        .idkskyscraper-3 {
+            width: 120px;
+            height: 400px;
+        }
+
+        .idkskyscraper-4 {
+            width: 90px;
+            height: 300px;
+            margin-left: 15px;
+        }
+
+        .idkskyscraper-5 {
+            width: 75px;
+            height: 350px;
+            margin-left: 20px;
+        }
+
+        /* Big background trees */
+        .idkbig-tree {
+            position: absolute;
+            bottom: 20px;
+            width: 150px;
+            height: 200px;
+            z-index: 2;
+            opacity: 0.6;
+        }
+
+        .idkbig-tree-1 {
+            left: 5%;
+        }
+
+        .idkbig-tree-2 {
+            right: 5%;
+        }
+
+        .idkbig-tree .idktree-trunk {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 100px;
+            background-color: #936161;
+            border-top: 8px solid #704A4A;
+        }
+
+        .idkbig-tree .idktree-foliage {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 100px;
+            background-color: #91DBA6;
+            border-radius: 50%;
+        }
+
+        .idkbig-tree .idktree-foliage::before {
+            content: "";
+            position: absolute;
+            top: -30px;
+            left: 30px;
+            width: 80px;
+            height: 80px;
+            background-color: #91DBA6;
+            border-radius: 50%;
+        }
+
+        .idkbig-tree .idktree-foliage::after {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: -20px;
+            width: 70px;
+            height: 70px;
+            background-color: #91DBA6;
+            border-radius: 50%;
+        }
+
+        /* Ashrams Building Styles */
+        .idkashrams-container {
+            width: 180px;
+            height: 200px;
+            position: absolute;
+            bottom: 20px;
+            right: 60px;
+            margin-top: -20px;
+            z-index: 10;
+        }
+
+        .idkashrams-building {
+            width: 180px;
+            height: 200px;
+            background-color: #EA8A85;
+            border: 8px solid #C97C78;
+            border-bottom: none;
+            position: absolute;
+        }
+
+        .idkashrams-building:after {
+            content: '';
+            position: absolute;
+            background: linear-gradient(to bottom, #B65951, #B65951 50%, #964A43 50%, #964A43);
+            background-size: 100% 12px;
+            width: 180px;
+            height: 70px;
+            left: -8px;
+            top: -78px;
+            clip-path: polygon(17.5% 0%, 82.5% 0%, 100% 100%, 0% 100%);
+        }
+
+        .idkashrams-chimney {
+            position: relative;
+            background-color: #B3A6A6;
+            width: 24px;
+            height: 12px;
+            border-bottom: 6px solid #C7BABA;
+            top: -98px;
+            right: -126px;
+        }
+
+        .idkashrams-chimney:before {
+            content: '';
+            position: absolute;
+            background-color: #EADADB;
+            width: 30px;
+            height: 8px;
+            top: -8px;
+            left: -3px;
+            z-index: 102;
+        }
+
+        .idksmoke {
+            position: absolute;
+            z-index: 101;
+            width: 150px;
+            height: 240px;
+            top: -240px;
+            left: -63px;
+            pointer-events: none;
+        }
+
+        .idksmoke span {
+            display: block;
+            position: absolute;
+            bottom: -40px;
+            left: 28px;
+            height: 0px;
+            width: 0px;
+            border: 48px solid #fff;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0.2);
+        }
+
+        @keyframes smokeL {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translate(0, 0);
+            }
+            10% {
+                opacity: 0.5;
+                transform: scale(0.5) translate(-10px, -30px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translate(-20px, -150px);
+            }
+        }
+
+        @keyframes smokeR {
+            0% {
+                opacity: 0;
+                transform: scale(0.2) translate(0, 0);
+            }
+            10% {
+                opacity: 0.5;
+                transform: scale(0.5) translate(10px, -30px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translate(20px, -150px);
+            }
+        }
+
+        .idksmoke .idks0 { animation: smokeL 10s 0s infinite; }
+        .idksmoke .idks1 { animation: smokeR 10s 1s infinite; }
+        .idksmoke .idks2 { animation: smokeL 10s 2s infinite; }
+        .idksmoke .idks3 { animation: smokeR 10s 3s infinite; }
+        .idksmoke .idks4 { animation: smokeL 10s 4s infinite; }
+        .idksmoke .idks5 { animation: smokeR 10s 5s infinite; }
+        .idksmoke .idks6 { animation: smokeL 10s 6s infinite; }
+        .idksmoke .idks7 { animation: smokeR 10s 7s infinite; }
+        .idksmoke .idks8 { animation: smokeL 10s 8s infinite; }
+        .idksmoke .idks9 { animation: smokeR 10s 9s infinite; }
+
+        .idkashrams-windows {
+            margin-top: 0px;
+        }
+
+        .idkashrams-window {
+            background-color: #B2C7E6;
+            border: 8px solid #964A43;
+            margin: 16px;
+            height: 60px;
+            width: calc(100% - 32px);
+        }
+
+        .idkashrams-door {
+            margin: 0 16px;
+            margin-top: -12px;
+            background-color: #964A43;
+            border: 8px solid #B65951;
+            border-bottom: none;
+            height: 82px;
+            width: calc(50% - 16px);
+        }
+
+        .idkbuilding {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px) scale(0.8);
+            transition: all 0.8s ease;
+        }
+
+        .idkbuilding.idkvisible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .idkbuilding-structure {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(60deg) rotateZ(-45deg);
+        }
+
+        .idkbuilding-front {
+            position: absolute;
+            background: linear-gradient(to bottom, var(--building-color, #7EBB9B) 0%, var(--building-dark, #5a8b73) 100%);
+            transform: translateZ(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .idkbuilding-right {
+            position: absolute;
+            background: linear-gradient(to bottom, var(--building-dark, #5a8b73) 0%, color-mix(in srgb, var(--building-dark, #5a8b73) 80%, black) 100%);
+            transform: rotateY(90deg) translateZ(25px);
+        }
+
+        .idkbuilding-top {
+            position: absolute;
+            background: linear-gradient(135deg, var(--building-color, #7EBB9B) 0%, var(--building-dark, #5a8b73) 100%);
+            transform: rotateX(90deg) translateZ(var(--building-height, 80px));
+        }
+
+        .idkbuilding-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--cyan);
+            margin-top: 1.5rem;
+            text-shadow: 0 0 10px rgba(107, 155, 209, 0.5);
+        }
+
+        /* Success Celebration */
+        .idkcelebration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .idkbirb-container {
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform-origin: left center;
+            animation: fly-by 4000ms linear;
+        }
+
+        .idkbirb {
+            position: relative;
+            display: block;
+            width: 4vw;
+            height: 4vw;
+            animation: altitude-variance 500ms ease infinite;
+        }
+
+        .idkbody {
+            position: absolute;
+            left: 0;
+            top: 20%;
+            width: 70%;
+            height: 40%;
+            border-bottom-right-radius: 50% 80%;
+            border-bottom-left-radius: 50% 80%;
+            box-shadow: inset -0.3vw -0.2vw 0.2vw rgba(0, 0, 20, 0.2);
+        }
+
+        .idkbody::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: -10%;
+            top: 35%;
+            width: 30%;
+            height: 30%;
+            border-radius: 0 0 100% 0;
+            background: linear-gradient(hsl(40, 90%, 70%), hsl(50, 90%, 70%));
+        }
+
+        .idkhead-container {
+            position: relative;
+            left: 80%;
+            top: 0;
+            width: 50%;
+            height: 80%;
+            z-index: 1;
+        }
+
+        .idkhead {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 0 100% 100% 100%;
+            box-shadow: inset -0.1vw -0.2vw 0.1vw rgba(0, 0, 10, 0.2);
+            z-index: 1;
+        }
+
+        .idkhead::before {
+            content: '';
+            display: block;
+            position: absolute;
+            left: 55%;
+            top: 35%;
+            width: 15%;
+            height: 15%;
+            border-radius: 100%;
+            background: hsla(0, 60%, 20%, 0.2);
+            z-index: 1;
+        }
+
+        .idkhead::after {
+            content: '';
+            display: block;
+            position: absolute;
+            right: 10%;
+            bottom: 25%;
+            width: 50%;
+            height: 50%;
+            border-radius: 100%;
+            background: rgba(255, 255, 255, 0.25);
+            z-index: 2;
+        }
+
+        .idkbeak {
+            position: absolute;
+            left: 80%;
+            top: 20%;
+            width: 50%;
+            height: 70%;
+            background: hsl(50, 90%, 70%);
+            box-shadow: inset -0.1vw -0.2vw 0.1vw hsl(60, 90%, 70%);
+            border-radius: 0 100% 0 0;
+            z-index: -2;
+        }
+
+        .idkbeak::after {
+            content: '';
+            display: block;
+            position: absolute;
+            left: -50%;
+            top: 100%;
+            width: 100%;
+            height: 20%;
+            border-radius: 0 0 100% 0;
+            background: hsl(40, 90%, 70%);
+            z-index: -1;
+        }
+
+        .idkwing-front {
+            position: absolute;
+            width: 60%;
+            height: 180%;
+            top: 0;
+            left: 25%;
+            transform-origin: top center;
+            border-radius: 0 0 100% 10%;
+            animation: idkwing-front-flap 300ms ease infinite;
+            z-index: 1;
+        }
+
+        .idkwing-back {
+            z-index: -2;
+            position: absolute;
+            width: 40%;
+            height: 130%;
+            top: 0;
+            left: 60%;
+            transform-origin: top center;
+            border-radius: 0 0 100% 10%;
+            animation: idkwing-back-flap 300ms ease infinite;
+        }
+
+        .idktail {
+            position: absolute;
+            top: 0%;
+            right: 90%;
+            height: 35%;
+            width: 100%;
+            border-bottom-left-radius: 100% 100%;
+            transform: rotate(3deg);
+            transform-origin: top right;
+        }
+
+        @keyframes fly-by {
+            0% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(120vw, -20vh);
+                opacity: 0.1;
+            }
+        }
+
+        @keyframes altitude-variance {
+            50% {
+                transform: translate(0, 6%);
+            }
+        }
+
+        @keyframes idkwing-front-flap {
+            0%, 100% {
+                transform: rotateX(10deg);
+            }
+            50% {
+                transform: rotateX(140deg);
+            }
+        }
+
+        @keyframes idkwing-back-flap {
+            0%, 100% {
+                transform: rotateX(0deg);
+            }
+            50% {
+                transform: rotateX(-120deg);
+            }
+        }
+
+        .idksuccess-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 1001;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .idksuccess-message.idkshow {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .idksuccess-message h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .idksuccess-message p {
+            font-size: 1.3rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .idknext-button {
+            background: var(--success);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .idkerror-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 2px solid var(--error);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: var(--error);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .idkerror-message.idkshow {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @media (max-width: 768px) {
+            .idkterminal-workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .idkterminal-input-area {
+                border-right: none;
+                border-bottom: 1px solid var(--terminal-border);
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="idkhero">
+        <h1 class="idkhero-title">🎮 Try SQL City Free</h1>
+        <p class="idkhero-subtitle">Learn SQL by building your first city — no signup required</p>
+    </section>
+
+    <!-- Game Container -->
+    <div class="idkgame-container idkvisible" id="gameContainer">
+        <!-- Interactive Terminal -->
+        <div class="idkinteractive-terminal">
+            <div class="idkterminal-header">
+                <div class="idkterminal-buttons">
+                    <div class="idkterminal-button idkred"></div>
+                    <div class="idkterminal-button idkyellow"></div>
+                    <div class="idkterminal-button idkgreen"></div>
+                </div>
+                <div class="idkterminal-title">sqltown@builder — zsh — 80x24</div>
+            </div>
+
+            <div class="idkterminal-workspace">
+                <div class="idkterminal-input-area">
+                    <!-- Animated Story -->
+                    <div class="idkterminal-story" id="terminalStory">
+                        <div class="idkstory-line"><span class="idkemoji">🏗️</span><span class="idkhighlight">Welcome to SQL Town!</span></div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkstory-line">You've been chosen to architect a new SQL city.</div>
+                        <div class="idkstory-line">A place where <span class="idkemphasis">data grows like trees</span>,</div>
+                        <div class="idkstory-line">and <span class="idkemphasis">tables stand tall like buildings</span>.</div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkdivider"></div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkstory-line">Before we can build, every town needs a name.</div>
+                        <div class="idkstory-line">In SQL, we create a DATABASE to hold our town's data.</div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkstory-line">🏡 Think of your DATABASE as the <span class="idkhighlight">foundation</span> of your town.</div>
+                        <div class="idkstory-line">🌲 Everything you build will grow within this space.</div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkdivider"></div>
+                        <div class="idkstory-line"><span class="idkemoji">📝</span><span class="idktask-highlight">Quest 1: Name Your Town</span></div>
+                        <div class="idkstory-line">Create your database by typing:</div>
+                        <div class="idkstory-line"><span class="idkemphasis">CREATE DATABASE YourTownName;</span></div>
+                        <div class="idkstory-line">&nbsp;</div>
+                        <div class="idkstory-line">💡 Choose a name that represents your vision!</div>
+                    </div>
+
+                    <div class="idkprompt-line" id="promptLine">sql> CREATE DATABASE</div>
+                    <textarea 
+                        class="idksql-input" 
+                        id="sqlInput" 
+                        placeholder="Kiran's;"
+                        spellcheck="false"
+                    ></textarea>
+                    <button class="idkrun-button" id="runButton">Create Town</button>
+                    
+                    <div class="idkerror-message" id="errorMessage"></div>
+
+                    <div class="idkhints-section" id="hintsSection" style="display: none;">
+                        <h4>💡 need help? <span class="idkhint-counter" id="hintCounter">(3 hints)</span></h4>
+                        <div class="idkhint" id="hintText">Click below for a hint...</div>
+                        <button class="idkhint-button" id="hintButton">show hint</button>
+                    </div>
+                </div>
+
+                <div class="terminal-output">
+                    <div class="idkcity-view" id="cityView">
+                        <!-- Success Celebration -->
+                        <div class="idkcelebration" id="celebration"></div>
+                        
+                        <!-- Fog Loading Effect -->
+                        <div class="idkfog-overlay" id="fogOverlay">
+                            <div class="idkmoon" id="moon"></div>
+                            <div class="idkstars" id="stars"></div>
+                        </div>
+                        
+                        <!-- Village Scene (shown during email entry) -->
+                        <div class="idkvillage-scene" id="villageScene">
+                            <div id="sun">
+                                <div class="idksun-core"></div>
+                                <div class="idksun-rays">
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                    <div class="sun-ray"></div>
+                                </div>
+                            </div>
+                            <div class="rainbow">
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                                <div class="rainbow-arc"></div>
+                            </div>
+                            <div id="forest">
+                                <canvas id="forestCanvas"></canvas>
+                            </div>
+                            <css-doodle id="dood"></css-doodle>
+                            <div class="idkvillage-cloud"></div>
+                            <div class="idkvillage-cloud"></div>
+                            <div class="idkvillage-cloud"></div>
+                            
+                            <!-- Advanced Animated Clouds -->
+                            <div class="idkclouds">
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmaller idkslow" style="animation-delay: 0s; top: 15%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+                                
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmall idkslower" style="animation-delay: 3s; top: 8%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmaller idkslowest" style="animation-delay: 6s; top: 25%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idkbig idksuper-slow" style="animation-delay: 9s; top: 5%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmall idkslow" style="animation-delay: 2s; top: 18%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+                                
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmaller idkslower" style="animation-delay: 5s; top: 12%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+                                
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idksmall idkslowest" style="animation-delay: 8s; top: 22%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+                                
+                                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="762px"
+                                height="331px" viewBox="0 0 762 331" enable-background="new 0 0 762 331" xml:space="preserve" class="idkcloud idkmassive idksuper-slow" style="animation-delay: 12s; top: 10%;">
+                                <path fill="#FFFFFF" d="M715.394,228h-16.595c0.79-5.219,1.201-10.562,1.201-16c0-58.542-47.458-106-106-106
+                                c-8.198,0-16.178,0.932-23.841,2.693C548.279,45.434,488.199,0,417.5,0c-84.827,0-154.374,65.401-160.98,148.529
+                                C245.15,143.684,232.639,141,219.5,141c-49.667,0-90.381,38.315-94.204,87H46.607C20.866,228,0,251.058,0,279.5
+                                S20.866,331,46.607,331h668.787C741.133,331,762,307.942,762,279.5S741.133,228,715.394,228z"/>
+                                </svg>
+                            </div>
+                            
+                            <div id="grass">
+                                <canvas id="grassCanvas"></canvas>
+                                <div id="bug">🐞</div>
+                            </div>
+                            
+                            <!-- Welcome Billboard -->
+                            <div class="idkwelcome-billboard" id="welcomeBillboard">
+                                <div class="idkwelcome-billboard-text">
+                                    <div class="idkwelcome">Welcome to</div>
+                                    <div class="idktown-name" id="townName"></div>
+                                    <div class="idksubtitle">Let's build your SQL city!</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- City View (shown after email unlock) -->
+                        <div class="idkcity" id="city" style="display: none;">
+                            <!-- Skyscrapers Background -->
+                            <div class="idkskyscrapers">
+                                <div class="idkskyscraper idkskyscraper-1"></div>
+                                <div class="idkskyscraper idkskyscraper-2"></div>
+                                <div class="idkskyscraper idkskyscraper-3"></div>
+                                <div class="idkskyscraper idkskyscraper-4"></div>
+                                <div class="idkskyscraper idkskyscraper-5"></div>
+                            </div>
+                            
+                            <!-- Big Background Trees -->
+                            <div class="idkbig-tree idkbig-tree-1">
+                                <div class="idktree-trunk"></div>
+                                <div class="idktree-foliage"></div>
+                            </div>
+                            <div class="idkbig-tree idkbig-tree-2">
+                                <div class="idktree-trunk"></div>
+                                <div class="idktree-foliage"></div>
+                            </div>
+                            
+                            <!-- Vrindavan Billboard -->
+                            <div class="idkvrindavan-billboard" id="cityBillboard">
+                                <div class="idkbillboard-text" id="cityBillboardText"></div>
+                            </div>
+                            
+                            <!-- Streetlamps -->
+                            <div class="idkstreetlamp" id="streetlamp-1">
+                                <div class="idkstreetlamp-glow"></div>
+                            </div>
+                            <div class="idkstreetlamp" id="streetlamp-2">
+                                <div class="idkstreetlamp-glow"></div>
+                            </div>
+                            <div class="idkstreetlamp" id="streetlamp-3">
+                                <div class="idkstreetlamp-glow"></div>
+                            </div>
+                            
+                            <!-- Trees -->
+                            <div class="idktree-container" id="tree-1">
+                                <div class="idktree"></div>
+                                <div class="idktree-base"></div>
+                            </div>
+                            <div class="idktree-container" id="tree-2">
+                                <div class="idktree"></div>
+                                <div class="idktree-base"></div>
+                            </div>
+                            
+                            <!-- Buildings will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Celebration -->
+    <div class="idkcelebration" id="celebration"></div>
+    <script>
+        // CSS Doodle function
+        function getCss(gridSize, is3d) {
+            var doodl = `:doodle {
+                @grid:${gridSize}/ 100%;
+                width:100vw;
+                height:100vh;
+            }
+            :container {
+                transform-style:${is3d ? "preserve-3d" : "flat"};
+            }
+            :after {
+                content:@p(🦋);
+            } 
+            @random(.15) {
+                filter:hue-rotate(@r(-180deg, 180deg));
+            }
+            
+            animation: fly @r(10s, 20s) infinite linear;
+            will-change:transform;
+            position:absolute;
+            left:@r(100%);
+            bottom:@r(75px, 250px);
+            
+            @keyframes fly {
+                0% {
+                    transform:
+                    translateX(@r(-20px, 20px))
+                    translateY(@r(-20px, 20px));
+                }
+                33% {
+                    transform:
+                    translateX(calc(@p(-1,1)*@r(20)*@p(1vmax)))
+                    translateY(calc(-1*@r(40)*1vmax))
+                    rotateY(@r(15turn, 25turn))
+                    rotateZ(@r(-.05turn, .05turn));
+                }
+                66% {
+                    transform:
+                    translateX(calc(@p(-1,1)*@r(20)*@p(1vmax)))
+                    translateY(calc(-1*@r(30,60)*1vmax))
+                    rotateY(@r(35turn, 45turn))
+                    rotateZ(@r(-.05turn, .05turn));
+                }
+                100% {
+                    transform:
+                    translateX(calc(@p(-1,1,1)*@r(40)*1vmax))
+                    translateY(calc(-100*1vmax))
+                    rotateY(@r(55turn, 70turn))
+                    rotateZ(@r(-.05turn, .05turn));
+                }
+            }`;
+            return doodl;
+        }
+
+        function generateTree(height, position) {
+            let template = `
+                <div class="idktree__5"></div>
+                <div class="idktree__1"></div>
+                <div class="idktree__2"></div>
+                <div class="idktree__3"></div>
+                <div class="idktree__4" style="height:${height}px"></div>
+            `;
+            let el = document.createElement("div");
+            el.setAttribute("class", "tree");
+            el.style.left = `${position}%`;
+            el.innerHTML = template;
+            el.style.zIndex = Math.random() > 0.5 ? -10 : 10;
+            return el;
+        }
+
+        function getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function initForest() {
+            const dood = document.getElementById('dood');
+            const canvas = document.getElementById('forestCanvas');
+            const forestContainer = document.querySelector('div#forest');
+            
+            if (dood) {
+                dood.update(getCss(8, false));
+            }
+            
+            if (canvas && forestContainer) {
+                const ctx = canvas.getContext('2d');
+                const w = forestContainer.offsetWidth;
+                const h = forestContainer.offsetHeight;
+                
+                canvas.width = w;
+                canvas.height = h;
+                
+                // Load single tree image
+                const treeImg = new Image();
+                treeImg.onload = () => {
+                    drawForest();
+                };
+                treeImg.onerror = () => {
+                    console.error('Failed to load image: img1.png');
+                };
+                treeImg.src = 'img1.png';
+                
+                function drawForest() {
+                    ctx.clearRect(0, 0, w, h);
+                    
+                    // Create 15 trees with same height
+                    const numTrees = 15;
+                    const scale = 0.75;
+                    const treeWidth = treeImg.width * scale;
+                    const treeHeight = treeImg.height * scale;
+                    const baseY = h - treeHeight - 20;
+                    
+                    for (let i = 0; i < numTrees; i++) {
+                        const x = (i / numTrees) * w + (Math.random() - 0.5) * 80;
+                        
+                        ctx.save();
+                        ctx.globalAlpha = 0.8;
+                        ctx.drawImage(treeImg, x, baseY, treeWidth, treeHeight);
+                        ctx.restore();
+                    }
+                }
+            }
+        }
+
+        // Animated grass
+        function initGrass() {
+            const canvas = document.getElementById('grassCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const grassContainer = document.getElementById('grass');
+            const stack = [];
+            
+            let w = grassContainer.offsetWidth;
+            let h = grassContainer.offsetHeight;
+            
+            canvas.width = w;
+            canvas.height = h;
+            
+            const drawer = function() {
+                
+                ctx.clearRect(0, 0, w, h);
+                stack.forEach(function(el) {
+                    el();
+                });
+                requestAnimationFrame(drawer);
+            };
+            
+            const anim = function() {
+                let x = 0;
+                const maxTall = Math.random() * 30 + 50; // Taller grass (was 20 + 25)
+                const maxSize = Math.random() * 6 + 4; // Wider grass blades (was 3 + 2)
+                const speed = Math.random() * 2;
+                const position = Math.random() * w - w / 2;
+                const c = function(l, u) { return Math.round(Math.random() * (u || 255) + (l || 0)); };
+                // Earthy tree-like colors: darker greens and browns
+                const color = 'rgb(' + c(50, 40) + ',' + c(90, 70) + ',' + c(30, 30) + ')';
+                
+                return function() {
+                    const deviation = Math.cos(x / 30) * Math.min(x / 40, 8);
+                    const tall = Math.min(x / 2, maxTall);
+                    const size = Math.min(x / 50, maxSize);
+                    x += speed;
+                    
+                    ctx.save();
+                    ctx.strokeWidth = 10;
+                    ctx.translate(w / 2 + position, h);
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.lineTo(-size, 0);
+                    ctx.quadraticCurveTo(-size, -tall / 2, deviation, -tall);
+                    ctx.quadraticCurveTo(size, -tall / 2, size, 0);
+                    ctx.fill();
+                    ctx.restore();
+                };
+            };
+            
+            for (let i = 0; i < 400; i++) { // Much denser grass (was 200)
+                stack.push(anim());
+            }
+            
+            drawer();
+        }
+
+        // Game State
+        let gameUnlocked = false;
+        let userEmail = null;
+        let waitlistMode = false;
+
+        // Elements
+        const sqlInput = document.getElementById('sqlInput');
+        const runButton = document.getElementById('runButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const hintButton = document.getElementById('hintButton');
+        const hintText = document.getElementById('hintText');
+        const city = document.getElementById('city');
+        const promptLine = document.getElementById('promptLine');
+        const hintsSection = document.getElementById('hintsSection');
+        const terminalStory = document.getElementById('terminalStory');
+
+        const hints = [
+            "Start with CREATE TABLE followed by the table name...",
+            "The syntax is: CREATE TABLE table_name (column1 type, column2 type);",
+            "Try: CREATE TABLE residents (id INT, name VARCHAR(100));"
+        ];
+
+        let hintLevel = 0;
+
+        // Animate story on load
+        window.addEventListener('load', () => {
+            const storyLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
+            storyLines.forEach((line, index) => {
+                setTimeout(() => {
+                    line.classList.add('idkvisible');
+                }, index * 150);
+            });
+            
+            // Initialize forest and grass
+            initForest();
+            initGrass();
+        });
+
+        // Reinitialize forest on window resize
+        window.addEventListener('resize', () => {
+            initForest();
+            initGrass();
+        }, false);
+
+        // Check if already unlocked
+        if (localStorage.getItem('townName')) {
+            unlockGame(localStorage.getItem('townName'));
+        }
+
+        // Main button click handler
+        runButton.addEventListener('click', () => {
+            // Skip if in waitlist mode - separate handler is used
+            if (waitlistMode) return;
+            
+            errorMessage.classList.remove('idkshow');
+
+            if (!gameUnlocked) {
+                // Database name validation phase
+                const input = sqlInput.value.trim();
+                
+                if (input.length === 0) {
+                    showError("Come on, give your town a name! 🏘️");
+                    return;
+                }
+                
+                // Check if input ends with semicolon
+                if (!input.endsWith(';')) {
+                    showError("Don't forget the semicolon (;) at the end!");
+                    return;
+                }
+                
+                // Remove the semicolon for processing
+                const inputWithoutSemicolon = input.slice(0, -1).trim();
+                
+                // Extract database name from CREATE DATABASE statement
+                let dbName = inputWithoutSemicolon;
+                
+                // Check if they included CREATE DATABASE
+                const upperInput = inputWithoutSemicolon.toUpperCase();
+                if (upperInput.includes('CREATE DATABASE')) {
+                    // Extract the name after CREATE DATABASE
+                    const match = inputWithoutSemicolon.match(/CREATE\s+DATABASE\s+(.+)/i);
+                    if (match) {
+                        dbName = match[1].trim();
+                    }
+                }
+                
+                // Valid database name - unlock game!
+                userEmail = dbName + '@sqltown.db'; // Store as fake email for compatibility
+                localStorage.setItem('townName', dbName);
+                localStorage.setItem('userEmail', userEmail);
+                unlockGame(dbName);
+                
+            } else {
+                // SQL validation phase
+                const sql = sqlInput.value.trim().toUpperCase();
+
+                // Check if SQL is correct
+                if (sql.includes('CREATE TABLE') && 
+                    sql.includes('RESIDENTS') && 
+                    sql.includes('ID') && 
+                    sql.includes('NAME')) {
+                    
+                    // Success!
+                    celebrate();
+                } else if (sql.length === 0) {
+                    showError("Hey! You need to type a SQL command first 😊");
+                } else if (!sql.includes('CREATE TABLE')) {
+                    showError("Hmm... we need to CREATE TABLE. Try starting with that!");
+                } else if (!sql.includes('RESIDENTS')) {
+                    showError("Good start! But the table should be called 'residents'");
+                } else {
+                    showError("Almost there! Make sure you have both 'id' and 'name' columns");
+                }
+            }
+        });
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function unlockGame(townNameOrEmail) {
+            gameUnlocked = true;
+            
+            // Extract username from town name or email
+            const username = townNameOrEmail.includes('@') ? townNameOrEmail.split('@')[0] : townNameOrEmail;
+            
+            // Get elements
+            const fogOverlay = document.getElementById('fogOverlay');
+            const moon = document.getElementById('moon');
+            const stars = document.getElementById('stars');
+            const sun = document.getElementById('sun');
+            const forestCanvas = document.getElementById('forestCanvas');
+            const grassCanvas = document.getElementById('grassCanvas');
+            
+            // Generate stars
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+            
+            // Start with night (opacity 1 shows the night sky)
+            fogOverlay.classList.add('idkactive');
+            sun.classList.add('idkhidden');
+            forestCanvas.classList.add('idknight');
+            grassCanvas.classList.add('idknight');
+            
+            // Transition to dawn after 2 seconds
+            setTimeout(() => {
+                fogOverlay.classList.add('idkdawn');
+                moon.classList.add('idkhidden');
+                stars.classList.add('idkhidden');
+                sun.classList.remove('idkhidden');
+                forestCanvas.classList.remove('idknight');
+                grassCanvas.classList.remove('idknight');
+            }, 2000);
+            
+            // Transition to morning
+            setTimeout(() => {
+                fogOverlay.classList.add('idkmorning');
+            }, 3000);
+            
+            // After sky transition, proceed with billboard
+            setTimeout(() => {
+                fogOverlay.classList.remove('idkactive');
+                
+                // Show billboard
+                const welcomeBillboard = document.getElementById('welcomeBillboard');
+                const townName = document.getElementById('townName');
+                
+                // Set town name
+                townName.textContent = username + " Town";
+                
+                // Show billboard and butterflies after a short delay
+                setTimeout(() => {
+                    welcomeBillboard.classList.add('idkvisible');
+                    document.getElementById('dood').classList.add('idkshow-butterflies');
+                }, 200);
+            }, 4000);
+            
+            // Update terminal content for SQL mission
+            setTimeout(() => {
+                // Animate story fade out
+                const storyLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
+                storyLines.forEach((line, index) => {
+                    setTimeout(() => {
+                        line.style.transition = 'opacity 0.3s, transform 0.3s';
+                        line.style.opacity = '0';
+                        line.style.transform = 'translateX(-20px)';
+                    }, index * 30);
+                });
+                
+                // Animate input fade
+                sqlInput.style.transition = 'all 0.5s';
+                sqlInput.style.opacity = '0';
+                runButton.style.opacity = '0';
+                promptLine.style.opacity = '0';
+                
+                setTimeout(() => {
+                    // Update story for SQL mission
+                    terminalStory.innerHTML = `
+                        <div class="idkstory-line idkvisible"><span class="idkemoji">✅</span><span class="idkhighlight">Welcome aboard, ${username}!</span></div>
+                        <div class="idkstory-line idkvisible">&nbsp;</div>
+                        <div class="idkstory-line idkvisible">Right now, ${username} Town has no database. No records.</div>
+                        <div class="idkstory-line idkvisible">Just dirt and ambition.</div>
+                        <div class="idkstory-line idkvisible">&nbsp;</div>
+                        <div class="idkdivider idkvisible"></div>
+                        <div class="idkstory-line idkvisible"><span class="idkemoji">📋</span><span class="idktask-highlight">Your Mission:</span></div>
+                        <div class="idkstory-line idkvisible">Create a table called <span class="idkhighlight">residents</span> with two columns:</div>
+                        <div class="idkstory-line idkvisible">  • <span class="idktask-highlight">id</span> (a unique number for each resident)</div>
+                        <div class="idkstory-line idkvisible">  • <span class="idktask-highlight">name</span> (text to store their name)</div>
+                    `;
+                    
+                    // Re-animate story
+                    const newStoryLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
+                    newStoryLines.forEach((line, index) => {
+                        line.style.opacity = '0';
+                        line.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            line.style.transition = 'all 0.6s ease-out';
+                            line.style.opacity = '1';
+                            line.style.transform = 'translateX(0)';
+                        }, index * 100);
+                    });
+                    
+                    // Update UI for SQL challenge
+                    promptLine.textContent = `→ Type your SQL command:`;
+                    sqlInput.placeholder = 'CREATE TABLE ...';
+                    sqlInput.value = '';
+                    runButton.textContent = '▶ Run Command';
+                    
+                    // Show hints
+                    hintsSection.style.display = 'block';
+                    hintsSection.style.opacity = '0';
+                    
+                    // Fade back in
+                    promptLine.style.opacity = '1';
+                    sqlInput.style.opacity = '1';
+                    runButton.style.opacity = '1';
+                    
+                    setTimeout(() => {
+                        hintsSection.style.transition = 'opacity 0.5s';
+                        hintsSection.style.opacity = '1';
+                    }, 1000);
+                    
+                    // Add welcome message
+                    showSuccess(`🎉 Game unlocked! Let's build something amazing.`);
+                }, 800);
+            }, 4500);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('idkshow');
+        }
+
+        function showSuccess(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.idkbackground = 'rgba(76, 175, 80, 0.1)';
+            errorMessage.style.border = '2px solid #4CAF50';
+            errorMessage.style.color = '#4CAF50';
+            errorMessage.classList.add('idkshow');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('idkshow');
+                setTimeout(() => {
+                    errorMessage.style.idkbackground = 'rgba(255, 71, 87, 0.1)';
+                    errorMessage.style.border = '2px solid var(--error)';
+                    errorMessage.style.color = 'var(--error)';
+                }, 500);
+            }, 3000);
+        }
+
+        hintButton.addEventListener('click', () => {
+            if (hintLevel < hints.length) {
+                hintText.textContent = hints[hintLevel];
+                hintLevel++;
+                if (hintLevel === hints.length) {
+                    hintButton.textContent = 'No more hints!';
+                    hintButton.disabled = true;
+                }
+            }
+        });
+
+        function celebrate() {
+            // Get username from stored email
+            const email = localStorage.getItem('userEmail');
+            const username = email ? email.split('@')[0] : 'Your';
+            
+            // Hide the welcome billboard and butterflies when task is complete
+            const welcomeBillboard = document.getElementById('welcomeBillboard');
+            const butterflies = document.getElementById('dood');
+            welcomeBillboard.style.transition = 'all 0.8s ease-out';
+            welcomeBillboard.style.opacity = '0';
+            welcomeBillboard.style.transform = 'translateX(-50%) scale(0.8)';
+            butterflies.classList.remove('idkshow-butterflies');
+            
+            // Hide forest and grass, show city elements
+            setTimeout(() => {
+                const forestCanvas = document.getElementById('forestCanvas');
+                const grass = document.getElementById('grass');
+                const cityView = document.getElementById('city');
+                
+                // Fade out forest and grass
+                forestCanvas.style.transition = 'opacity 1s';
+                forestCanvas.style.opacity = '0';
+                grass.style.transition = 'opacity 1s';
+                grass.style.opacity = '0';
+                
+                setTimeout(() => {
+                    forestCanvas.style.display = 'none';
+                    grass.style.display = 'none';
+                    cityView.style.display = 'flex';
+                    cityView.style.opacity = '0';
+                    cityView.style.transition = 'opacity 1s';
+                    
+                    setTimeout(() => {
+                        cityView.style.opacity = '1';
+                        
+                        // Show billboard after a short delay
+                        setTimeout(() => {
+                            const cityBillboard = document.getElementById('cityBillboard');
+                            const cityBillboardText = document.getElementById('cityBillboardText');
+                            if (cityBillboard && cityBillboardText) {
+                                // Get town name from localStorage
+                                const storedTownName = localStorage.getItem('townName') || 'SQL';
+                                cityBillboardText.textContent = storedTownName + ' Town';
+                                cityBillboard.classList.add('idkvisible');
+                            }
+                        }, 500);
+                    }, 50);
+                }, 1000);
+            }, 500);
+            
+            // Build the ashrams building with smoke
+            setTimeout(() => {
+                const ashrams = document.createElement('div');
+                ashrams.className = 'ashrams-container';
+                ashrams.innerHTML = `
+                    <div class="idkashrams-building">
+                        <div class="idkashrams-chimney">
+                            <div class="idksmoke">
+                                <span class="idks0"></span>
+                                <span class="idks1"></span>
+                                <span class="idks2"></span>
+                                <span class="idks3"></span>
+                                <span class="idks4"></span>
+                                <span class="idks5"></span>
+                                <span class="idks6"></span>
+                                <span class="idks7"></span>
+                                <span class="idks8"></span>
+                                <span class="idks9"></span>
+                            </div>
+                        </div>
+                        <div class="idkashrams-windows">
+                            <div style="display: flex; gap: 0;">
+                                <div class="idkashrams-window"></div>
+                                <div class="idkashrams-window"></div>
+                            </div>
+                            <div style="display: flex; gap: 0;">
+                                <div class="idkashrams-window"></div>
+                                <div class="idkashrams-door"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="idkbuilding-label">residents</div>
+                `;
+                
+                city.appendChild(ashrams);
+                
+                setTimeout(() => {
+                    ashrams.style.opacity = '0';
+                    ashrams.style.transition = 'opacity 1s';
+                    setTimeout(() => {
+                        ashrams.style.opacity = '1';
+                    }, 50);
+                }, 100);
+
+                // Show birds flying
+                createBirds();
+
+                // Show success message in terminal
+                setTimeout(() => {
+                    // Hide hints section
+                    hintsSection.style.display = 'none';
+                    
+                    terminalStory.innerHTML = `
+                        <div class="idkstory-line idkvisible"><span class="idkemoji">🎉</span><span class="idkhighlight">Quest Complete!</span></div>
+                        <div class="idkstory-line idkvisible">&nbsp;</div>
+                        <div class="idkstory-line idkvisible">You just created your first SQL table!</div>
+                        <div class="idkstory-line idkvisible">${username} Town now has a place to store residents.</div>
+                        <div class="idkstory-line idkvisible">&nbsp;</div>
+                        <div class="idkdivider idkvisible"></div>
+                        <div class="idkstory-line idkvisible">&nbsp;</div>
+                        <div class="idkstory-line idkvisible"><span class="idktask-highlight">Join the Waitlist</span></div>
+                        <div class="idkstory-line idkvisible">Want to learn more SQL? Enter your email below:</div>
+                    `;
+                    
+                    // Replace input with email form
+                    sqlInput.placeholder = "your-email@example.com";
+                    sqlInput.value = "";
+                    sqlInput.disabled = false;
+                    runButton.textContent = "Join Waitlist";
+                    runButton.disabled = false;
+                    promptLine.textContent = "📧";
+                    waitlistMode = true;
+                    
+                    // Change button behavior to submit waitlist
+                    runButton.onclick = function() {
+                        const email = sqlInput.value.trim();
+                        if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                            terminalStory.innerHTML += `
+                                <div class="idkstory-line idkvisible">&nbsp;</div>
+                                <div class="idkstory-line idkvisible"><span class="idkemoji">✅</span>Thank you for joining! We'll be in touch soon.</div>
+                            `;
+                            sqlInput.disabled = true;
+                            runButton.disabled = true;
+                        } else {
+                            showError("Please enter a valid email address");
+                        }
+                    };
+                }, 1000);
+            }, 1500);
+        }
+
+        function createBirds() {
+            const celebration = document.getElementById('celebration');
+            const birdCount = 6;
+            
+            const colors = [
+                { h: 200, s: 70, l: 75 },
+                { h: 180, s: 70, l: 75 },
+                { h: 220, s: 70, l: 75 },
+                { h: 30, s: 70, l: 75 },
+                { h: 280, s: 70, l: 75 },
+                { h: 340, s: 70, l: 75 }
+            ];
+            
+            for (let i = 0; i < birdCount; i++) {
+                setTimeout(() => {
+                    const color = colors[i % colors.length];
+                    const birbContainer = document.createElement('div');
+                    birbContainer.classList.add('idkbirb-container');
+                    // First 3 birds at 20-80%, next 3 birds higher at 10-40%
+                    const topPosition = i < 3 ? (20 + Math.random() * 60) : (10 + Math.random() * 30);
+                    birbContainer.style.top = `${topPosition}%`;
+                    
+                    const birb = document.createElement('div');
+                    birb.classList.add('idkbirb');
+                    birbContainer.appendChild(birb);
+                    
+                    const body = document.createElement('div');
+                    body.classList.add('idkbody');
+                    body.style.backgroundColor = `hsl(${color.h}, ${color.s}%, ${color.l}%)`;
+                    birb.appendChild(body);
+                    
+                    const headContainer = document.createElement('div');
+                    headContainer.classList.add('idkhead-container');
+                    body.appendChild(headContainer);
+                    
+                    const head = document.createElement('div');
+                    head.classList.add('idkhead');
+                    head.style.backgroundColor = `hsl(${color.h + 90}, ${color.s}%, ${color.l}%)`;
+                    headContainer.appendChild(head);
+                    
+                    const beak = document.createElement('div');
+                    beak.classList.add('idkbeak');
+                    headContainer.appendChild(beak);
+                    
+                    const wingFront = document.createElement('div');
+                    wingFront.classList.add('idkwing-front');
+                    wingFront.style.backgroundColor = `hsl(${color.h}, ${color.s}%, ${color.l - 10}%)`;
+                    body.appendChild(wingFront);
+                    
+                    const wingBack = document.createElement('div');
+                    wingBack.classList.add('idkwing-back');
+                    wingBack.style.backgroundColor = `hsl(${color.h}, ${color.s}%, ${color.l - 20}%)`;
+                    body.prepend(wingBack);
+                    
+                    const tail = document.createElement('div');
+                    tail.classList.add('idktail');
+                    tail.style.backgroundColor = `hsl(${color.h}, ${color.s}%, ${color.l}%)`;
+                    body.appendChild(tail);
+                    
+                    celebration.appendChild(birbContainer);
+                    
+                    // Remove after animation
+                    setTimeout(() => {
+                        birbContainer.remove();
+                    }, 4000);
+                }, i * 1500);
+            }
+        }
+    </script>
+</body>
+</html>

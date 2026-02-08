@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL — Learn SQL by Building Sacred Cities</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Tiro+Telugu:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    <section class="hero">
+        <h1 class="hero-title">Build SQL like a <span class="city-text" data-text="town"><span class="city-letters"><span class="city-letter">t</span><span class="city-letter">o</span><span class="city-letter">w</span><span class="city-letter">n</span></span></span></h1>
+        <p class="hero-subtitle">Learn database design by building a sacred city — One query at a time</p>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button red"></div>
+                    <div class="terminal-button yellow"></div>
+                    <div class="terminal-button green"></div>
+                </div>
+                <div class="terminal-title">vrindavan@sql — zsh — 80x24</div>
+            </div>
+
+            <div class="terminal-content">
+                <div class="terminal-code">
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Create the city database</span></div>
+                    <div class="code-line"><span class="keyword">CREATE DATABASE</span> Vrindavan;</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Create your first table</span></div>
+                    <div class="code-line"><span class="keyword">CREATE TABLE</span> dharamshala (</div>
+                    <div class="code-line">  id <span class="keyword">SERIAL PRIMARY KEY</span>,</div>
+                    <div class="code-line">  name <span class="keyword">VARCHAR</span>(<span class="number">100</span>)</div>
+                    <div class="code-line">);</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="comment">-- Add some residents</span></div>
+                    <div class="code-line"><span class="keyword">INSERT INTO</span> dharamshala <span class="keyword">VALUES</span></div>
+                    <div class="code-line">  (<span class="number">1</span>, <span class="string">'Swapanth'</span>),</div>
+                    <div class="code-line">  (<span class="number">2</span>, <span class="string">'Hemanth'</span>);</div>
+                    <div class="code-line">&nbsp;</div>
+                    <div class="code-line"><span class="prompt">→</span><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> dharamshala<span class="cursor"></span></div>
+                </div>
+
+                <div class="terminal-visualization">
+                    <div class="scene">
+                        <div class="vrindavan-billboard">
+                            <div class="billboard-text">వృందావనం</div>
+                        </div>
+                        <div class="container-city">
+                            <div class="sun"></div>
+                            
+                            <div id="cloud-1" class="cloud"></div>
+                            <div id="cloud-2" class="cloud"></div>
+
+                            <div class="skyscrapers">
+                                <div class="skyscraper skyscraper-1"></div>
+                                <div class="skyscraper skyscraper-2"></div>
+                                <div class="skyscraper skyscraper-3"></div>
+                                <div class="skyscraper skyscraper-4"></div>
+                                <div class="skyscraper skyscraper-5"></div>
+                            </div>
+
+                            <div class="houses">
+                                <div class="dharamshala loading">
+                                    <div class="dharamshala-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window dharamshala-window"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="window dharamshala-window"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="door dharamshala-door"></div>
+                                            <div class="window dharamshala-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="building-label">dharamshala</div>
+                                </div>
+
+                                <div class="temples loading">
+                                    <div class="temples-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                        <div class="house-windows-row">
+                                            <div class="door temples-door"></div>
+                                            <div class="window temples-window"></div>
+                                            <div class="window temples-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="building-label">temples</div>
+                                </div>
+
+                                <div class="ashrams-container">
+                                    <div class="ashrams loading">
+                                        <div class="ashrams-chimney">
+                                            <div class="smoke">
+                                                <span class="s0"></span>
+                                                <span class="s1"></span>
+                                                <span class="s2"></span>
+                                                <span class="s3"></span>
+                                                <span class="s4"></span>
+                                                <span class="s5"></span>
+                                                <span class="s6"></span>
+                                                <span class="s7"></span>
+                                                <span class="s8"></span>
+                                                <span class="s9"></span>
+                                            </div>
+                                        </div>
+                                        <div class="ashrams-windows">
+                                            <div class="house-windows-row">
+                                                <div class="window ashrams-window"></div>
+                                                <div class="window ashrams-window"></div>
+                                            </div>
+                                            <div class="house-windows-row">
+                                                <div class="window ashrams-window"></div>
+                                                <div class="door ashrams-door"></div>
+                                            </div>
+                                        </div>
+                                        <div class="building-label">ashrams</div>
+                                    </div>
+                                </div>
+
+                                <div class="pilgrims loading">
+                                    <div class="pilgrims-windows">
+                                        <div class="house-windows-row">
+                                            <div class="window pilgrims-window"></div>
+                                        </div>
+                                    </div>
+                                    <div class="door pilgrims-door"></div>
+                                    <div class="building-label">pilgrims</div>
+                                </div>
+                            </div>
+
+                            <div class="streetlamp" id="streetlamp-1">
+                                <div class="streetlamp-glow"></div>
+                            </div>
+                            <div class="streetlamp" id="streetlamp-2">
+                                <div class="streetlamp-glow"></div>
+                            </div>
+
+                            <div class="tree-container" id="tree-1">
+                                <div class="tree"></div>
+                                <div class="tree-base"></div>
+                            </div>
+
+                            <div class="tree-container" id="tree-2">
+                                <div class="tree"></div>
+                                <div class="tree-base"></div>
+                            </div>
+
+                            <!-- Walking Person -->
+                            <div class="walking-person">
+                                <div class="man">
+                                    <div class="arm front">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="arm back">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="head">
+                                        <div class="head__hair"></div>
+                                        <div class="head__ear"></div>
+                                        <div class="head__nose"></div>
+                                        <div class="head__eye"></div>
+                                    </div>
+
+                                    <div class="body">
+                                        <div class="body__belly"></div>
+                                    </div>
+                                    <div class="pelvis"></div>
+                                    <div class="leg">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                    <div class="leg back">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Walking Person 2 (Woman - Slower) -->
+                            <div class="walking-person slow">
+                                <div class="woman slow">
+                                    <div class="arm front">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="arm back">
+                                        <div class="arm__top">
+                                            <div class="arm__fore"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="head">
+                                        <div class="head__hair"></div>
+                                        <div class="head__ear"></div>
+                                        <div class="head__nose"></div>
+                                        <div class="head__eye"></div>
+                                    </div>
+
+                                    <div class="body">
+                                        <div class="body__belly"></div>
+                                    </div>
+                                    <div class="pelvis"></div>
+                                    <div class="leg">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                    <div class="leg back">
+                                        <div class="leg__top">
+                                            <div class="leg__fore"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p style="margin-top: 2rem; color: var(--black); text-align: center;">
+            💡 Click on any building to see animations! Hover over street lamps for effects.
+        </p>
+    </section>
+
+
+    <br>
+
+    <?php include 'features.php'; ?>
+
+
+    <?php include 'learning_path.php'; ?>
+
+
+    <br>
+
+    <?php include 'gamedemo.php'; ?>
+
+    <section id="cta-section"  style="margin-top: 4rem;padding: 3rem 1rem; border-radius: 12px; align-items: center; text-align: center; background: rgba(255, 107, 53, 0.04); border: 1px solid rgba(0, 0, 0, 0.06);">
+        <h2 class="cta-title">Can we build together?</h2>
+        <div class="cta-container">
+            <button class="cta-button" id="uploadResumeBtn">
+                > UPLOAD_RESUME<span class="cta-cursor"></span>
+            </button>
+            <div class="upload-form" id="uploadForm" style="display: none;">
+                <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" style="display: none;">
+                <div class="file-display-card" id="fileDisplayCard">
+                    <div class="file-icon-large">📄</div>
+                    <div class="file-info">
+                        <div class="file-name-text" id="fileNameText">Document.pdf</div>
+                        <div class="file-size-text" id="fileSizeText">0 KB</div>
+                    </div>
+                    <button class="change-file-btn" id="changeFileBtn">
+                        <span>🔄</span>
+                    </button>
+                </div>
+                <button class="submit-button" id="submitBtn">
+                    <span class="submit-icon">✓</span>
+                    <span class="submit-text">SUBMIT RESUME</span>
+                </button>
+            </div>
+            <div class="thank-you-message" id="thankYouMessage" style="display: none;">
+                <div class="thank-you-icon">✨</div>
+                <p>Thanks for showing interest!</p>
+            </div>
+        </div>
+    </section>
+
+    <?php include 'faq.php'; ?>
+
+    <?php include 'footer.php'; ?>
+
+
+    <script>
+        $(document).ready(function() {
+            console.log("Vrindavan SQL City ready!");
+
+            // Simulate loading for buildings with staggered animation
+            setTimeout(function() {
+                $('.dharamshala').removeClass('loading').addClass('loaded');
+            }, 300);
+
+            setTimeout(function() {
+                $('.temples').removeClass('loading').addClass('loaded');
+            }, 500);
+
+            setTimeout(function() {
+                $('.ashrams').removeClass('loading').addClass('loaded');
+            }, 700);
+
+            setTimeout(function() {
+                $('.pilgrims').removeClass('loading').addClass('loaded');
+            }, 900);
+
+            // Intersection Observer for section animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Animate children if they exist
+                        const cards = entry.target.querySelectorAll('.game-card');
+                        cards.forEach(card => card.classList.add('visible'));
+
+                        const features = entry.target.querySelectorAll('.feature');
+                        features.forEach(feature => feature.classList.add('visible'));
+
+                        const checkpoints = entry.target.querySelectorAll('.checkpoint');
+                        checkpoints.forEach(checkpoint => checkpoint.classList.add('visible'));
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all major sections
+            const sections = document.querySelectorAll('.progression-section, .features, .cta-section, .footer');
+            sections.forEach(section => observer.observe(section));
+
+            // Night mode toggle on pilgrims click
+            $(".pilgrims").click(function() {
+                $(".scene").toggleClass("night");
+                $(".window").toggleClass("window-night");
+            });
+
+            // Grayscale toggle on streetlamp hover
+            $(".streetlamp").hover(function() {
+                $(".scene").toggleClass("grayscale");
+            });
+
+            // Building hover effects are handled by CSS
+            console.log("Click pilgrims building for night mode!");
+            console.log("Hover street lamps for grayscale effect!");
+            console.log("🏗️ Buildings loading with animations...");
+
+            // Auto-scroll snake path in loop
+            const snakeContainer = document.querySelector('.snake-path-container');
+            if (snakeContainer) {
+                let scrollDirection = 1; // 1 for forward, -1 for backward
+                let scrollSpeed = 1; // pixels per frame
+                
+                function autoScroll() {
+                    if (!snakeContainer) return;
+                    
+                    const maxScroll = snakeContainer.scrollWidth - snakeContainer.clientWidth;
+                    const currentScroll = snakeContainer.scrollLeft;
+                    
+                    // Scroll forward
+                    if (scrollDirection === 1) {
+                        if (currentScroll >= maxScroll) {
+                            scrollDirection = -1; // Reverse direction
+                        } else {
+                            snakeContainer.scrollLeft += scrollSpeed;
+                        }
+                    }
+                    // Scroll backward
+                    else {
+                        if (currentScroll <= 0) {
+                            scrollDirection = 1; // Forward direction
+                        } else {
+                            snakeContainer.scrollLeft -= scrollSpeed;
+                        }
+                    }
+                    
+                    requestAnimationFrame(autoScroll);
+                }
+                
+                // Start auto-scroll
+                autoScroll();
+                
+                // Pause on hover
+                snakeContainer.addEventListener('mouseenter', () => {
+                    scrollSpeed = 0;
+                });
+                
+                snakeContainer.addEventListener('mouseleave', () => {
+                    scrollSpeed = 1;
+                });
+            }
+
+            // Resume upload functionality
+            const uploadBtn = document.getElementById('uploadResumeBtn');
+            const uploadForm = document.getElementById('uploadForm');
+            const fileInput = document.getElementById('resumeFile');
+            const fileLabel = document.getElementById('fileLabel');
+            const submitBtn = document.getElementById('submitBtn');
+            const thankYouMessage = document.getElementById('thankYouMessage');
+
+            // Click upload button
+            uploadBtn.addEventListener('click', function() {
+                uploadBtn.style.transform = 'translateX(150px)';
+                uploadBtn.style.opacity = '0';
+                
+                setTimeout(() => {
+                    uploadBtn.style.display = 'none';
+                    // Directly trigger file input
+                    fileInput.click();
+                }, 300);
+            });
+
+            // File selection
+            const fileDisplayCard = document.getElementById('fileDisplayCard');
+            const fileNameText = document.getElementById('fileNameText');
+            const fileSizeText = document.getElementById('fileSizeText');
+            const changeFileBtn = document.getElementById('changeFileBtn');
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const fileName = file.name;
+                    const fileSize = (file.size / 1024).toFixed(2); // KB
+                    
+                    // Update file info
+                    fileNameText.textContent = fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName;
+                    fileSizeText.textContent = fileSize + ' KB';
+                    
+                    // Show upload form with animation
+                    uploadForm.style.display = 'flex';
+                    setTimeout(() => {
+                        uploadForm.style.opacity = '1';
+                        uploadForm.style.transform = 'translateY(0)';
+                    }, 50);
+                }
+            });
+            
+            // Change file button
+            changeFileBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fileInput.click();
+            });
+
+            // Submit button
+            submitBtn.addEventListener('click', function() {
+                uploadForm.style.opacity = '0';
+                uploadForm.style.transform = 'translateX(-150px)';
+                
+                setTimeout(() => {
+                    uploadForm.style.display = 'none';
+                    thankYouMessage.style.display = 'block';
+                    setTimeout(() => {
+                        thankYouMessage.style.opacity = '1';
+                        thankYouMessage.style.transform = 'scale(1)';
+                    }, 50);
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
+
+

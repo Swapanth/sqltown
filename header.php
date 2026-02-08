@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Component</title>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="shortcut icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .app-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: transparent;
+            padding-top: 1rem;
+            z-index: 1000;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .animated-container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            transition: all 0.3s ease-in-out;
+            padding: 0;
+        }
+
+        .animated-container.compressed {
+            max-width: 85%;
+            width: 76%;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            min-height: 64px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background-color: #66ff00;
+            border-radius: 8px;
+            margin-right: 8px;
+        }
+
+        .nav-desktop {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-button {
+            color: #555;
+            text-transform: none;
+            padding: 6px 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-button:hover {
+            color: #000;
+            background-color: transparent;
+        }
+
+        .nav-button.active {
+            color: #ff6600;
+            font-weight: 700;
+        }
+
+        .btn-joinwaitlist {
+            background-color: #ff6600;
+            color: #ffffff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-joinwaitlist:hover {
+            background-color: #e65c00;
+        }
+
+        .menu-icon-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Mobile Drawer */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            z-index: 1100;
+            overflow-y: auto;
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 1099;
+        }
+
+        .drawer-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .drawer-content {
+            padding: 1rem 0;
+        }
+
+        .drawer-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            border: none;
+            width: 100%;
+            text-align: left;
+            background: none;
+            font-size: 1rem;
+            color: #333;
+            text-decoration: none;
+            display: block;
+        }
+
+        .drawer-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .drawer-item.active {
+            color: #ff6600;
+            font-weight: 700;
+        }
+
+        .drawer-divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 8px 0;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 960px) {
+            .nav-desktop {
+                display: none;
+            }
+
+            .menu-icon-btn {
+                display: block;
+            }
+        }
+
+        @media (min-width: 961px) {
+            .drawer,
+            .drawer-backdrop {
+                display: none;
+            }
+        }
+
+        /* Spacer for fixed header */
+        .header-spacer {
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-bar">
+        <div class="animated-container" id="headerContainer">
+            <div class="toolbar">
+                <div class="logo-container">
+                    <span style="color: #ff6600; font-size: 1.5rem; font-family: 'Syne', sans-serif; font-weight: 700;">Sqltown</span>
+                </div>
+
+                <nav class="nav-desktop">
+                    <a class="nav-button" href="/features.php">Features</a>
+                    <a class="nav-button" href="#progression-section">Progress</a>
+                    <a class="nav-button" href="/game.php">Play</a>
+                    <a class="nav-button" href="#features">Why Build</a>
+                    <a class="nav-button" href="/faq.php">FAQ</a>
+                    <button class="btn-joinwaitlist" onclick="navigate('/auth/signup')">Join Waitlist</button>
+                </nav>
+
+                <button class="menu-icon-btn" id="menuToggle">
+                    <svg class="menu-icon" id="menuIcon" viewBox="0 0 24 24">
+                        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                    </svg>
+                    <svg class="menu-icon" id="closeIcon" viewBox="0 0 24 24" style="display: none;">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-content">
+            <a class="drawer-item" href="/features.php">Features</a>
+            <a class="drawer-item" href="#progression-section">Progress</a>
+            <a class="drawer-item" href="/game.php">Play</a>
+            <a class="drawer-item" href="#features">Why Build</a>
+            <a class="drawer-item" href="/faq.php">FAQ</a>
+            <div class="drawer-divider"></div>
+            <a class="drawer-item" onclick="navigate('/auth/signup')">Join Waitlist</a>
+        </div>
+    </div>
+
+    <div class="header-spacer"></div>
+
+    <script>
+        // Scroll detection for compression effect
+        let lastScrollY = 0;
+        const headerContainer = document.getElementById('headerContainer');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            
+            if (scrollY > 20) {
+                headerContainer.classList.add('compressed');
+            } else {
+                headerContainer.classList.remove('compressed');
+            }
+            
+            lastScrollY = scrollY;
+        });
+
+        // Mobile drawer toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const drawer = document.getElementById('drawer');
+        const drawerBackdrop = document.getElementById('drawerBackdrop');
+        const menuIcon = document.getElementById('menuIcon');
+        const closeIcon = document.getElementById('closeIcon');
+
+        function toggleDrawer() {
+            const isOpen = drawer.classList.contains('open');
+            
+            if (isOpen) {
+                drawer.classList.remove('open');
+                drawerBackdrop.classList.remove('open');
+                menuIcon.style.display = 'block';
+                closeIcon.style.display = 'none';
+            } else {
+                drawer.classList.add('open');
+                drawerBackdrop.classList.add('open');
+                menuIcon.style.display = 'none';
+                closeIcon.style.display = 'block';
+            }
+        }
+
+        menuToggle.addEventListener('click', toggleDrawer);
+        drawerBackdrop.addEventListener('click', toggleDrawer);
+
+        // Close drawer when clicking drawer items (except anchor links handled separately)
+        const drawerItems = document.querySelectorAll('.drawer-item');
+        drawerItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                // If this is an in-page anchor, smooth-scroll handler will close the drawer.
+                if (window.innerWidth <= 960 && !item.matches('a[href^="#"]')) {
+                    toggleDrawer();
+                }
+            });
+        });
+
+        // Navigation function (placeholder)
+        function navigate(path) {
+            console.log('Navigating to:', path);
+            // Replace with actual navigation logic
+            // window.location.href = path;
+        }        
+
+        // Smooth scroll for in-page anchors & close drawer on mobile
+        document.querySelectorAll('.nav-desktop a.nav-button, .drawer .drawer-item[href^="#"]').forEach(a => {
+            a.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    if (window.innerWidth <= 960 && drawer.classList.contains('open')) {
+                        toggleDrawer();
+                    }
+                }
+            });
+        });
+
+        // Active link highlighting (desktop + drawer)
+        const sectionIds = ['progression-section', 'features', 'cta-section'];
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const id = entry.target.id;
+                const navLink = document.querySelector(`.nav-desktop a[href="#${id}"]`);
+                const drawerLink = document.querySelector(`.drawer .drawer-item[href="#${id}"]`);
+                if (entry.isIntersecting) {
+                    if (navLink) navLink.classList.add('active');
+                    if (drawerLink) drawerLink.classList.add('active');
+                } else {
+                    if (navLink) navLink.classList.remove('active');
+                    if (drawerLink) drawerLink.classList.remove('active');
+                }
+            });
+        }, { threshold: 0.4 });
+
+        sectionIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) sectionObserver.observe(el);
+        });
+
+        // If we're on the standalone features page, mark the Features nav link active
+        if (window.location.pathname && (window.location.pathname.endsWith('/features.php') || window.location.pathname.endsWith('features.php'))) {
+            const featuresNav = document.querySelector('.nav-desktop a[href="/features.php"]');
+            const featuresDrawer = document.querySelector('.drawer .drawer-item[href="/features.php"]');
+            if (featuresNav) featuresNav.classList.add('active');
+            if (featuresDrawer) featuresDrawer.classList.add('active');
+        }
+
+    </script>
+</body>
+</html>
