@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <?php include 'header.php'; ?>
+    <div id="navbar"></div>
     <section class="hero">
         <h1 class="hero-title">Build SQL like a <span class="city-text" data-text="town"><span class="city-letters"><span class="city-letter">t</span><span class="city-letter">o</span><span class="city-letter">w</span><span class="city-letter">n</span></span></span></h1>
         <p class="hero-subtitle">Learn database design by building a sacred city — One query at a time</p>
@@ -257,15 +257,15 @@
 
     <br>
 
-    <?php include 'features.php'; ?>
+    <div id="featuerscomponent"></div>
 
 
-    <?php include 'learning_path.php'; ?>
+    <div id="learningPathComponent"></div>
 
 
     <br>
 
-    <?php include 'gamedemo.php'; ?>
+    <div id="gameDemoComponent"></div>
 
     <section id="cta-section"  style="margin-top: 4rem;padding: 3rem 1rem; border-radius: 12px; align-items: center; text-align: center; background: rgba(255, 107, 53, 0.04); border: 1px solid rgba(0, 0, 0, 0.06);">
         <h2 class="cta-title">Can we build together?</h2>
@@ -297,12 +297,134 @@
         </div>
     </section>
 
-    <?php include 'faq.php'; ?>
+    <div id="faqComponent"></div>
 
-    <?php include 'footer.php'; ?>
+    <div id="footerComponent"></div>
 
 
     <script>
+        // Component Loader Script
+        function loadComponent(elementId, filePath) {
+            fetch(filePath)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${filePath}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        // Extract content from the loaded HTML
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        // Extract and inject external scripts from head (like css-doodle)
+                        const headScripts = doc.head.querySelectorAll('script[src]');
+                        const scriptLoadPromises = [];
+                        headScripts.forEach(script => {
+                            const src = script.getAttribute('src');
+                            // Check if script is not already loaded
+                            if (!document.querySelector(`script[src="${src}"]`)) {
+                                const scriptPromise = new Promise((resolve, reject) => {
+                                    const newScript = document.createElement('script');
+                                    newScript.src = src;
+                                    newScript.setAttribute('data-component', filePath);
+                                    newScript.onload = resolve;
+                                    newScript.onerror = reject;
+                                    document.head.appendChild(newScript);
+                                });
+                                scriptLoadPromises.push(scriptPromise);
+                            }
+                        });
+                        
+                        // Wait for external scripts to load before continuing
+                        Promise.all(scriptLoadPromises).then(() => {
+                            // Extract and inject styles
+                            const styles = doc.querySelectorAll('style');
+                            styles.forEach(style => {
+                                const newStyle = document.createElement('style');
+                                newStyle.textContent = style.textContent;
+                                newStyle.setAttribute('data-component', filePath);
+                                document.head.appendChild(newStyle);
+                            });
+                            
+                            // Extract and inject external stylesheets
+                            const links = doc.querySelectorAll('link[rel="stylesheet"]');
+                            links.forEach(link => {
+                                const href = link.getAttribute('href');
+                                // Check if stylesheet is not already loaded
+                                if (!document.querySelector(`link[href="${href}"]`)) {
+                                    const newLink = document.createElement('link');
+                                    newLink.rel = 'stylesheet';
+                                    newLink.href = href;
+                                    newLink.setAttribute('data-component', filePath);
+                                    document.head.appendChild(newLink);
+                                }
+                            });
+                            
+                            // Insert body content
+                            const bodyContent = doc.body.innerHTML;
+                            element.innerHTML = bodyContent;
+                            
+                            // Execute any scripts in the loaded content after a short delay
+                            setTimeout(() => {
+                                const scripts = element.querySelectorAll('script');
+                                scripts.forEach(script => {
+                                    const newScript = document.createElement('script');
+                                    if (script.src) {
+                                        newScript.src = script.src;
+                                    } else {
+                                        newScript.textContent = script.textContent;
+                                    }
+                                    newScript.setAttribute('data-component', filePath);
+                                    document.body.appendChild(newScript);
+                                });
+                            }, 200);
+                        }).catch(error => {
+                            console.error('Error loading external scripts:', error);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading component:', error);
+                });
+        }
+
+        // Load all components when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load navbar from header.html
+            if (document.getElementById('navbar')) {
+                loadComponent('navbar', 'header.html');
+            }
+            
+            // Load footer from footer.html
+            if (document.getElementById('footerComponent')) {
+                loadComponent('footerComponent', 'footer.html');
+            }
+            
+            // Load features from features.html
+            if (document.getElementById('featuerscomponent')) {
+                loadComponent('featuerscomponent', 'features.html');
+            }
+            
+            // Load FAQ component
+            if (document.getElementById('faqComponent')) {
+                loadComponent('faqComponent', 'faq.html');
+            }
+            
+            // Load learning path from gamedemo.html
+            if (document.getElementById('learningPathComponent')) {
+                loadComponent('learningPathComponent', 'learning_path.html');
+            }
+
+            // Load game demo component
+            if (document.getElementById('gameDemoComponent')) {
+                loadComponent('gameDemoComponent', 'gamedemo.html');
+            }
+        });
+
+
         $(document).ready(function() {
             console.log("Vrindavan SQL City ready!");
 

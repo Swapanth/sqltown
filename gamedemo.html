@@ -81,14 +81,14 @@
 
         /* Interactive Terminal */
         .idkinteractive-terminal {
-            background: var(--charcoal);
+            background: black;
             width: 100%;
             min-height: 100vh;
             box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.2);
         }
 
         .idkterminal-header {
-            background: linear-gradient(to bottom, #3a3d42 0%, var(--charcoal) 100%);
+            background: linear-gradient(to bottom, #3a3d42 0%, black 100%);
             padding: 1rem 2rem;
             display: flex;
             align-items: center;
@@ -127,7 +127,7 @@
         }
 
         .idkterminal-input-area {
-            background: var(--charcoal);
+            background: black;
             padding: 3rem;
             font-family: 'JetBrains Mono', monospace;
             display: flex;
@@ -217,8 +217,8 @@
 
         .idkrun-button {
             background: transparent;
-            color: var(--sage);
-            border: 2px solid var(--sage);
+            color: #ff8310;
+            border: 2px solid #ff8310;
             padding: 0.75rem 1.5rem;
             border-radius: 3px;
             font-family: 'JetBrains Mono', monospace;
@@ -233,7 +233,7 @@
 
         .idkrun-button:hover {
             background: var(--sage);
-            color: var(--charcoal);
+            color: black;
         }
 
         .idkrun-button:disabled {
@@ -1840,7 +1840,7 @@
 </head>
 <body>
     <section class="idkhero">
-        <h1 class="idkhero-title">🎮 Try SQL City Free</h1>
+        <h1 class="idkhero-title">Try SQL Town</h1>
         <p class="idkhero-subtitle">Learn SQL by building your first city — no signup required</p>
     </section>
 
@@ -1872,22 +1872,14 @@
                         <div class="idkstory-line">Before we can build, every town needs a name.</div>
                         <div class="idkstory-line">In SQL, we create a DATABASE to hold our town's data.</div>
                         <div class="idkstory-line">&nbsp;</div>
-                        <div class="idkstory-line">🏡 Think of your DATABASE as the <span class="idkhighlight">foundation</span> of your town.</div>
-                        <div class="idkstory-line">🌲 Everything you build will grow within this space.</div>
-                        <div class="idkstory-line">&nbsp;</div>
                         <div class="idkdivider"></div>
                         <div class="idkstory-line"><span class="idkemoji">📝</span><span class="idktask-highlight">Quest 1: Name Your Town</span></div>
-                        <div class="idkstory-line">Create your database by typing:</div>
-                        <div class="idkstory-line"><span class="idkemphasis">CREATE DATABASE YourTownName;</span></div>
-                        <div class="idkstory-line">&nbsp;</div>
-                        <div class="idkstory-line">💡 Choose a name that represents your vision!</div>
+                        <div class="idkstory-line">Create your database:</div>
                     </div>
-
-                    <div class="idkprompt-line" id="promptLine">sql> CREATE DATABASE</div>
                     <textarea 
                         class="idksql-input" 
                         id="sqlInput" 
-                        placeholder="Kiran's;"
+                        placeholder="CREATE DATABASE YourTownName;"
                         spellcheck="false"
                     ></textarea>
                     <button class="idkrun-button" id="runButton">Create Town</button>
@@ -2278,16 +2270,8 @@
         let userEmail = null;
         let waitlistMode = false;
 
-        // Elements
-        const sqlInput = document.getElementById('sqlInput');
-        const runButton = document.getElementById('runButton');
-        const errorMessage = document.getElementById('errorMessage');
-        const hintButton = document.getElementById('hintButton');
-        const hintText = document.getElementById('hintText');
-        const city = document.getElementById('city');
-        const promptLine = document.getElementById('promptLine');
-        const hintsSection = document.getElementById('hintsSection');
-        const terminalStory = document.getElementById('terminalStory');
+        // Elements - will be initialized after DOM is ready
+        let sqlInput, runButton, errorMessage, hintButton, hintText, city, promptLine, hintsSection, terminalStory;
 
         const hints = [
             "Start with CREATE TABLE followed by the table name...",
@@ -2297,9 +2281,27 @@
 
         let hintLevel = 0;
 
-        // Animate story on load
-        window.addEventListener('load', () => {
-            const storyLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
+        // Initialize game demo
+        function initGameDemo() {
+            // Get elements
+            sqlInput = document.getElementById('sqlInput');
+            runButton = document.getElementById('runButton');
+            errorMessage = document.getElementById('errorMessage');
+            hintButton = document.getElementById('hintButton');
+            hintText = document.getElementById('hintText');
+            city = document.getElementById('city');
+            promptLine = document.getElementById('promptLine');
+            hintsSection = document.getElementById('hintsSection');
+            terminalStory = document.getElementById('terminalStory');
+
+            // Check if elements exist
+            if (!sqlInput || !runButton || !terminalStory) {
+                console.warn('Game demo elements not found, retrying...');
+                return;
+            }
+
+            // Animate story
+            const storyLines = terminalStory.querySelectorAll('.idkstory-line, .idkdivider');
             storyLines.forEach((line, index) => {
                 setTimeout(() => {
                     line.classList.add('idkvisible');
@@ -2309,7 +2311,33 @@
             // Initialize forest and grass
             initForest();
             initGrass();
-        });
+
+            // Check if already unlocked
+            if (localStorage.getItem('townName')) {
+                unlockGame(localStorage.getItem('townName'));
+            }
+
+            // Main button click handler
+            if (runButton) {
+                runButton.addEventListener('click', handleRunButtonClick);
+            }
+
+            // Hint button handler
+            if (hintButton) {
+                hintButton.addEventListener('click', handleHintButtonClick);
+            }
+        }
+
+        // Animate story on load
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initGameDemo);
+        } else {
+            // DOM already loaded, try to initialize now
+            setTimeout(initGameDemo, 100);
+        }
+
+        // Also listen for load event as fallback
+        window.addEventListener('load', initGameDemo);
 
         // Reinitialize forest on window resize
         window.addEventListener('resize', () => {
@@ -2317,13 +2345,8 @@
             initGrass();
         }, false);
 
-        // Check if already unlocked
-        if (localStorage.getItem('townName')) {
-            unlockGame(localStorage.getItem('townName'));
-        }
-
         // Main button click handler
-        runButton.addEventListener('click', () => {
+        function handleRunButtonClick() {
             // Skip if in waitlist mode - separate handler is used
             if (waitlistMode) return;
             
@@ -2347,18 +2370,21 @@
                 // Remove the semicolon for processing
                 const inputWithoutSemicolon = input.slice(0, -1).trim();
                 
-                // Extract database name from CREATE DATABASE statement
-                let dbName = inputWithoutSemicolon;
-                
                 // Check if they included CREATE DATABASE
                 const upperInput = inputWithoutSemicolon.toUpperCase();
-                if (upperInput.includes('CREATE DATABASE')) {
-                    // Extract the name after CREATE DATABASE
-                    const match = inputWithoutSemicolon.match(/CREATE\s+DATABASE\s+(.+)/i);
-                    if (match) {
-                        dbName = match[1].trim();
-                    }
+                if (!upperInput.includes('CREATE DATABASE')) {
+                    showError("You need to use CREATE DATABASE command! Try: CREATE DATABASE YourTownName;");
+                    return;
                 }
+                
+                // Extract the name after CREATE DATABASE
+                const match = inputWithoutSemicolon.match(/CREATE\s+DATABASE\s+(.+)/i);
+                if (!match || !match[1].trim()) {
+                    showError("Give your town a name after CREATE DATABASE!");
+                    return;
+                }
+                
+                const dbName = match[1].trim();
                 
                 // Valid database name - unlock game!
                 userEmail = dbName + '@sqltown.db'; // Store as fake email for compatibility
@@ -2388,7 +2414,7 @@
                     showError("Almost there! Make sure you have both 'id' and 'name' columns");
                 }
             }
-        });
+        }
 
         function isValidEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -2460,73 +2486,57 @@
             
             // Update terminal content for SQL mission
             setTimeout(() => {
-                // Animate story fade out
-                const storyLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
-                storyLines.forEach((line, index) => {
+                // Clear the story and inputs immediately
+                terminalStory.innerHTML = `
+                    <div class="idkstory-line"><span class="idkemoji">✅</span><span class="idkhighlight">Welcome aboard, ${username}!</span></div>
+                    <div class="idkstory-line">&nbsp;</div>
+                    <div class="idkstory-line">Right now, ${username} Town has no tables. No records.</div>
+                    <div class="idkstory-line">Just dirt and ambition.</div>
+                    <div class="idkstory-line">&nbsp;</div>
+                    <div class="idkdivider"></div>
+                    <div class="idkstory-line"><span class="idkemoji">📋</span><span class="idktask-highlight">Your Mission:</span></div>
+                    <div class="idkstory-line">Create a table called <span class="idkhighlight">residents</span> with two columns:</div>
+                    <div class="idkstory-line">  • <span class="idktask-highlight">id</span> (INT - unique number)</div>
+                    <div class="idkstory-line">  • <span class="idktask-highlight">name</span> (VARCHAR - text)</div>
+                `;
+                
+                // Animate the new lines in
+                const newStoryLines = terminalStory.querySelectorAll('.idkstory-line, .idkdivider');
+                newStoryLines.forEach((line, index) => {
+                    line.style.opacity = '0';
+                    line.style.transform = 'translateX(-20px)';
+                    line.style.transition = 'all 0.6s ease-out';
                     setTimeout(() => {
-                        line.style.transition = 'opacity 0.3s, transform 0.3s';
-                        line.style.opacity = '0';
-                        line.style.transform = 'translateX(-20px)';
-                    }, index * 30);
+                        line.style.opacity = '1';
+                        line.style.transform = 'translateX(0)';
+                    }, index * 80);
                 });
                 
-                // Animate input fade
-                sqlInput.style.transition = 'all 0.5s';
-                sqlInput.style.opacity = '0';
-                runButton.style.opacity = '0';
-                promptLine.style.opacity = '0';
+                // Update prompt and input
+                promptLine.innerHTML = '→';
+                promptLine.style.transition = 'opacity 0.3s';
+                promptLine.style.opacity = '1';
                 
+                sqlInput.placeholder = 'CREATE TABLE residents ...';
+                sqlInput.value = '';
+                sqlInput.style.transition = 'opacity 0.3s';
+                sqlInput.style.opacity = '1';
+                
+                runButton.textContent = '▶ Run';
+                runButton.style.transition = 'opacity 0.3s';
+                runButton.style.opacity = '1';
+                
+                // Show hints section
+                hintsSection.style.display = 'block';
+                hintsSection.style.opacity = '0';
+                hintsSection.style.transition = 'opacity 0.5s';
                 setTimeout(() => {
-                    // Update story for SQL mission
-                    terminalStory.innerHTML = `
-                        <div class="idkstory-line idkvisible"><span class="idkemoji">✅</span><span class="idkhighlight">Welcome aboard, ${username}!</span></div>
-                        <div class="idkstory-line idkvisible">&nbsp;</div>
-                        <div class="idkstory-line idkvisible">Right now, ${username} Town has no database. No records.</div>
-                        <div class="idkstory-line idkvisible">Just dirt and ambition.</div>
-                        <div class="idkstory-line idkvisible">&nbsp;</div>
-                        <div class="idkdivider idkvisible"></div>
-                        <div class="idkstory-line idkvisible"><span class="idkemoji">📋</span><span class="idktask-highlight">Your Mission:</span></div>
-                        <div class="idkstory-line idkvisible">Create a table called <span class="idkhighlight">residents</span> with two columns:</div>
-                        <div class="idkstory-line idkvisible">  • <span class="idktask-highlight">id</span> (a unique number for each resident)</div>
-                        <div class="idkstory-line idkvisible">  • <span class="idktask-highlight">name</span> (text to store their name)</div>
-                    `;
-                    
-                    // Re-animate story
-                    const newStoryLines = terminalStory.querySelectorAll('.idkstory-line, .divider');
-                    newStoryLines.forEach((line, index) => {
-                        line.style.opacity = '0';
-                        line.style.transform = 'translateX(-20px)';
-                        setTimeout(() => {
-                            line.style.transition = 'all 0.6s ease-out';
-                            line.style.opacity = '1';
-                            line.style.transform = 'translateX(0)';
-                        }, index * 100);
-                    });
-                    
-                    // Update UI for SQL challenge
-                    promptLine.textContent = `→ Type your SQL command:`;
-                    sqlInput.placeholder = 'CREATE TABLE ...';
-                    sqlInput.value = '';
-                    runButton.textContent = '▶ Run Command';
-                    
-                    // Show hints
-                    hintsSection.style.display = 'block';
-                    hintsSection.style.opacity = '0';
-                    
-                    // Fade back in
-                    promptLine.style.opacity = '1';
-                    sqlInput.style.opacity = '1';
-                    runButton.style.opacity = '1';
-                    
-                    setTimeout(() => {
-                        hintsSection.style.transition = 'opacity 0.5s';
-                        hintsSection.style.opacity = '1';
-                    }, 1000);
-                    
-                    // Add welcome message
-                    showSuccess(`🎉 Game unlocked! Let's build something amazing.`);
-                }, 800);
-            }, 4500);
+                    hintsSection.style.opacity = '1';
+                }, 500);
+                
+                // Show success message
+                showSuccess(`🎉 Game unlocked! Now create your first table.`);
+            }, 4000);
         }
 
         function showError(message) {
@@ -2550,17 +2560,6 @@
                 }, 500);
             }, 3000);
         }
-
-        hintButton.addEventListener('click', () => {
-            if (hintLevel < hints.length) {
-                hintText.textContent = hints[hintLevel];
-                hintLevel++;
-                if (hintLevel === hints.length) {
-                    hintButton.textContent = 'No more hints!';
-                    hintButton.disabled = true;
-                }
-            }
-        });
 
         function celebrate() {
             // Get username from stored email
