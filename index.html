@@ -267,6 +267,9 @@
 
     <div id="gameDemoComponent"></div>
 
+    <!-- Waitlist Component -->
+    <div id="waitlistComponent"></div>
+
     <section id="cta-section"  style="margin-top: 4rem;padding: 3rem 1rem; border-radius: 12px; align-items: center; text-align: center; background: rgba(255, 107, 53, 0.04); border: 1px solid rgba(0, 0, 0, 0.06);">
         <h2 class="cta-title">Can we build together?</h2>
         <div class="cta-container">
@@ -380,6 +383,12 @@
                                     newScript.setAttribute('data-component', filePath);
                                     document.body.appendChild(newScript);
                                 });
+                                
+                                // Trigger custom event when component is loaded
+                                const event = new CustomEvent('componentLoaded', { 
+                                    detail: { elementId: elementId, filePath: filePath } 
+                                });
+                                document.dispatchEvent(event);
                             }, 200);
                         }).catch(error => {
                             console.error('Error loading external scripts:', error);
@@ -421,6 +430,11 @@
             // Load game demo component
             if (document.getElementById('gameDemoComponent')) {
                 loadComponent('gameDemoComponent', 'gamedemo.html');
+            }
+
+            // Load waitlist component
+            if (document.getElementById('waitlistComponent')) {
+                loadComponent('waitlistComponent', 'waitlist_component.html');
             }
         });
 
