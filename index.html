@@ -275,6 +275,36 @@
     <div id="joinUsComponent"></div>
 
 
+    <section id="cta-section"  style="margin-top: 4rem;padding: 3rem 1rem; border-radius: 12px; align-items: center; text-align: center; background: rgba(255, 107, 53, 0.04); border: 1px solid rgba(0, 0, 0, 0.06);">
+        <h2 class="cta-title">Can we build together?</h2>
+        <div class="cta-container">
+            <button class="cta-button" id="uploadResumeBtn">
+                > UPLOAD_RESUME<span class="cta-cursor"></span>
+            </button>
+            <div class="upload-form" id="uploadForm" style="display: none;">
+                <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" style="display: none;">
+                <div class="file-display-card" id="fileDisplayCard">
+                    <div class="file-icon-large">📄</div>
+                    <div class="file-info">
+                        <div class="file-name-text" id="fileNameText">Document.pdf</div>
+                        <div class="file-size-text" id="fileSizeText">0 KB</div>
+                    </div>
+                    <button class="change-file-btn" id="changeFileBtn">
+                        <span>🔄</span>
+                    </button>
+                </div>
+                <button class="submit-button" id="submitBtn">
+                    <span class="submit-icon">✓</span>
+                    <span class="submit-text">SUBMIT RESUME</span>
+                </button>
+            </div>
+            <div class="thank-you-message" id="thankYouMessage" style="display: none;">
+                <div class="thank-you-icon">✨</div>
+                <p>Thanks for showing interest!</p>
+            </div>
+        </div>
+    </section>
+
 
     <div id="faqComponent"></div>
 
@@ -361,6 +391,12 @@
                                     newScript.setAttribute('data-component', filePath);
                                     document.body.appendChild(newScript);
                                 });
+                                
+                                // Trigger custom event when component is loaded
+                                const event = new CustomEvent('componentLoaded', { 
+                                    detail: { elementId: elementId, filePath: filePath } 
+                                });
+                                document.dispatchEvent(event);
                             }, 200);
                         }).catch(error => {
                             console.error('Error loading external scripts:', error);
@@ -407,6 +443,11 @@
             // Load game demo component
             if (document.getElementById('gameDemoComponent')) {
                 loadComponent('gameDemoComponent', 'gamedemo.html');
+            }
+
+            // Load waitlist component
+            if (document.getElementById('waitlistComponent')) {
+                loadComponent('waitlistComponent', 'waitlist_component.html');
             }
         });
 

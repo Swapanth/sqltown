@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .waitlist-section {
+            margin: 4rem 0;
+            padding: 3rem 1rem;
+            border-radius: 12px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .waitlist-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .waitlist-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .waitlist-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .email-input-container {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .waitlist-email-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .waitlist-email-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .waitlist-submit-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 150px;
+        }
+
+        .waitlist-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .waitlist-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .waitlist-message {
+            margin-top: 1rem;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .waitlist-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .waitlist-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .waitlist-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .waitlist-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: waitlist-spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes waitlist-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .waitlist-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .waitlist-feature {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .waitlist-feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .waitlist-feature-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .waitlist-feature-desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .subscriber-count {
+            display: inline-block;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .email-input-container {
+                flex-direction: column;
+            }
+            
+            .waitlist-email-input {
+                min-width: 100%;
+            }
+            
+            .waitlist-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="waitlist-section">
+        <h2 class="waitlist-title">Join the SQL City Waitlist</h2>
+        <p class="waitlist-subtitle">
+            Be the first to know when we launch our interactive SQL learning platform. 
+            Get early access and exclusive updates!
+        </p>
+        
+        <form class="waitlist-form" id="waitlistForm">
+            <div class="email-input-container">
+                <input 
+                    type="email" 
+                    class="waitlist-email-input" 
+                    id="waitlistEmail" 
+                    placeholder="Enter your email address"
+                    required
+                >
+                <button type="submit" class="waitlist-submit-btn" id="waitlistSubmitBtn">
+                    Join Waitlist
+                </button>
+            </div>
+        </form>
+        
+        <div id="waitlistMessage" class="waitlist-message"></div>
+        <div id="subscriberCount" class="subscriber-count" style="display: none;"></div>
+        
+        <div class="waitlist-features">
+            <div class="waitlist-feature">
+                <div class="waitlist-feature-icon">🏗️</div>
+                <div class="waitlist-feature-title">Early Access</div>
+                <div class="waitlist-feature-desc">Get first access to our SQL city builder</div>
+            </div>
+            <div class="waitlist-feature">
+                <div class="waitlist-feature-icon">📚</div>
+                <div class="waitlist-feature-title">Exclusive Content</div>
+                <div class="waitlist-feature-desc">Access premium learning materials</div>
+            </div>
+            <div class="waitlist-feature">
+                <div class="waitlist-feature-icon">🎮</div>
+                <div class="waitlist-feature-title">Beta Features</div>
+                <div class="waitlist-feature-desc">Try new features before everyone else</div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Wait for the component to be fully loaded before initializing
+        function initializeWaitlist() {
+            const form = document.getElementById('waitlistForm');
+            const submitBtn = document.getElementById('waitlistSubmitBtn');
+            const messageDiv = document.getElementById('waitlistMessage');
+            const emailInput = document.getElementById('waitlistEmail');
+            const subscriberCountDiv = document.getElementById('subscriberCount');
+
+            // Check if all elements exist before proceeding
+            if (!form || !submitBtn || !messageDiv || !emailInput || !subscriberCountDiv) {
+                console.log('Waitlist elements not ready, retrying...');
+                setTimeout(initializeWaitlist, 100);
+                return;
+            }
+
+            console.log('Waitlist component initialized successfully');
+
+            // Google Apps Script URL
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby77ULQM6Ak-s5HgiPzMFJ8nfgLnXWcNtPRSKFiFAhfDrwH_ArytqtFIUurlwxF7cul/exec';
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                
+                if (!email) {
+                    showWaitlistMessage('Please enter a valid email address.', 'error');
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="waitlist-loading"></span>Joining...';
+                hideWaitlistMessage();
+
+                try {
+                    console.log('Submitting email:', email);
+                    console.log('Script URL:', SCRIPT_URL);
+
+                    // Simplified data - only email and timestamp
+                    const params = new URLSearchParams();
+                    params.append('email', email);
+                    params.append('timestamp', new Date().toISOString());
+
+                    console.log('Sending POST data:', params.toString());
+
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params.toString()
+                    });
+
+                    console.log('Response status:', response.status);
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText);
+
+                    // Try to parse JSON response
+                    try {
+                        const result = JSON.parse(responseText);
+                        console.log('Parsed result:', result);
+                        
+                        if (result.status === 'success') {
+                            showWaitlistMessage(`🎉 ${result.message}`, 'success');
+                            if (result.count) {
+                                subscriberCountDiv.textContent = `🎯 You're subscriber #${result.count}!`;
+                                subscriberCountDiv.style.display = 'inline-block';
+                            }
+                            form.reset();
+                        } else if (result.status === 'duplicate') {
+                            showWaitlistMessage(`📧 ${result.message}`, 'warning');
+                        } else if (result.status === 'error') {
+                            showWaitlistMessage(`❌ ${result.message}`, 'error');
+                        } else {
+                            showWaitlistMessage('📧 Email submitted! Please check your Google Sheet to confirm.', 'success');
+                            form.reset();
+                        }
+                    } catch (parseError) {
+                        console.log('Could not parse JSON, but request may have succeeded');
+                        // If we can't parse JSON but got a response, assume success
+                        showWaitlistMessage('📧 Email submitted! Please check your Google Sheet to confirm.', 'success');
+                        form.reset();
+                    }
+                    
+                } catch (error) {
+                    console.error('POST method failed:', error);
+                    
+                    // Fallback: Try GET method
+                    try {
+                        console.log('Trying GET method as fallback...');
+                        const getUrl = `${SCRIPT_URL}?email=${encodeURIComponent(email)}&timestamp=${encodeURIComponent(new Date().toISOString())}`;
+                        console.log('GET URL:', getUrl);
+                        
+                        const getResponse = await fetch(getUrl, {
+                            method: 'GET'
+                        });
+                        
+                        const getResponseText = await getResponse.text();
+                        console.log('GET Response:', getResponseText);
+                        
+                        try {
+                            const getResult = JSON.parse(getResponseText);
+                            if (getResult.status === 'success') {
+                                showWaitlistMessage(`🎉 ${getResult.message}`, 'success');
+                                form.reset();
+                            } else if (getResult.status === 'duplicate') {
+                                showWaitlistMessage(`📧 ${getResult.message}`, 'warning');
+                            } else {
+                                showWaitlistMessage('📧 Email submitted via GET! Check your Google Sheet.', 'success');
+                                form.reset();
+                            }
+                        } catch (getParseError) {
+                            showWaitlistMessage('📧 Email submitted! Please check your Google Sheet to confirm.', 'success');
+                            form.reset();
+                        }
+                        
+                    } catch (getError) {
+                        console.error('Both POST and GET methods failed:', getError);
+                        showWaitlistMessage('❌ Connection issue. Please check your internet connection and try again.', 'error');
+                    }
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Join Waitlist';
+                }
+            });
+
+            function showWaitlistMessage(text, type) {
+                if (messageDiv) {
+                    messageDiv.textContent = text;
+                    messageDiv.className = `waitlist-message waitlist-${type}`;
+                    messageDiv.style.display = 'block';
+                }
+            }
+
+            function hideWaitlistMessage() {
+                if (messageDiv) {
+                    messageDiv.style.display = 'none';
+                }
+                if (subscriberCountDiv) {
+                    subscriberCountDiv.style.display = 'none';
+                }
+            }
+
+            // Clear message when user starts typing
+            emailInput.addEventListener('input', hideWaitlistMessage);
+        }
+
+        // Initialize when DOM is ready or when component is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeWaitlist);
+        } else {
+            // DOM is already loaded, try to initialize
+            setTimeout(initializeWaitlist, 100);
+        }
+    </script>
+</body>
+</html>
