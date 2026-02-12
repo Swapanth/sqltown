@@ -1,0 +1,35 @@
+from pydantic_settings import BaseSettings
+from typing import List
+
+
+class Settings(BaseSettings):
+    """
+    Application settings loaded from environment variables
+    """
+    # Server Configuration
+    APP_NAME: str = "SQLTown API"
+    PORT: int = 3000
+    DEBUG: bool = False
+    
+    # AWS Configuration
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION: str = "ap-southeast-2"
+    AWS_S3_BUCKET: str = "sqltown-bucket1"
+    
+    # CORS Configuration
+    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ALLOW_CREDENTIALS: bool = True
+    CORS_ALLOW_METHODS: List[str] = ["*"]
+    CORS_ALLOW_HEADERS: List[str] = ["*"]
+    
+    # S3 Upload Configuration
+    S3_PRESIGNED_URL_EXPIRATION: int = 300  # 5 minutes in seconds
+    S3_UPLOAD_PREFIX: str = "resumes"
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+
+settings = Settings()
