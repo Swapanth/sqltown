@@ -11,7 +11,7 @@ load_dotenv()
 # Initialize FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
-    description="FastAPI server for SQLTown with AWS S3 integration",
+    description="Server for SQLTown - A SQL query playground",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"

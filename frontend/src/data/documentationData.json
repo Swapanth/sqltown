@@ -1,0 +1,498 @@
+{
+  "mysql": {
+    "title": "MySQL Documentation",
+    "version": "8.0",
+    "sections": [
+      {
+        "id": "getting-started",
+        "title": "Getting Started",
+        "icon": "rocket",
+        "subsections": [
+          {
+            "id": "setup-steps",
+            "title": "Five Steps to Setup",
+            "description": "Quick guide to get MySQL up and running.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<h3>1. Download MySQL Installer</h3><p>Visit the official MySQL website and download the MySQL Installer for your operating system.</p><h3>2. Run the Installer</h3><p>Execute the installer and choose the 'Developer Default' setup type to install MySQL Server, Workbench, and other useful tools.</p><h3>3. Configure Server</h3><p>Follow the configuration wizard. Set a strong root password and add a user account.</p><h3>4. Start the Service</h3><p>Ensure the MySQL service is running via your system's service manager or command line.</p><h3>5. Connect</h3><p>Open MySQL Workbench or a command line client and connect using your configured credentials.</p>"
+              }
+            ]
+          },
+          {
+            "id": "installation",
+            "title": "Installation Guide",
+            "description": "Detailed installation instructions.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>MySQL can be installed on various platforms.</p><h4>macOS (Homebrew)</h4>"
+              },
+              {
+                "type": "code",
+                "content": "brew install mysql\nbrew services start mysql",
+                "language": "bash"
+              },
+              {
+                "type": "text",
+                "content": "<h4>Ubuntu/Debian</h4>"
+              },
+              {
+                "type": "code",
+                "content": "sudo apt update\nsudo apt install mysql-server\nsudo systemctl start mysql",
+                "language": "bash"
+              }
+            ]
+          },
+          {
+            "id": "sample-database",
+            "title": "Sample Database",
+            "description": "Load a sample database for practice.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>You can use the classic 'sakila' database for practice.</p>"
+              },
+              {
+                "type": "code",
+                "content": "SOURCE /path/to/sakila-schema.sql;\nSOURCE /path/to/sakila-data.sql;",
+                "language": "sql"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "basics",
+        "title": "MySQL Basics",
+        "icon": "info",
+        "subsections": [
+          {
+            "id": "sql-statements",
+            "title": "SQL Statements",
+            "description": "Core CRUD operations.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>The fundamental operations in SQL are SELECT, INSERT, UPDATE, and DELETE.</p>"
+              },
+              {
+                "type": "code",
+                "content": "SELECT * FROM users;\nINSERT INTO users (name) VALUES ('Alice');\nUPDATE users SET name = 'Bob' WHERE id = 1;\nDELETE FROM users WHERE id = 1;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "filtering-sorting",
+            "title": "Filtering & Sorting",
+            "description": "Refine your queries with WHERE and ORDER BY.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Use <code>WHERE</code> to filter rows and <code>ORDER BY</code> to sort them.</p>"
+              },
+              {
+                "type": "example",
+                "content": "SELECT name, email FROM users\nWHERE age > 18\nORDER BY name ASC;",
+                "caption": "Get adults sorted by name."
+              },
+              {
+                "type": "text",
+                "content": "<p>Use <code>DISTINCT</code> to remove duplicates.</p>"
+              },
+              {
+                "type": "code",
+                "content": "SELECT DISTINCT status FROM orders;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "boolean-operators",
+            "title": "Boolean Operators",
+            "description": "AND, OR, NOT operations.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Combine conditions using Boolean operators.</p>"
+              },
+              {
+                "type": "code",
+                "content": "SELECT * FROM products\nWHERE (category = 'Electronics' OR category = 'Computers')\nAND price < 1000;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "joins",
+            "title": "Working with Joins",
+            "description": "Combine rows from two or more tables.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Retrieve data scattered across multiple tables.</p>"
+              },
+              {
+                "type": "code",
+                "content": "SELECT orders.id, customers.name\nFROM orders\nINNER JOIN customers ON orders.customer_id = customers.id;",
+                "language": "sql"
+              },
+              {
+                "type": "image",
+                "content": "https://www.w3schools.com/sql/img_innerjoin.gif",
+                "caption": "Inner Join Visualization"
+              },
+              {
+                "type": "text",
+                "content": "<p>Result of the inner join:</p>"
+              },
+              {
+                "type": "table",
+                "content": "",
+                "headers": [
+                  "order_id",
+                  "customer_name"
+                ],
+                "rows": [
+                  [
+                    "10308",
+                    "Ana Trujillo"
+                  ],
+                  [
+                    "10309",
+                    "Antonio Moreno"
+                  ],
+                  [
+                    "10310",
+                    "Thomas Hardy"
+                  ]
+                ],
+                "caption": "Sample Join Output"
+              },
+              {
+                "type": "output",
+                "content": "3 rows returned\nQuery time: 0.002s"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "db-management",
+        "title": "Database Management",
+        "icon": "settings",
+        "subsections": [
+          {
+            "id": "create-drop",
+            "title": "Create & Drop",
+            "content": [
+              {
+                "type": "code",
+                "content": "CREATE DATABASE my_app;\nUSE my_app;\nDROP DATABASE old_app;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "managing-tables",
+            "title": "Managing Tables",
+            "content": [
+              {
+                "type": "code",
+                "content": "CREATE TABLE users (\n    id INT AUTO_INCREMENT PRIMARY KEY,\n    username VARCHAR(50) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "data-types",
+            "title": "MySQL Data Types",
+            "content": [
+              {
+                "type": "text",
+                "content": "<ul><li><strong>Numeric:</strong> INT, FLOAT, DECIMAL, TINYINT</li><li><strong>String:</strong> CHAR, VARCHAR, TEXT, BLOB, ENUM</li><li><strong>Date/Time:</strong> DATE, DATETIME, TIMESTAMP, TIME, YEAR</li></ul>"
+              }
+            ]
+          },
+          {
+            "id": "storage-engines",
+            "title": "Storage Engines",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p><strong>InnoDB:</strong> Default. Supports transactions, row-level locking, and foreign keys.</p><p><strong>MyISAM:</strong> File-based, faster for read-heavy operations, no transactions.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "data-manipulation",
+        "title": "Data Manipulation",
+        "icon": "bulb",
+        "subsections": [
+          {
+            "id": "inserting",
+            "title": "Inserting Data",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Insert single or multiple rows.</p>"
+              },
+              {
+                "type": "code",
+                "content": "INSERT INTO users (name, age) VALUES \n('John', 30),\n('Jane', 25),\n('Bob', 35);",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "updating",
+            "title": "Updating Data",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Update with Joins included.</p>"
+              },
+              {
+                "type": "code",
+                "content": "UPDATE products p\nJOIN discounts d ON p.category_id = d.category_id\nSET p.price = p.price * (1 - d.percentage);",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "dates",
+            "title": "Dates & Times",
+            "content": [
+              {
+                "type": "code",
+                "content": "SELECT * FROM orders\nWHERE order_date BETWEEN '2023-01-01' AND '2023-12-31';",
+                "language": "sql"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "advanced-concepts",
+        "title": "Advanced Concepts",
+        "icon": "rocket",
+        "subsections": [
+          {
+            "id": "stored-procedures",
+            "title": "Stored Procedures",
+            "content": [
+              {
+                "type": "code",
+                "content": "DELIMITER //\nCREATE PROCEDURE GetCustomerLevel(IN custId INT, OUT lvl VARCHAR(20))\nBEGIN\n   DECLARE credit DECIMAL(10,2);\n   SELECT creditLimit INTO credit FROM customers WHERE customerNumber = custId;\n   IF credit > 50000 THEN\n      SET lvl = 'PLATINUM';\n   ELSE\n      SET lvl = 'SILVER';\n   END IF;\nEND //\nDELIMITER ;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "triggers",
+            "title": "Triggers",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Automatic responses to database events.</p>"
+              },
+              {
+                "type": "code",
+                "content": "CREATE TRIGGER before_employee_update \nBEFORE UPDATE ON employees\nFOR EACH ROW \nSET NEW.last_updated = NOW();",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "views",
+            "title": "Views",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Virtual tables based on the result-set of an SQL statement.</p>"
+              },
+              {
+                "type": "code",
+                "content": "CREATE VIEW high_value_orders AS\nSELECT order_id, total_amount \nFROM orders WHERE total_amount > 1000;",
+                "language": "sql"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "functions",
+        "title": "SQL Functions",
+        "icon": "bulb",
+        "subsections": [
+          {
+            "id": "aggregate",
+            "title": "Aggregate Functions",
+            "content": [
+              {
+                "type": "text",
+                "content": "<code>SUM()</code>, <code>AVG()</code>, <code>MAX()</code>, <code>MIN()</code>, <code>COUNT()</code>"
+              },
+              {
+                "type": "example",
+                "content": "SELECT AVG(price) FROM products;",
+                "caption": "Calculate average price."
+              }
+            ]
+          },
+          {
+            "id": "app-string",
+            "title": "String Functions",
+            "content": [
+              {
+                "type": "code",
+                "content": "SELECT CONCAT(first_name, ' ', last_name) AS full_name,\nUPPER(city)\nFROM customers;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "control-flow",
+            "title": "Control Flow",
+            "content": [
+              {
+                "type": "code",
+                "content": "SELECT product_name, price,\nCASE\n    WHEN price < 20 THEN 'Cheap'\n    WHEN price BETWEEN 20 AND 100 THEN 'Moderate'\n    ELSE 'Expensive'\nEND AS price_category\nFROM products;",
+                "language": "sql"
+              }
+            ]
+          },
+          {
+            "id": "window-functions",
+            "title": "Window Functions",
+            "content": [
+              {
+                "type": "code",
+                "content": "SELECT name, salary,\nRANK() OVER (ORDER BY salary DESC) as salary_rank\nFROM employees;",
+                "language": "sql"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "programming",
+        "title": "Language Integration",
+        "icon": "customize",
+        "subsections": [
+          {
+            "id": "php",
+            "title": "PHP (PDO)",
+            "content": [
+              {
+                "type": "code",
+                "content": "$pdo = new PDO('mysql:host=localhost;dbname=test', 'user', 'pass');\n$stmt = $pdo->query('SELECT * FROM users');\nwhile ($row = $stmt->fetch()) {\n    echo $row['name'] . \"\\n\";\n}",
+                "language": "php"
+              }
+            ]
+          },
+          {
+            "id": "node",
+            "title": "Node.js",
+            "content": [
+              {
+                "type": "code",
+                "content": "const mysql = require('mysql2/promise');\n\nasync function main() {\n  const connection = await mysql.createConnection({host:'localhost', user: 'root', database: 'test'});\n  const [rows, fields] = await connection.execute('SELECT * FROM `table` WHERE `name` = ?', ['Morty']);\n  console.log(rows);\n}",
+                "language": "javascript"
+              }
+            ]
+          },
+          {
+            "id": "python",
+            "title": "Python",
+            "content": [
+              {
+                "type": "code",
+                "content": "import mysql.connector\n\nmydb = mysql.connector.connect(\n  host=\"localhost\",\n  user=\"yourusername\",\n  password=\"yourpassword\"\n)\n\nmycursor = mydb.cursor()\nmycursor.execute(\"SELECT * FROM customers\")\nmyresult = mycursor.fetchall()",
+                "language": "python"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "postgresql": {
+    "title": "PostgreSQL Docs",
+    "version": "16.0",
+    "sections": [
+      {
+        "id": "introduction",
+        "title": "Introduction",
+        "icon": "info",
+        "subsections": [
+          {
+            "id": "what-is-postgresql",
+            "title": "What is PostgreSQL?",
+            "description": "PostgreSQL is a powerful, open source object-relational database system.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>PostgreSQL is a powerful, open source object-relational database system with over 35 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.</p>"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "distinctive-features",
+        "title": "Distinctive Features",
+        "icon": "rocket",
+        "subsections": [
+          {
+            "id": "json-support",
+            "title": "JSON Support",
+            "description": "PostgreSQL offers advanced JSON support.",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>PostgreSQL allows you to store and query JSON data natively. This is one of its most popular features.</p>"
+              },
+              {
+                "type": "code",
+                "content": "CREATE TABLE orders (\n    id serial NOT NULL PRIMARY KEY,\n    info json NOT NULL\n);",
+                "language": "sql"
+              },
+              {
+                "type": "code",
+                "content": "INSERT INTO orders (info)\nVALUES\n('{\"customer\": \"John Doe\", \"items\": {\"product\": \"Beer\", \"qty\": 6}}');",
+                "language": "sql"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "oracle": {
+    "title": "Oracle Database Docs",
+    "version": "23c",
+    "sections": [
+      {
+        "id": "introduction",
+        "title": "Introduction",
+        "icon": "info",
+        "subsections": [
+          {
+            "id": "overview",
+            "title": "Overview",
+            "content": [
+              {
+                "type": "text",
+                "content": "<p>Oracle Database is a multi-model database management system produced and marketed by Oracle Corporation.</p>"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
