@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="header-right">
 
 
-          <nav className="header-nav">
+          {/* <nav className="header-nav">
             <a href="#overview" className="nav-link">Overview</a>
             <a href="#about" className="nav-link">About</a>
             <a href="#faqs" className="nav-link">FAQs</a>
@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
             <a href="#blogs" className="nav-link">Blogs</a>
             <a href="#contribute" className="nav-link">Contribute</a>
             <a href="#support" className="nav-link">Support</a>
-          </nav>
+          </nav> */}
         </div>
       </div>
     </header>

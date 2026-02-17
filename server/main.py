@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from src.config import settings
 from src.middleware import setup_cors
 from src.controllers import upload_router, health_router
+from src.auth.auth_router import router as auth_router
 
 # Load environment variables
 load_dotenv()
@@ -23,7 +24,7 @@ setup_cors(app)
 # Include routers
 app.include_router(upload_router)
 app.include_router(health_router)
-
+app.include_router(auth_router)
 
 @app.get("/")
 async def root():
