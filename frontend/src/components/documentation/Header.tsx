@@ -11,8 +11,8 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="doc-header">
       <div className="header-content">
         <div className="header-left">
-          <h1 className="doc-title">{title}</h1>
-          <span className="version-badge">Version {version}</span>
+          <h1 className="doc-title">SQL Documentation</h1>
+          <span className="version-badge">Version 1.0.0</span>
         </div>
 
         <div className="header-center">

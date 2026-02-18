@@ -17,6 +17,15 @@ class Settings(BaseSettings):
     AWS_REGION: str = "ap-southeast-2"
     AWS_S3_BUCKET: str = "sqltown-bucket1"
     
+    # AWS Cognito Configuration
+    COGNITO_USER_POOL_ID: str = ""
+    COGNITO_CLIENT_ID: str = ""
+    COGNITO_JWKS_URL: str = ""
+    COGNITO_ISSUER: str = ""
+    
+    # Database Configuration
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/sqltown"
+    
     # CORS Configuration
     CORS_ORIGINS: List[str] = ["*"]
     CORS_ALLOW_CREDENTIALS: bool = True

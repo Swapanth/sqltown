@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </svg>
       </button>
 
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav ">
         {sections.map((section) => (
           <div key={section.id} className="sidebar-section">
             <button

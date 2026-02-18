@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import type { SQLDialect } from '../../models/types';
 import { Button } from '../common';
-import clsx from 'clsx';
 
 interface TerminalEditorProps {
     value: string;
@@ -42,7 +41,7 @@ export const TerminalEditor: React.FC<TerminalEditorProps> = ({
     };
 
     return (
-        <div className="terminal rounded-lg overflow-hidden">
+        <div className="terminal rounded-lg overflow-hidden  shadow-none" >
             {/* Terminal Header */}
             <div className="terminal-header">
                 <div className="flex items-center gap-2">

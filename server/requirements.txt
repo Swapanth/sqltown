@@ -4,3 +4,14 @@ python-dotenv==1.0.1
 boto3==1.35.97
 pydantic==2.10.5
 pydantic-settings==2.7.1
+
+# Authentication & JWT
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.9
+
+# Database
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+
+# HTTP requests for JWKS
+requests==2.31.0

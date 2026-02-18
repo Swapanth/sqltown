@@ -1,68 +1,73 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt
-import requests
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import Dict
+from src.auth.dependencies import get_current_user, get_current_user_with_db
+from src.auth.user_service import UserService
+from src.db.database import get_db
+from src.models.user import User
+from pydantic import BaseModel
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
-# ===== AWS COGNITO CONFIG =====
-AWS_REGION = "ap-south-1"
-USER_POOL_ID = "YOUR_USER_POOL_ID"
-APP_CLIENT_ID = "YOUR_APP_CLIENT_ID"
+class ProfileUpdate(BaseModel):
+    name: str | None = None
+    bio: str | None = None
+    phone_number: str | None = None
 
-COGNITO_ISSUER = f"https://cognito-idp.{AWS_REGION}.amazonaws.com/{USER_POOL_ID}"
-JWKS_URL = f"{COGNITO_ISSUER}/.well-known/jwks.json"
+@router.get("/health")
+async def health_check():
+    """Public health check endpoint"""
+    return {"status": "healthy", "service": "auth-api"}
 
-security = HTTPBearer()
-
-# ===== Fetch Cognito public keys =====
-jwks = requests.get(JWKS_URL).json()
-
-
-def get_public_key(token: str):
-    headers = jwt.get_unverified_header(token)
-    kid = headers["kid"]
-
-    for key in jwks["keys"]:
-        if key["kid"] == kid:
-            return key
-    raise HTTPException(status_code=401, detail="Invalid token")
-
-
-def verify_cognito_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-
-    try:
-        public_key = get_public_key(token)
-
-        payload = jwt.decode(
-            token,
-            public_key,
-            algorithms=["RS256"],
-            audience=APP_CLIENT_ID,
-            issuer=COGNITO_ISSUER,
-        )
-
-        return payload
-
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-        )
-
-
-# ===== Protected Route =====
 @router.get("/me")
-def get_current_user(user=Depends(verify_cognito_token)):
-    return {
-        "user_id": user.get("sub"),
-        "email": user.get("email"),
-        "username": user.get("cognito:username"),
-    }
+async def get_user_profile(current_user: User = Depends(get_current_user_with_db)):
+    """
+    Get current user profile from database.
+    User is auto-created/updated on first request after login.
+    """
+    return current_user.to_dict()
 
+@router.put("/me")
+async def update_user_profile(
+    profile_update: ProfileUpdate,
+    current_user: User = Depends(get_current_user_with_db),
+    db: Session = Depends(get_db)
+):
+    """Update user profile"""
+    updated_user = UserService.update_user_profile(
+        db,
+        current_user.id,
+        name=profile_update.name,
+        bio=profile_update.bio,
+        phone_number=profile_update.phone_number
+    )
+    
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return updated_user.to_dict()
 
-# ===== Example login success endpoint =====
-@router.post("/login-success")
-def login_success(user=Depends(verify_cognito_token)):
-    return {"message": "Login successful", "user": user}
+@router.post("/logout")
+async def logout(current_user: User = Depends(get_current_user_with_db)):
+    """
+    Backend logout handler.
+    Frontend should clear tokens and redirect.
+    """
+    return {"message": "Logged out successfully", "user_id": current_user.id}
+
+@router.get("/public")
+async def public_endpoint(user: Dict | None = Depends(get_current_user)):
+    """
+    Example public endpoint that shows different content for authenticated users.
+    """
+    if user:
+        return {
+            "message": f"Hello, {user.get('name', 'User')}!",
+            "authenticated": True,
+            "user_id": user.get("sub")
+        }
+    else:
+        return {
+            "message": "Hello, Guest!",
+            "authenticated": False
+        }

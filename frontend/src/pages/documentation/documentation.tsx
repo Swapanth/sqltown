@@ -4,9 +4,8 @@ import './styles.css';
 import { Sidebar } from '../../components/documentation/Sidebar';
 import { ContentArea } from '../../components/documentation/ContentArea';
 import { Header } from '../../components/documentation/Header';
-import { TableOfContents } from '../../components/documentation/TableOfContents';
-import documentationData from '../../data/documentationData.json';
-import type { DocumentationData, DocumentationProps, DatabaseType } from '../../models/Documentation';
+import { documentationStructure, type Section } from '../../data/documentationStructure';
+import type { DocumentationProps, DatabaseType } from '../../models/Documentation';
 
 export const Documentation: React.FC<DocumentationProps> = ({
   database: propDatabase
@@ -19,7 +18,12 @@ export const Documentation: React.FC<DocumentationProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
-  const currentData = (documentationData as unknown as DocumentationData)[database];
+  // Theme sync with page components
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('docs-theme') as 'dark' | 'light') || 'dark';
+  });
+
+  const currentData = documentationStructure[database as keyof typeof documentationStructure];
 
   useEffect(() => {
     if (activeSection === '' && currentData?.sections?.length > 0) {
@@ -29,6 +33,16 @@ export const Documentation: React.FC<DocumentationProps> = ({
       }
     }
   }, [database, currentData, activeSection]);
+
+  // Listen for theme changes from page components
+  useEffect(() => {
+    const handler = () => {
+      const newTheme = (localStorage.getItem('docs-theme') as 'dark' | 'light') || 'dark';
+      setTheme(newTheme);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   if (!currentData) {
     return <div className="p-8 text-center">Documentation not found for {database}</div>;
@@ -42,7 +56,7 @@ export const Documentation: React.FC<DocumentationProps> = ({
   };
 
   return (
-    <div className="documentation-container">
+    <div className="documentation-container" data-theme={theme}>
       <Header
         title={currentData.title}
         version={currentData.version}
@@ -52,7 +66,7 @@ export const Documentation: React.FC<DocumentationProps> = ({
 
       <div className="documentation-layout">
         <Sidebar
-          sections={currentData.sections}
+          sections={currentData.sections as any}
           activeSection={activeSection}
           activeSubsection={activeSubsection}
           onNavigate={handleNavigate}
@@ -61,15 +75,9 @@ export const Documentation: React.FC<DocumentationProps> = ({
         />
 
         <ContentArea
-          section={currentData.sections.find(s => s.id === activeSection)}
+          section={currentData.sections.find((s: Section) => s.id === activeSection) as any}
           subsectionId={activeSubsection}
           database={database}
-        />
-
-        <TableOfContents
-          section={currentData.sections.find(s => s.id === activeSection)}
-          activeSubsection={activeSubsection}
-          onNavigate={setActiveSubsection}
         />
       </div>
     </div>
