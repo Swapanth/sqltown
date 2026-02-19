@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import PracticeTerminal from "../../components/practice/PracticeTerminal";
-import TablesBlock from "../../components/practice/TablesBlock";
-import AnalystBlock from "../../components/practice/AnalystBlock";
+import DataPreview from "../../components/practice/DataPreview";
 import ERBlock from "../../components/practice/ERBlock";
-import InterestBlock from "../../components/practice/InterestBlock";
+import ERDiagramGenerator from "../../components/practice/ERDiagramGenerator";
+import JoinPathFinder from "../../components/practice/JoinPathFinder";
+import QueryLibrary from "../../components/practice/QueryLibrary";
+import QueryCoverageMap from "../../components/practice/QueryCoverageMap";
 
 const PracticePage: React.FC = () => {
   const [activeView, setActiveView] = useState<string | null>(null);
@@ -17,56 +19,83 @@ const PracticePage: React.FC = () => {
   };
 
   return (
+  <div
+    className="flex h-screen"
+    onMouseMove={handleDrag}
+    onMouseUp={() => setIsDragging(false)}
+  >
+    {/* LEFT PANEL */}
     <div
-      className="flex h-screen"
-      onMouseMove={handleDrag}
-      onMouseUp={() => setIsDragging(false)}
+      className="bg-gray-100 p-4 flex flex-col gap-4"
+      style={{ width: `${100 - rightWidth}%` }}
     >
-      {/* LEFT PANEL */}
-      <div
-        className="bg-gray-100 p-4 overflow-auto"
-        style={{ width: `${100 - rightWidth}%` }}
-      >
-        <TablesBlock onView={() => setActiveView("tables")} />
-        <AnalystBlock onView={() => setActiveView("analyst")} />
-        <ERBlock onView={() => setActiveView("er")} />
-        <InterestBlock onView={() => setActiveView("interest")} />
+      {/* TOP SECTION - Data Preview */}
+      <div className="flex-1 overflow-auto">
+        <DataPreview onView={() => setActiveView("data")} />
       </div>
 
-      {/* DRAG DIVIDER */}
-      <div
-        className="w-2 bg-gray-300 cursor-col-resize"
-        onMouseDown={() => setIsDragging(true)}
-      />
+      {/* BOTTOM SECTION - 3 BLOCKS */}
+      <div className="grid grid-cols-3 gap-4 h-[40%]">
+        <div className="overflow-auto">
+          <JoinPathFinder onView={() => setActiveView("joins")} />
+        </div>
 
-      {/* RIGHT PANEL */}
-      <div
-        className="bg-white border-l"
-        style={{ width: `${rightWidth}%` }}
-      >
-        <PracticeTerminal />
+        <div className="overflow-auto">
+          <QueryLibrary onView={() => setActiveView("library")} />
+        </div>
+
+        <div className="overflow-auto">
+          <ERBlock onView={() => setActiveView("er")} />
+        </div>
       </div>
+    </div>
 
-      {/* FULLSCREEN VIEW */}
-      {activeView && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-          <div className="bg-white p-6 w-3/4 h-3/4 rounded shadow-lg overflow-auto">
+    {/* DRAG DIVIDER */}
+    <div
+      className="w-2 bg-gray-300 cursor-col-resize hover:bg-gray-400"
+      onMouseDown={() => setIsDragging(true)}
+    />
+
+    {/* RIGHT PANEL - SQL Editor */}
+    <div
+      className="bg-white border-l"
+      style={{ width: `${rightWidth}%` }}
+    >
+      <PracticeTerminal />
+    </div>
+
+    {/* FULLSCREEN VIEW */}
+    {activeView && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-white w-[95%] h-[95%] rounded-lg shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+            <h3 className="font-semibold text-lg">
+              {activeView === "data" && "📊 Data Preview & Schema"}
+              {activeView === "er" && "🗂️ Interactive ER Diagram"}
+              {activeView === "joins" && "🔗 Join Path Finder"}
+              {activeView === "library" && "📚 Query Library"}
+              {activeView === "coverage" && "📍 Query Coverage Map"}
+            </h3>
             <button
               onClick={() => setActiveView(null)}
-              className="mb-4 px-3 py-1 bg-red-500 text-white rounded"
+              className="px-4 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
             >
               Close
             </button>
+          </div>
 
-            {activeView === "tables" && <TablesBlock />}
-            {activeView === "analyst" && <AnalystBlock />}
-            {activeView === "er" && <ERBlock />}
-            {activeView === "interest" && <InterestBlock />}
+          <div className="flex-1 overflow-auto">
+            {activeView === "data" && <DataPreview />}
+            {activeView === "er" && <ERDiagramGenerator />}
+            {activeView === "joins" && <JoinPathFinder />}
+            {activeView === "library" && <QueryLibrary />}
+            {activeView === "coverage" && <QueryCoverageMap />}
           </div>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 };
 
 export default PracticePage;
