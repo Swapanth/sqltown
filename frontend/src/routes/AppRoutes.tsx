@@ -10,7 +10,7 @@ import { LoginPage } from '../pages/auth/LoginPage';
 import { SignupPage } from '../pages/auth/SignupPage';
 import { OAuthCallbackPage } from '../pages/auth/OAuthCallbackPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
-import {GroundPage} from '../pages/playground/ground';
+import {GroundPage} from '../pages/playground/playground';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -83,14 +83,6 @@ export const AppRoutes: React.FC = () => {
         />
         <Route
           path="/playground"
-          element={
-            <ProtectedRoute>
-              <GroundPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/ground"
           element={<GroundPage />}
         />
       </Routes>

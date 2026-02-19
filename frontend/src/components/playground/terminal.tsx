@@ -230,7 +230,16 @@ const Terminal: React.FC<Props> = ({ value, onChange }) => {
       quickSuggestions: true,
       tabCompletion: 'on',
       parameterHints: { enabled: true },
-      hover: { enabled: true }
+      hover: { enabled: true },
+      fontFamily: "'JetBrains Mono', monospace",
+      lineHeight: 24,
+      padding: { top: 16, bottom: 16 },
+      cursorStyle: 'line',
+      cursorBlinking: 'smooth',
+      renderLineHighlight: 'all',
+      selectionHighlight: true,
+      matchBrackets: 'always',
+      colorDecorators: true,
     });
 
     // Add keyboard shortcuts
@@ -255,7 +264,7 @@ const Terminal: React.FC<Props> = ({ value, onChange }) => {
         value={value}
         onChange={handleEditorChange}
         onMount={handleEditorDidMount}
-        theme="vs"
+        theme="vs-dark"
         options={{
           fontSize: 14,
           lineNumbers: 'on',
@@ -263,7 +272,16 @@ const Terminal: React.FC<Props> = ({ value, onChange }) => {
           scrollBeyondLastLine: false,
           wordWrap: 'on',
           automaticLayout: true,
-          placeholder: 'Write your SQL query here...'
+          placeholder: 'Write your SQL query here...',
+          fontFamily: "'JetBrains Mono', monospace",
+          lineHeight: 24,
+          padding: { top: 16, bottom: 16 },
+          cursorStyle: 'line',
+          cursorBlinking: 'smooth',
+          renderLineHighlight: 'all',
+          selectionHighlight: true,
+          matchBrackets: 'always',
+          colorDecorators: true,
         }}
       />
     </div>
