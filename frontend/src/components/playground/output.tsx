@@ -42,7 +42,10 @@ const Output: React.FC<{ result: any }> = ({ result }) => {
   return (
     <div className="space-y-8">
       {result.data.map((table: any, index: number) => {
-        if (!table || !table.columns || !table.values) return null;
+        // SQL.js uses 'lc' for columns, not 'columns'
+        if (!table || !table.lc || !table.values) return null;
+
+        const columns = table.lc; // Extract columns from 'lc' property
 
         return (
           <div key={index}>
@@ -55,7 +58,7 @@ const Output: React.FC<{ result: any }> = ({ result }) => {
               <table className="min-w-full text-sm border-collapse">
                 <thead className="bg-gray-100">
                   <tr>
-                    {table.columns.map((col: string, i: number) => (
+                    {columns.map((col: string, i: number) => (
                       <th key={i} className="p-2 border text-left">
                         {col}
                       </th>

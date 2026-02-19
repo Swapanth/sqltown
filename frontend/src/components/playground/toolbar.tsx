@@ -30,6 +30,7 @@ const Toolbar: React.FC<Props> = ({ onRun, onReset, onFormat, disabled }) => {
          onClick={onRun}
         disabled={disabled}
          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
+         data-testid="run-button"
        >
          ▶ Run
        </button>  

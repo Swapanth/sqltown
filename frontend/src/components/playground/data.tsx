@@ -11,32 +11,45 @@ const Data: React.FC<Props> = ({ dbReady }) => {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
+    console.log("Data component: dbReady changed to", dbReady);
+    
     if (!dbReady) return;
 
-    const tableList = getTables();
-    setTables(tableList);
+    const loadTables = async () => {
+      const tableList = await getTables();
+      console.log("Data component: got tables", tableList);
+      setTables(tableList);
 
-    if (tableList.length > 0) {
-      setSelectedTable(tableList[0]);
-    }
+      if (tableList.length > 0) {
+        setSelectedTable(tableList[0]);
+        console.log("Data component: selected first table", tableList[0]);
+      }
+    };
+
+    loadTables();
   }, [dbReady]);
 
   useEffect(() => {
     if (!dbReady || !selectedTable) return;
 
-    const tableData = getTableData(selectedTable);
-    setData(tableData);
+    const loadTableData = async () => {
+      const tableData = await getTableData(selectedTable);
+      setData(tableData);
+    };
+
+    loadTableData();
   }, [selectedTable, dbReady]);
 
   if (!dbReady) {
     return <div className="p-4">Loading database...</div>;
   }
 
-  if (!data || !data.columns || !data.values) {
+  if (!data || !data.lc || !data.values) {
+    console.log("Data debug:", { data, hasColumns: !!data?.lc, hasValues: !!data?.values });
     return <div className="p-4">No data available.</div>;
   }
 
-  const { columns, values } = data;
+  const { lc: columns, values } = data;
 
   return (
     <div>

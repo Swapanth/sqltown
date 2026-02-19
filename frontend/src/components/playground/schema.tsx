@@ -11,14 +11,22 @@ const Schema: React.FC<Props> = ({ dbReady }) => {
   const [schema, setSchema] = useState<any[]>([]);
 
   useEffect(() => {
+    console.log("Schema component: dbReady changed to", dbReady);
+    
     if (!dbReady) return;
 
-    const tableList = getTables();
-    setTables(tableList);
+    const loadTables = async () => {
+      const tableList = await getTables();
+      console.log("Schema component: got tables", tableList);
+      setTables(tableList);
 
-    if (tableList.length > 0) {
-      setSelectedTable(tableList[0]);
-    }
+      if (tableList.length > 0) {
+        setSelectedTable(tableList[0]);
+        console.log("Schema component: selected first table", tableList[0]);
+      }
+    };
+
+    loadTables();
   }, [dbReady]);
 
   useEffect(() => {

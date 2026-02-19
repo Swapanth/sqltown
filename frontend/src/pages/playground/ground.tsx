@@ -1,5 +1,3 @@
-// pages/playground/Ground.tsx
-
 import React, { useState, useEffect } from "react";
 import Terminal from "../../components/playground/terminal";
 import Schema from "../../components/playground/schema";
@@ -33,11 +31,13 @@ export const GroundPage: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
+        console.log("Ground component: Starting database initialization...");
         await initializeDatabase();
+        console.log("Ground component: Database initialization completed, setting dbReady to true");
         setDbReady(true);
-        console.log("Database initialized successfully");
       } catch (err) {
-        console.error("DB Init failed:", err);
+        console.error("Ground component: DB Init failed:", err);
+        setDbReady(false);
       }
     };
 
@@ -150,7 +150,7 @@ export const GroundPage: React.FC = () => {
   // -----------------------------
   return (
     <div
-      className="h-screen flex flex-col bg-gray-100"
+      className="h-screen flex flex-col p-20"
       onMouseMove={handleDrag}
       onMouseUp={stopDragging}
     >
@@ -165,7 +165,7 @@ export const GroundPage: React.FC = () => {
       {/* ---------------- Drag Divider ---------------- */}
       <div
         onMouseDown={startDragging}
-        className="relative h-4 bg-gray-200 hover:bg-gray-300 cursor-row-resize flex items-center justify-center"
+        className="relative h-4  hover:bg-gray-300 cursor-row-resize flex items-center justify-center"
       >
         <span className="text-gray-500 text-xs">
           ⇅
