@@ -12,6 +12,7 @@ import { OAuthCallbackPage } from '../pages/auth/OAuthCallbackPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import {GroundPage} from '../pages/playground/playground';
 import PracticePage from '../pages/playground/practice';
+import PracticeListPage from '../pages/playground/PracticeListPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -88,6 +89,10 @@ export const AppRoutes: React.FC = () => {
         />
         <Route
           path="/practice"
+          element={<PracticeListPage />}
+        />
+        <Route
+          path="/practice/:dbId"
           element={<PracticePage />}
         />
       </Routes>
