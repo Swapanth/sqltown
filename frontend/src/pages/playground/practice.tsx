@@ -5,37 +5,29 @@ import ERBlock from "../../components/practice/ERBlock";
 import ERDiagramGenerator from "../../components/practice/ERDiagramGenerator";
 import JoinPathFinder from "../../components/practice/JoinPathFinder";
 import QueryLibrary from "../../components/practice/QueryLibrary";
-import QueryCoverageMap from "../../components/practice/QueryCoverageMap";
+import AnalystBlock from "../../components/practice/AnalystBlock";
 
 const PracticePage: React.FC = () => {
   const [activeView, setActiveView] = useState<string | null>(null);
-  const [rightWidth, setRightWidth] = useState<number>(50);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleDrag = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const percentage = (e.clientX / window.innerWidth) * 100;
-    setRightWidth(100 - percentage);
-  };
 
   return (
-  <div
-    className="flex h-screen"
-    onMouseMove={handleDrag}
-    onMouseUp={() => setIsDragging(false)}
-  >
-    {/* LEFT PANEL */}
-    <div
-      className="bg-gray-100 p-4 flex flex-col gap-4"
-      style={{ width: `${100 - rightWidth}%` }}
-    >
-      {/* TOP SECTION - Data Preview */}
-      <div className="flex-1 overflow-auto">
-        <DataPreview onView={() => setActiveView("data")} />
+    <div className="h-screen flex flex-col">
+      {/* TOP ROW - Data Preview & Terminal */}
+<div className="flex-1 flex gap-4 p-4 min-h-0">
+        {/* Data Preview - Left Half */}
+        <div className="w-1/2 overflow-auto">
+          <DataPreview onView={() => setActiveView("data")} />
+        </div>
+
+        {/* Terminal with Output - Right Half */}
+<div className="w-1/2 border rounded flex min-w-0">
+  <PracticeTerminal />
+</div>
+
       </div>
 
-      {/* BOTTOM SECTION - 3 BLOCKS */}
-      <div className="grid grid-cols-3 gap-4 h-[40%]">
+      {/* BOTTOM ROW - 4 Blocks */}
+      <div className="h-[280px] grid grid-cols-4 gap-4 p-4 bg-gray-50 border-t">
         <div className="overflow-auto">
           <JoinPathFinder onView={() => setActiveView("joins")} />
         </div>
@@ -47,55 +39,44 @@ const PracticePage: React.FC = () => {
         <div className="overflow-auto">
           <ERBlock onView={() => setActiveView("er")} />
         </div>
-      </div>
-    </div>
 
-    {/* DRAG DIVIDER */}
-    <div
-      className="w-2 bg-gray-300 cursor-col-resize hover:bg-gray-400"
-      onMouseDown={() => setIsDragging(true)}
-    />
-
-    {/* RIGHT PANEL - SQL Editor */}
-    <div
-      className="bg-white border-l"
-      style={{ width: `${rightWidth}%` }}
-    >
-      <PracticeTerminal />
-    </div>
-
-    {/* FULLSCREEN VIEW */}
-    {activeView && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div className="bg-white w-[95%] h-[95%] rounded-lg shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-            <h3 className="font-semibold text-lg">
-              {activeView === "data" && "📊 Data Preview & Schema"}
-              {activeView === "er" && "🗂️ Interactive ER Diagram"}
-              {activeView === "joins" && "🔗 Join Path Finder"}
-              {activeView === "library" && "📚 Query Library"}
-              {activeView === "coverage" && "📍 Query Coverage Map"}
-            </h3>
-            <button
-              onClick={() => setActiveView(null)}
-              className="px-4 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-            >
-              Close
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-auto">
-            {activeView === "data" && <DataPreview />}
-            {activeView === "er" && <ERDiagramGenerator />}
-            {activeView === "joins" && <JoinPathFinder />}
-            {activeView === "library" && <QueryLibrary />}
-            {activeView === "coverage" && <QueryCoverageMap />}
-          </div>
+        <div className="overflow-auto">
+          <AnalystBlock onView={() => setActiveView("analyst")} />
         </div>
       </div>
-    )}
-  </div>
-);
+
+      {/* FULLSCREEN VIEW */}
+      {activeView && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white w-[95%] h-[95%] rounded-lg shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
+              <h3 className="font-semibold text-lg">
+                {activeView === "data" && "📊 Data Preview & Schema"}
+                {activeView === "er" && "🗂️ Interactive ER Diagram"}
+                {activeView === "joins" && "🔗 Join Path Finder"}
+                {activeView === "library" && "📚 Query Library"}
+                {activeView === "analyst" && "💡 SQL Tips & Tricks"}
+              </h3>
+              <button
+                onClick={() => setActiveView(null)}
+                className="px-4 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-auto">
+              {activeView === "data" && <DataPreview />}
+              {activeView === "er" && <ERDiagramGenerator />}
+              {activeView === "joins" && <JoinPathFinder />}
+              {activeView === "library" && <QueryLibrary />}
+              {activeView === "analyst" && <AnalystBlock />}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default PracticePage;
