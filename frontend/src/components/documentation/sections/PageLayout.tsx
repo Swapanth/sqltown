@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from 'react';
+import { SectionNavigator } from './SectionNavigator';
+import type { SubsectionId } from './index';
 import './docs-theme.css';
 
 interface PageLayoutProps {
@@ -6,13 +8,16 @@ interface PageLayoutProps {
   breadcrumb: { section: string; subsection: string };
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  currentSection?: SubsectionId;
+  onNavigate?: (sectionId: SubsectionId) => void;
 }
 
 export const PageLayout: React.FC<PageLayoutProps> = ({
   children,
   breadcrumb,
   theme,
-  onToggleTheme,
+  currentSection,
+  onNavigate,
 }) => {
   return (
     <div className="page-wrapper" data-theme={theme}>
@@ -24,12 +29,17 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
           <span className="sep">/</span>
           <span className="active">{breadcrumb.subsection}</span>
         </div>
-        <button className="theme-toggle" onClick={onToggleTheme} aria-label="Toggle theme">
-          {theme === 'dark' ? '☀ Light' : '☾ Dark'}
-        </button>
       </header>
       <main className="page-content">
-        {children}
+        <article className="content-article">
+          {children}
+        </article>
+        {currentSection && onNavigate && (
+          <SectionNavigator 
+            currentSection={currentSection}
+            onNavigate={onNavigate}
+          />
+        )}
       </main>
     </div>
   );
@@ -57,7 +67,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'sql' }) 
       <div className="code-block-header">
         <span className="lang-badge">{language}</span>
         <button className="copy-btn" onClick={handleCopy}>
-          {copied ? '✓ Copied' : 'Copy'}
+          {copied ? 'Copied' : 'Copy'}
         </button>
       </div>
       <pre><code>{code}</code></pre>
@@ -71,7 +81,6 @@ interface FunFactProps {
 
 export const FunFact: React.FC<FunFactProps> = ({ text }) => (
   <div className="fun-fact-card">
-    <span className="icon">⚡</span>
     <div className="text">
       <div className="label">Fun Fact</div>
       {text}

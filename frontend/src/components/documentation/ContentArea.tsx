@@ -30,7 +30,8 @@ const PageSkeleton: React.FC = () => (
 export const ContentArea: React.FC<ContentAreaProps> = ({
   section,
   subsectionId,
-  database
+  database,
+  onNavigate
 }) => {
   // Sync theme from localStorage
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -46,6 +47,15 @@ export const ContentArea: React.FC<ContentAreaProps> = ({
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
+
+  // Create navigation handler for page components
+  const handlePageNavigation = (sectionId: SubsectionId) => {
+    if (onNavigate) {
+      // For now, we'll navigate within the same section
+      // You might want to enhance this to handle cross-section navigation
+      onNavigate(section?.id || 'getting-started', sectionId);
+    }
+  };
 
   if (!section) {
     return (
@@ -75,7 +85,10 @@ export const ContentArea: React.FC<ContentAreaProps> = ({
   return (
     <main className="content-area">
       <Suspense fallback={<PageSkeleton />}>
-        <PageComponent initialTheme={theme} />
+        <PageComponent 
+          initialTheme={theme} 
+          onNavigate={handlePageNavigation}
+        />
       </Suspense>
     </main>
   );

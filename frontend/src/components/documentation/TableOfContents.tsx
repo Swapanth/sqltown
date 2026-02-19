@@ -11,13 +11,20 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
   // Extract headings from the DOM (since content is now in separate components)
   useEffect(() => {
     const extractHeaders = () => {
-      const headingElements = document.querySelectorAll('.content-article h2, .content-article h3');
+      // Look for headings in both .content-article and .page-content
+      const headingElements = document.querySelectorAll('.content-article h2, .content-article h3, .page-content h2, .page-content h3');
       const extractedHeaders: { level: string; title: string; id: string }[] = [];
       
       headingElements.forEach((heading) => {
         const tag = heading.tagName.toLowerCase();
         const title = heading.textContent || '';
-        const id = heading.id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        let id = heading.id;
+        
+        // Generate ID if it doesn't exist
+        if (!id && title) {
+          id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          heading.id = id; // Set the ID on the element
+        }
         
         if (id && title) {
           extractedHeaders.push({ level: tag, title, id });
@@ -28,7 +35,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
     };
 
     // Extract headers after content loads (wait for lazy-loaded components)
-    const timer = setTimeout(extractHeaders, 200);
+    const timer = setTimeout(extractHeaders, 500);
     
     // Also extract on subsection change
     extractHeaders();
@@ -38,7 +45,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      const headings = document.querySelectorAll('.content-article h2, .content-article h3');
+      const headings = document.querySelectorAll('.content-article h2, .content-article h3, .page-content h2, .page-content h3');
 
       let maxTop = -Infinity;
       let bestId = '';

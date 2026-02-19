@@ -1,67 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PageLayout, CodeBlock, FunFact, DifficultyBadge } from './PageLayout';
+import type { SubsectionId } from './index';
 import './docs-theme.css';
 
-type Theme = 'dark' | 'light';
-
 interface WhatIsMySQLPageProps {
-  initialTheme?: Theme;
+  initialTheme?: 'dark' | 'light';
+  onNavigate?: (sectionId: SubsectionId) => void;
 }
 
 const concepts = [
   {
     term: 'Database',
-    emoji: '🏢',
     simple: 'A named container that holds all your tables. Like a folder.',
     example: "Your app might have one database called 'shopify_store'",
   },
   {
     term: 'Table',
-    emoji: '📋',
     simple: 'A grid of rows and columns, like one sheet in Excel.',
     example: 'users, orders, products are all tables',
   },
   {
     term: 'Row',
-    emoji: '↔️',
     simple: 'One record/entry in a table.',
     example: 'One specific user: id=1, name="Alice"',
   },
   {
     term: 'Column',
-    emoji: '↕️',
     simple: 'A field/attribute that every row has.',
     example: 'id, name, email, created_at',
   },
   {
     term: 'Query',
-    emoji: '❓',
     simple: 'A question/command you send to the database.',
     example: 'SELECT * FROM users WHERE active = 1',
   },
 ];
 
-const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark' }) => {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem('docs-theme') as Theme) || initialTheme
-  );
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    localStorage.setItem('docs-theme', next);
-  };
-
+const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
   return (
     <PageLayout
-      theme={theme}
-      onToggleTheme={toggleTheme}
+      theme={initialTheme}
+      onToggleTheme={() => {}} // No-op since theme is managed by parent
       breadcrumb={{ section: 'getting-started', subsection: 'what-is-mysql' }}
+      currentSection="what-is-mysql"
+      onNavigate={onNavigate}
     >
       {/* Hero */}
       <div className="section-hero">
         <div className="emoji-badge">
-          <span>🤔</span> Getting Started
+          <span>Getting Started</span>
         </div>
         <h1>What Even IS MySQL?</h1>
         <p className="description">
@@ -75,7 +62,7 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
       {/* Analogy Card */}
       <div className="doc-card">
         <div className="doc-card-header">
-          <h2>Think of MySQL Like This…</h2>
+          <h2 id="mysql-analogy">Think of MySQL Like This…</h2>
         </div>
         <div className="doc-card-body">
           <p className="prose">
@@ -87,7 +74,7 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
 
           <div className="comparison-grid">
             <div className="comparison-col left">
-              <h3>Excel 😐</h3>
+              <h3>Excel</h3>
               <ul>
                 <li>Crashes at ~1 million rows</li>
                 <li>One user at a time</li>
@@ -97,7 +84,7 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
               </ul>
             </div>
             <div className="comparison-col right">
-              <h3>MySQL 💪</h3>
+              <h3>MySQL</h3>
               <ul>
                 <li>Handles billions of rows</li>
                 <li>Thousands of simultaneous users</li>
@@ -113,7 +100,7 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
       {/* Key Vocabulary */}
       <div className="doc-card">
         <div className="doc-card-header">
-          <h2>Key Vocabulary (Learn These 5 Words)</h2>
+          <h2 id="key-vocabulary">Key Vocabulary (Learn These 5 Words)</h2>
           <div className="subtitle">Before you write any SQL, get comfortable with this vocabulary.</div>
         </div>
         <div className="doc-card-body">
@@ -121,7 +108,6 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
             {concepts.map(c => (
               <div className="concept-card" key={c.term}>
                 <div className="term-header">
-                  <span className="term-emoji">{c.emoji}</span>
                   <span className="term-name">{c.term}</span>
                 </div>
                 <div className="simple">{c.simple}</div>
@@ -135,7 +121,7 @@ const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark'
       {/* First Query Preview */}
       <div className="doc-card">
         <div className="doc-card-header">
-          <h2>Your First Taste of SQL</h2>
+          <h2 id="first-sql-taste">Your First Taste of SQL</h2>
           <div className="subtitle">Don't worry about understanding this yet — just notice how readable it is.</div>
         </div>
         <div className="doc-card-body">
@@ -161,7 +147,7 @@ LIMIT 10;`} />
       {/* Why MySQL over alternatives */}
       <div className="doc-card">
         <div className="doc-card-header">
-          <h2>Why MySQL and Not Something Else?</h2>
+          <h2 id="why-mysql">Why MySQL and Not Something Else?</h2>
         </div>
         <div className="doc-card-body">
           <p className="prose">

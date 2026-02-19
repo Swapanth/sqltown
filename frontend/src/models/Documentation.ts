@@ -91,6 +91,7 @@ export interface ContentAreaProps {
   section?: Section;
   subsectionId?: string;
   database: DatabaseType;
+  onNavigate?: (sectionId: string, subsectionId?: string) => void;
 }
 
 export interface TableOfContentsProps {

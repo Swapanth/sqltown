@@ -7,12 +7,29 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange
 }) => {
+  const [theme, setTheme] = React.useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('docs-theme') as 'dark' | 'light') || 'dark';
+  });
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('docs-theme', newTheme);
+    
+    // Trigger storage event for other components
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'docs-theme',
+      newValue: newTheme,
+      oldValue: theme
+    }));
+  };
+
   return (
     <header className="doc-header">
       <div className="header-content">
         <div className="header-left">
           <h1 className="doc-title">SQL Documentation</h1>
-          <span className="version-badge">Version 1.0.0</span>
+          <span className="version-badge">v1.0.0</span>
         </div>
 
         <div className="header-center">
@@ -22,27 +39,32 @@ export const Header: React.FC<HeaderProps> = ({
             </svg>
             <input
               type="text"
-              placeholder="Search"
+              placeholder="Search documentation..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="search-input"
             />
-            <kbd className="search-kbd">⌘ K</kbd>
+            <kbd className="search-kbd">⌘K</kbd>
           </div>
         </div>
 
         <div className="header-right">
-
-
-          {/* <nav className="header-nav">
-            <a href="#overview" className="nav-link">Overview</a>
-            <a href="#about" className="nav-link">About</a>
-            <a href="#faqs" className="nav-link">FAQs</a>
-            <a href="#api" className="nav-link">API</a>
-            <a href="#blogs" className="nav-link">Blogs</a>
-            <a href="#contribute" className="nav-link">Contribute</a>
-            <a href="#support" className="nav-link">Support</a>
-          </nav> */}
+          <button 
+            className="theme-toggle" 
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            {theme === 'dark' ? (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 2v2M10 16v2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M2 10h2M16 10h2M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
     </header>
