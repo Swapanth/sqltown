@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { LearningPathsPage } from '../pages/learning/LearningPathsPage';
@@ -11,6 +10,7 @@ import { LoginPage } from '../pages/auth/LoginPage';
 import { SignupPage } from '../pages/auth/SignupPage';
 import { OAuthCallbackPage } from '../pages/auth/OAuthCallbackPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
+import {GroundPage} from '../pages/playground/ground';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -80,6 +80,18 @@ export const AppRoutes: React.FC = () => {
           element={
             <Documentation />
           }
+        />
+        <Route
+          path="/playground"
+          element={
+            <ProtectedRoute>
+              <GroundPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ground"
+          element={<GroundPage />}
         />
       </Routes>
     </Router>
