@@ -52,7 +52,7 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
   if (!dbReady) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-black/40 text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
+        <div className="text-black/40 text-sm">
           Loading database...
         </div>
       </div>
@@ -62,7 +62,7 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4 border-b border-black/5">
-        <h3 className="text-sm font-semibold text-black/80" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h3 className="text-sm font-semibold text-black/80">
           Schema
         </h3>
       </div>
@@ -78,7 +78,7 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
                 onClick={() => toggleTable(table)}
                 className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-black/5 rounded-md transition-colors group"
               >
-                <span className="text-sm font-medium text-black/80" style={{ fontFamily: "'Syne', sans-serif" }}>
+                <span className="text-sm font-medium text-black/80">
                   {table}
                 </span>
                 <span className="text-black/40 text-xs group-hover:text-black/60">
@@ -98,7 +98,6 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
                       <div
                         key={i}
                         className="px-3 py-1.5 text-xs text-black/60 hover:bg-black/3 rounded"
-                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-black/80">{colName}</span>

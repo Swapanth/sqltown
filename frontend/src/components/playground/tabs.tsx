@@ -18,21 +18,18 @@ const Tabs: React.FC<Props> = ({ activeTab, setActiveTab }) => {
       <button 
         className={tabStyle("schema")} 
         onClick={() => setActiveTab("schema")}
-        style={{ fontFamily: "'Syne', sans-serif" }}
       >
         Schema
       </button>
       <button 
         className={tabStyle("data")} 
         onClick={() => setActiveTab("data")}
-        style={{ fontFamily: "'Syne', sans-serif" }}
       >
         Data
       </button>
       <button 
         className={tabStyle("output")} 
         onClick={() => setActiveTab("output")}
-        style={{ fontFamily: "'Syne', sans-serif" }}
       >
         Output
       </button>

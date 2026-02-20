@@ -20,9 +20,7 @@ export const Documentation: React.FC<DocumentationProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
   // Theme management
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('docs-theme') as 'dark' | 'light') || 'dark';
-  });
+  const [theme, setTheme] = useState<string>('light');
 
   const currentData = documentationStructure[database as keyof typeof documentationStructure];
 
@@ -92,13 +90,6 @@ export const Documentation: React.FC<DocumentationProps> = ({
 
   return (
     <div className="documentation-container" data-theme={theme}>
-      <Header
-        title={currentData.title}
-        version={currentData.version}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
       <div className="documentation-layout">
         <Sidebar
           sections={currentData.sections as any}

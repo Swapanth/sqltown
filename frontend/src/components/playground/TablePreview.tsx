@@ -44,7 +44,7 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
   if (!dbReady) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-black/40 text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
+        <div className="text-black/40 text-sm">
           Loading tables...
         </div>
       </div>
@@ -54,7 +54,7 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
   return (
     <div className="h-full overflow-y-auto">
       <div className="p-4 border-b border-black/5 sticky top-0 bg-white z-10">
-        <h3 className="text-sm font-semibold text-black/80" style={{ fontFamily: "'Playfair Display', serif" }}>
+        <h3 className="text-sm font-semibold text-black/80">
           Available Tables
         </h3>
       </div>
@@ -65,7 +65,7 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
           if (!data || !data.lc || !data.values) {
             return (
               <div key={table} className="space-y-2">
-                <h4 className="text-xs font-semibold text-black/60 uppercase tracking-wide" style={{ fontFamily: "'Syne', sans-serif" }}>
+                <h4 className="text-xs font-semibold text-black/60 uppercase tracking-wide">
                   {table}
                 </h4>
                 <div className="text-black/40 text-xs">Loading...</div>
@@ -78,7 +78,7 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
 
           return (
             <div key={table} className="space-y-2">
-              <h4 className="text-xs font-semibold text-black/60 uppercase tracking-wide" style={{ fontFamily: "'Syne', sans-serif" }}>
+              <h4 className="text-xs font-semibold text-black/60 uppercase tracking-wide">
                 {table}
               </h4>
               <div className="border border-black/10 rounded-lg overflow-hidden shadow-sm">
@@ -90,7 +90,6 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
                           <th
                             key={i}
                             className="px-3 py-2 text-left font-semibold text-black/70 border-b border-black/10"
-                            style={{ fontFamily: "'Syne', sans-serif" }}
                           >
                             {col}
                           </th>
@@ -104,7 +103,6 @@ const TablePreview: React.FC<Props> = ({ dbReady }) => {
                             <td
                               key={j}
                               className="px-3 py-2 border-b border-black/5 text-black/70"
-                              style={{ fontFamily: "'JetBrains Mono', monospace" }}
                             >
                               {cell}
                             </td>

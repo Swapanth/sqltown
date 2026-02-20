@@ -15,7 +15,7 @@
   height: 100%;
   border: none;
   padding: 16px;
-  font-family: monospace;
+  font-family: Comfortaa, monospace;
   font-size: 14px;
   outline: none;
   background: #f3f4f6;
@@ -168,7 +168,7 @@
 
 .output-error pre {
   color: #c00;
-  font-family: monospace;
+  font-family: Comfortaa, monospace;
   white-space: pre-wrap;
 }
 

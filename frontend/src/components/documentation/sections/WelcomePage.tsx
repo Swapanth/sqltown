@@ -51,8 +51,8 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ initialTheme = 'dark', onNavi
               <div className="term-header">
                 <span className="term-name">Typography</span>
               </div>
-              <div className="simple">Playfair Display for headings, Syne for body text, JetBrains Mono for code</div>
-              <div className="example">font-family: 'Playfair Display', serif;</div>
+              <div className="simple">Comfortaa font used throughout the application</div>
+              <div className="example">font-family: 'Comfortaa', sans-serif;</div>
             </div>
             
             <div className="concept-card">
