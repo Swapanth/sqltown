@@ -1,6 +1,6 @@
 /* docs-theme.css - SQL Town Documentation Theme */
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+/* Fonts are loaded globally via index.css - using Comfortaa */
 
 :root,
 [data-theme="light"] {
@@ -98,7 +98,7 @@
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Comfortaa', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   transition: background 0.3s ease, color 0.3s ease;
@@ -131,7 +131,7 @@ body {
 }
 
 .page-header .breadcrumb {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
   font-size: 13px;
   color: var(--text-muted);
   display: flex;
@@ -159,7 +159,7 @@ body {
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
 }
 
 .theme-toggle:hover {
@@ -175,7 +175,7 @@ body {
 
 /* ===== TYPOGRAPHY ===== */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Comfortaa', serif;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
@@ -239,7 +239,7 @@ p {
   font-weight: 600;
   color: var(--accent);
   margin-bottom: 24px;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
 }
 
 .section-hero h1 {
@@ -306,7 +306,7 @@ p {
   letter-spacing: 0.1em;
   color: var(--accent);
   margin-bottom: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
 }
 
 /* ===== DIFFICULTY BADGE ===== */
@@ -317,7 +317,7 @@ p {
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -371,7 +371,7 @@ p {
 
 .lang-badge {
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -391,7 +391,7 @@ p {
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
 }
 
 .copy-btn:hover {
@@ -426,7 +426,7 @@ p {
 }
 
 .code-block code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
   font-size: 14px;
   line-height: 1.7;
   color: var(--code-text);
@@ -464,7 +464,7 @@ p {
 }
 
 .term-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Comfortaa', serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
@@ -478,7 +478,7 @@ p {
 }
 
 .concept-card .example {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
   font-size: 12px;
   color: var(--accent);
   background: var(--accent-soft);
@@ -670,7 +670,7 @@ p {
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   min-width: 200px;
   max-width: 300px;
 }
@@ -694,7 +694,7 @@ p {
   letter-spacing: 0.1em;
   color: var(--text-muted);
   margin-bottom: 4px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Comfortaa', monospace;
 }
 
 .nav-title {

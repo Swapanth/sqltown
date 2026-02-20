@@ -37,7 +37,6 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
             <div className="flex items-center cursor-pointer">
               <span
                 className="text-[#E67350] text-2xl font-bold"
-                style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 SQL Playground
               </span>
@@ -47,25 +46,21 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
             <nav className="hidden md:flex items-center gap-2">
               <button
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
-                style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 Schema
               </button>
               <button
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
-                style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 Tables
               </button>
               <button
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
-                style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 Documentation
               </button>
               <button
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
-                style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 Examples
               </button>
@@ -132,35 +127,30 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
           <div className="mb-4 pb-4 border-b border-black/10">
             <span
               className="text-[#E67350] text-xl font-bold"
-              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               SQL Playground
             </span>
           </div>
           <button
             className="w-full text-left px-4 py-3 text-base text-[#333] hover:bg-black/5 transition-colors"
-            style={{ fontFamily: "'Syne', sans-serif" }}
             onClick={toggleDrawer}
           >
             Schema
           </button>
           <button
             className="w-full text-left px-4 py-3 text-base text-[#333] hover:bg-black/5 transition-colors"
-            style={{ fontFamily: "'Syne', sans-serif" }}
             onClick={toggleDrawer}
           >
             Tables
           </button>
           <button
             className="w-full text-left px-4 py-3 text-base text-[#333] hover:bg-black/5 transition-colors"
-            style={{ fontFamily: "'Syne', sans-serif" }}
             onClick={toggleDrawer}
           >
             Documentation
           </button>
           <button
             className="w-full text-left px-4 py-3 text-base text-[#333] hover:bg-black/5 transition-colors"
-            style={{ fontFamily: "'Syne', sans-serif" }}
             onClick={toggleDrawer}
           >
             Examples

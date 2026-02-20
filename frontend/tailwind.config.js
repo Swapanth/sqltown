@@ -27,8 +27,8 @@ export default {
         'info-light': 'rgba(169, 193, 237, 0.1)',
       },
       fontFamily: {
-        heading: ['Playfair Display', 'serif'],
-        body: ['Syne', 'sans-serif'],
+        heading: ['Comfortaa'],
+        body: ['Comfortaa'],
         code: ['JetBrains Mono', 'monospace'],
       },
       animation: {

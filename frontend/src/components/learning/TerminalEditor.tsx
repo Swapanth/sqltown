@@ -76,7 +76,7 @@ export const TerminalEditor: React.FC<TerminalEditorProps> = ({
                         readOnly,
                         minimap: { enabled: false },
                         fontSize: 14,
-                        fontFamily: 'JetBrains Mono, monospace',
+                        fontFamily: 'Comfortaa, monospace',
                         lineNumbers: 'on',
                         scrollBeyondLastLine: false,
                         automaticLayout: true,

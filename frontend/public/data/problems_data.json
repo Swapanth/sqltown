@@ -1,0 +1,787 @@
+{
+    "topics": [
+        {
+            "id": "joins",
+            "name": "Joins",
+            "icon": "link"
+        },
+        {
+            "id": "aggregation",
+            "name": "Aggregation",
+            "icon": "sigma"
+        },
+        {
+            "id": "window_functions",
+            "name": "Window Functions",
+            "icon": "chart"
+        },
+        {
+            "id": "subqueries",
+            "name": "Subqueries",
+            "icon": "layers"
+        },
+        {
+            "id": "string_functions",
+            "name": "String Functions",
+            "icon": "text"
+        }
+    ],
+    "questions": [
+        {
+            "id": 1,
+            "title": "Select All Employees",
+            "difficulty": "Easy",
+            "acceptance_rate": 92.1,
+            "topic": [
+                "select"
+            ],
+            "concepts": [
+                "SELECT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 2,
+            "title": "Employees in Department 10",
+            "difficulty": "Easy",
+            "acceptance_rate": 88.4,
+            "topic": [
+                "where"
+            ],
+            "concepts": [
+                "WHERE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 3,
+            "title": "Employees with Salary > 50000",
+            "difficulty": "Easy",
+            "acceptance_rate": 85.3,
+            "topic": [
+                "where"
+            ],
+            "concepts": [
+                "WHERE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 4,
+            "title": "Sort Employees by Salary",
+            "difficulty": "Easy",
+            "acceptance_rate": 83.7,
+            "topic": [
+                "sorting"
+            ],
+            "concepts": [
+                "ORDER BY"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 5,
+            "title": "Top 5 Highest Salaries",
+            "difficulty": "Easy",
+            "acceptance_rate": 81.9,
+            "topic": [
+                "limit"
+            ],
+            "concepts": [
+                "ORDER BY",
+                "LIMIT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 6,
+            "title": "Count Total Employees",
+            "difficulty": "Easy",
+            "acceptance_rate": 90.5,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "COUNT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 7,
+            "title": "Average Salary",
+            "difficulty": "Easy",
+            "acceptance_rate": 87.2,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "AVG"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 8,
+            "title": "Max Salary",
+            "difficulty": "Easy",
+            "acceptance_rate": 89.8,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "MAX"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 9,
+            "title": "Min Salary",
+            "difficulty": "Easy",
+            "acceptance_rate": 89.4,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "MIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 10,
+            "title": "Sum of Salaries",
+            "difficulty": "Easy",
+            "acceptance_rate": 88.9,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "SUM"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 11,
+            "title": "Employees per Department",
+            "difficulty": "Easy",
+            "acceptance_rate": 79.3,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "GROUP BY",
+                "COUNT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 12,
+            "title": "Departments with >5 Employees",
+            "difficulty": "Easy",
+            "acceptance_rate": 76.2,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "GROUP BY",
+                "HAVING"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 13,
+            "title": "Average Salary per Department",
+            "difficulty": "Easy",
+            "acceptance_rate": 74.1,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "GROUP BY",
+                "AVG"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 14,
+            "title": "Highest Salary per Department",
+            "difficulty": "Easy",
+            "acceptance_rate": 71.4,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "GROUP BY",
+                "MAX"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 15,
+            "title": "Lowest Salary per Department",
+            "difficulty": "Easy",
+            "acceptance_rate": 71.2,
+            "topic": [
+                "aggregation"
+            ],
+            "concepts": [
+                "GROUP BY",
+                "MIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 16,
+            "title": "Inner Join Employees and Departments",
+            "difficulty": "Easy",
+            "acceptance_rate": 78.5,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "INNER JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 17,
+            "title": "Employees with Department Name",
+            "difficulty": "Easy",
+            "acceptance_rate": 77.9,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "INNER JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 18,
+            "title": "Left Join All Employees and Departments",
+            "difficulty": "Easy",
+            "acceptance_rate": 75.6,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "LEFT JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 19,
+            "title": "Departments Without Employees",
+            "difficulty": "Easy",
+            "acceptance_rate": 72.3,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "LEFT JOIN",
+                "NULL"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 20,
+            "title": "Employees Without Department",
+            "difficulty": "Easy",
+            "acceptance_rate": 73.2,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "LEFT JOIN",
+                "NULL"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 21,
+            "title": "Self Join Employee Manager",
+            "difficulty": "Medium",
+            "acceptance_rate": 69.5,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "SELF JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 22,
+            "title": "Employees Earning More Than Manager",
+            "difficulty": "Medium",
+            "acceptance_rate": 66.2,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "SELF JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 23,
+            "title": "Employee and Manager Names",
+            "difficulty": "Medium",
+            "acceptance_rate": 65.7,
+            "topic": [
+                "joins"
+            ],
+            "concepts": [
+                "SELF JOIN"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 24,
+            "title": "Subquery Salary Above Average",
+            "difficulty": "Medium",
+            "acceptance_rate": 64.1,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "SUBQUERY"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 25,
+            "title": "Departments Above Avg Salary",
+            "difficulty": "Medium",
+            "acceptance_rate": 61.8,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "SUBQUERY",
+                "GROUP BY"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 26,
+            "title": "Employees in Max Salary Dept",
+            "difficulty": "Medium",
+            "acceptance_rate": 60.3,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "SUBQUERY",
+                "MAX"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 27,
+            "title": "Second Highest Salary",
+            "difficulty": "Medium",
+            "acceptance_rate": 59.6,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "ORDER BY",
+                "LIMIT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 28,
+            "title": "Nth Highest Salary",
+            "difficulty": "Medium",
+            "acceptance_rate": 55.4,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "DENSE_RANK"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 29,
+            "title": "Rank Employees by Salary",
+            "difficulty": "Medium",
+            "acceptance_rate": 58.1,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "RANK"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 30,
+            "title": "Row Number per Department",
+            "difficulty": "Medium",
+            "acceptance_rate": 57.3,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "ROW_NUMBER",
+                "PARTITION BY"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 31,
+            "title": "Dense Rank Salaries",
+            "difficulty": "Medium",
+            "acceptance_rate": 56.8,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "DENSE_RANK"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 32,
+            "title": "Top 3 Salaries per Dept",
+            "difficulty": "Hard",
+            "acceptance_rate": 48.2,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "ROW_NUMBER",
+                "PARTITION BY"
+            ],
+            "solved": false,
+            "locked": true
+        },
+        {
+            "id": 33,
+            "title": "Running Total Salary",
+            "difficulty": "Medium",
+            "acceptance_rate": 54.6,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "SUM OVER"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 34,
+            "title": "Moving Average Salary",
+            "difficulty": "Hard",
+            "acceptance_rate": 46.7,
+            "topic": [
+                "window_functions"
+            ],
+            "concepts": [
+                "AVG OVER"
+            ],
+            "solved": false,
+            "locked": true
+        },
+        {
+            "id": 35,
+            "title": "Employees Name Starts A",
+            "difficulty": "Easy",
+            "acceptance_rate": 82.4,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "LIKE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 36,
+            "title": "Employees Name Ends N",
+            "difficulty": "Easy",
+            "acceptance_rate": 81.7,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "LIKE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 37,
+            "title": "Uppercase Names",
+            "difficulty": "Easy",
+            "acceptance_rate": 80.9,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "UPPER"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 38,
+            "title": "Lowercase Names",
+            "difficulty": "Easy",
+            "acceptance_rate": 80.4,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "LOWER"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 39,
+            "title": "Name Length",
+            "difficulty": "Easy",
+            "acceptance_rate": 79.2,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "LENGTH"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 40,
+            "title": "Concatenate Names",
+            "difficulty": "Easy",
+            "acceptance_rate": 78.6,
+            "topic": [
+                "string"
+            ],
+            "concepts": [
+                "CONCAT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 41,
+            "title": "Extract Year from Date",
+            "difficulty": "Easy",
+            "acceptance_rate": 77.3,
+            "topic": [
+                "date"
+            ],
+            "concepts": [
+                "YEAR"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 42,
+            "title": "Extract Month from Date",
+            "difficulty": "Easy",
+            "acceptance_rate": 76.8,
+            "topic": [
+                "date"
+            ],
+            "concepts": [
+                "MONTH"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 43,
+            "title": "Employees Joined 2023",
+            "difficulty": "Easy",
+            "acceptance_rate": 75.9,
+            "topic": [
+                "date"
+            ],
+            "concepts": [
+                "YEAR",
+                "WHERE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 44,
+            "title": "Days Since Joining",
+            "difficulty": "Medium",
+            "acceptance_rate": 63.4,
+            "topic": [
+                "date"
+            ],
+            "concepts": [
+                "DATEDIFF"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 45,
+            "title": "Add 30 Days to Date",
+            "difficulty": "Easy",
+            "acceptance_rate": 74.2,
+            "topic": [
+                "date"
+            ],
+            "concepts": [
+                "DATE_ADD"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 46,
+            "title": "CASE Salary Grade",
+            "difficulty": "Medium",
+            "acceptance_rate": 62.1,
+            "topic": [
+                "case"
+            ],
+            "concepts": [
+                "CASE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 47,
+            "title": "CASE Department Label",
+            "difficulty": "Medium",
+            "acceptance_rate": 61.5,
+            "topic": [
+                "case"
+            ],
+            "concepts": [
+                "CASE"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 48,
+            "title": "Exists Orders",
+            "difficulty": "Medium",
+            "acceptance_rate": 60.9,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "EXISTS"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 49,
+            "title": "Not Exists Orders",
+            "difficulty": "Medium",
+            "acceptance_rate": 59.7,
+            "topic": [
+                "subqueries"
+            ],
+            "concepts": [
+                "NOT EXISTS"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 50,
+            "title": "Union Employees Customers",
+            "difficulty": "Medium",
+            "acceptance_rate": 58.3,
+            "topic": [
+                "set"
+            ],
+            "concepts": [
+                "UNION"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 51,
+            "title": "Union All Records",
+            "difficulty": "Medium",
+            "acceptance_rate": 57.6,
+            "topic": [
+                "set"
+            ],
+            "concepts": [
+                "UNION ALL"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 52,
+            "title": "Intersect Example",
+            "difficulty": "Medium",
+            "acceptance_rate": 55.2,
+            "topic": [
+                "set"
+            ],
+            "concepts": [
+                "INTERSECT"
+            ],
+            "solved": false,
+            "locked": false
+        },
+        {
+            "id": 53,
+            "title": "Except Example",
+            "difficulty": "Medium",
+            "acceptance_rate": 54.7,
+            "topic": [
+                "set"
+            ],
+            "concepts": [
+                "EXCEPT"
+            ],
+            "solved": false,
+            "locked": false
+        }
+    ]
+}

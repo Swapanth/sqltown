@@ -4,7 +4,6 @@ import Output from "../../components/playground/output";
 import Toolbar from "../../components/playground/toolbar";
 import SchemaBrowser from "../../components/playground/SchemaBrowser";
 import TablePreview from "../../components/playground/TablePreview";
-import PlaygroundHeader from "../../components/playground/PlaygroundHeader";
 import {
   initializeDatabase,
   executeQuery,
@@ -199,12 +198,9 @@ export const GroundPage: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white overflow-hidden" style={{ fontFamily: "'Syne', sans-serif" }}>
-      {/* Header with Landing Page Design */}
-      <PlaygroundHeader dbReady={dbReady} />
-
+    <div className="h-screen flex flex-col bg-white overflow-hidden">
       {/* Three-Panel Layout */}
-      <div className="flex-1 flex overflow-hidden relative pt-20">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Left Panel - Schema Browser */}
         {leftPanelVisible && (
           <>
@@ -257,11 +253,11 @@ export const GroundPage: React.FC = () => {
                     <div className="w-2.5 h-2.5 bg-[#FEBC2E] rounded-full"></div>
                     <div className="w-2.5 h-2.5 bg-[#28C840] rounded-full"></div>
                   </div>
-                  <span className="text-white/80 text-xs font-medium" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span className="text-white/80 text-xs font-medium">
                     Input
                   </span>
                 </div>
-                <div className="text-white/50 text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <div className="text-white/50 text-xs">
                   Ctrl+Enter to run
                 </div>
               </div>
@@ -309,7 +305,7 @@ export const GroundPage: React.FC = () => {
             <div className="flex-1 bg-white overflow-auto">
               <div className="p-6">
                 <div className="mb-4 pb-2 border-b border-black/5">
-                  <h3 className="text-sm font-semibold text-black/80" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <h3 className="text-sm font-semibold text-black/80">
                     Output
                   </h3>
                 </div>

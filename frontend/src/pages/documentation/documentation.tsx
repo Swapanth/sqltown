@@ -92,13 +92,6 @@ export const Documentation: React.FC<DocumentationProps> = ({
 
   return (
     <div className="documentation-container" data-theme={theme}>
-      <Header
-        title={currentData.title}
-        version={currentData.version}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
       <div className="documentation-layout">
         <Sidebar
           sections={currentData.sections as any}
