@@ -21,6 +21,17 @@ export type SubsectionId =
   | 'setup-steps'
   | 'installation'
   | 'sample-database'
+  | 'introduction-to-sql'
+  | 'select-query'
+  | 'data-definition-ddl'
+  | 'data-manipulation-dml'
+  | 'filtering-data'
+  | 'sql-joins'
+  | 'sql-set-operators'
+  | 'string-functions'
+  | 'date-time-functions'
+  | 'null-functions'
+  | 'case-when-statement'
   | 'sql-statements'
   | 'filtering-sorting'
   | 'joins'
@@ -42,6 +53,17 @@ export const lazyPages: Record<SubsectionId, ComponentType<SubsectionPageProps>>
   'setup-steps': lazy(() => import('./SetupStepsPage')),
   'installation': lazy(() => import('./InstallationPage')),
   'sample-database': lazy(() => import('./SampleDatabasePage')),
+  'introduction-to-sql': lazy(() => import('./IntroductionToSQLPage')),
+  'select-query': lazy(() => import('./SelectQueryPage')),
+  'data-definition-ddl': lazy(() => import('./DataDefinitionDDLPage')),
+  'data-manipulation-dml': lazy(() => import('./DataManipulationDMLPage')),
+  'filtering-data': lazy(() => import('./FilteringDataPage')),
+  'sql-joins': lazy(() => import('./SQLJoinsPage')),
+  'sql-set-operators': lazy(() => import('./SQLSetOperatorsPage')),
+  'string-functions': lazy(() => import('./StringFunctionsPage')),
+  'date-time-functions': lazy(() => import('./DateTimeFunctionsPage')),
+  'null-functions': lazy(() => import('./NullFunctionsPage')),
+  'case-when-statement': lazy(() => import('./CaseWhenPage')),
   'sql-statements': lazy(() => import('./CrudOperationsPage')),
   'filtering-sorting': lazy(() => import('./FilteringSortingPage')),
   'joins': lazy(() => import('./JoinsPage')),
@@ -87,6 +109,72 @@ export const subsectionMeta: Record<SubsectionId, {
     section: 'getting-started',
     sectionTitle: 'Getting Started',
     difficulty: 'beginner',
+  },
+  'introduction-to-sql': {
+    title: 'Introduction to SQL',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'beginner',
+  },
+  'select-query': {
+    title: 'SELECT Query',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'beginner',
+  },
+  'data-definition-ddl': {
+    title: 'Data Definition (DDL)',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'beginner',
+  },
+  'data-manipulation-dml': {
+    title: 'Data Manipulation (DML)',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'beginner',
+  },
+  'filtering-data': {
+    title: 'Filtering Data',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'beginner',
+  },
+  'sql-joins': {
+    title: 'SQL Joins',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
+  },
+  'sql-set-operators': {
+    title: 'SQL SET Operators',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
+  },
+  'string-functions': {
+    title: 'String Functions',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
+  },
+  'date-time-functions': {
+    title: 'Date & Time Functions',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
+  },
+  'null-functions': {
+    title: 'NULL Functions',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
+  },
+  'case-when-statement': {
+    title: 'CASE WHEN Statement',
+    section: 'basics',
+    sectionTitle: 'MySQL Basics',
+    difficulty: 'intermediate',
   },
   'sql-statements': {
     title: 'CRUD Operations',
@@ -134,6 +222,17 @@ export const subsectionOrder: SubsectionId[] = [
   'setup-steps',
   'installation',
   'sample-database',
+  'introduction-to-sql',
+  'select-query',
+  'data-definition-ddl',
+  'data-manipulation-dml',
+  'filtering-data',
+  'sql-joins',
+  'sql-set-operators',
+  'string-functions',
+  'date-time-functions',
+  'null-functions',
+  'case-when-statement',
   'sql-statements',
   'filtering-sorting',
   'joins',
