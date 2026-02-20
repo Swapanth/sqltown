@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon, Squares2X2Icon, ListBulletIcon } from "@heroicons/react/24/outline";
 import { CircleStackIcon } from "@heroicons/react/24/solid";
-
+import ecommerceImg from "../../assets/ecommerce.png";
+import universityImg from "../../assets/university.png";
+import hrImg from "../../assets/hr.png";
+import bankingImg from "../../assets/banking.png";
 
 interface DatabaseScenario {
   id: string;
@@ -21,35 +24,35 @@ interface DatabaseScenario {
 
 const mockDatabases: DatabaseScenario[] = [
   {
-    id: "01_ecommerce_shopnow",
+    id: "ecommerce",
     name: "ShopNow E-Commerce",
     description: "Complete online store database with customers, products, orders, payments, coupons, cart, wishlist, shipments, and returns management",
-    difficulty: "Advanced",
+    difficulty: "Beginner",
     category: "Retail",
-    tables: 16,
+    tables: 14,
     queries: 50,
     completionRate: 0,
     lastEdited: "Never",
-    thumbnail: "/assets/cpu-img.svg",
+    thumbnail: ecommerceImg,
     status: "Not Started",
     creator: "SQL Academy"
   },
   {
-    id: "02_university_edutrack",
+    id: "university",
     name: "EduTrack University",
     description: "Comprehensive university management system with departments, programs, students, faculty, enrollments, grades, exams, fees, hostels, and library",
-    difficulty: "Advanced",
+    difficulty: "Intermediate",
     category: "Education",
     tables: 19,
     queries: 60,
     completionRate: 0,
     lastEdited: "Never",
-    thumbnail: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    thumbnail: universityImg,
     status: "Not Started",
     creator: "SQL Academy"
   },
   {
-    id: "03_hr_payroll_peoplecore",
+    id: "hr",
     name: "PeopleCore HR & Payroll",
     description: "Human resources and payroll system managing employees, departments, salaries, leaves, attendance, performance reviews, training, and benefits",
     difficulty: "Intermediate",
@@ -58,12 +61,12 @@ const mockDatabases: DatabaseScenario[] = [
     queries: 45,
     completionRate: 0,
     lastEdited: "Never",
-    thumbnail: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    thumbnail: hrImg,
     status: "Not Started",
     creator: "SQL Academy"
   },
   {
-    id: "04_banking_nexbank",
+    id: "banking",
     name: "NexBank Finance",
     description: "Banking and finance system with branches, customers, accounts, transactions, loans, credit cards, deposits, and fraud detection",
     difficulty: "Advanced",
@@ -72,7 +75,7 @@ const mockDatabases: DatabaseScenario[] = [
     queries: 55,
     completionRate: 0,
     lastEdited: "Never",
-    thumbnail: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    thumbnail: bankingImg,
     status: "Not Started",
     creator: "SQL Academy"
   }
@@ -222,7 +225,12 @@ const PracticeListPage: React.FC = () => {
               {/* Thumbnail */}
               <div
                 className="aspect-video relative overflow-hidden"
-                style={{ background: db.thumbnail }}
+                style={{
+                    backgroundImage: `url(${db.thumbnail})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat"
+                }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
                 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Editor from '@monaco-editor/react';
 import type { SQLDialect } from '../../models/types';
 import { Button } from '../common';
@@ -22,14 +22,12 @@ export const TerminalEditor: React.FC<TerminalEditorProps> = ({
     height = '300px',
     isRunning = false,
 }) => {
-    const [isEditorReady, setIsEditorReady] = useState(false);
-
     const handleEditorChange = (value: string | undefined) => {
         onChange(value || '');
     };
 
     const handleEditorMount = () => {
-        setIsEditorReady(true);
+        // Editor is ready - can be used for future functionality
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {

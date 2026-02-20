@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, ProgressBar } from '../../components/common';
 import { mockQuests, mockUserQuests } from '../../data/mockQuests';
-import type { Quest } from '../../models/types';
+
 
 export const QuestsPage: React.FC = () => {
     const [filter, setFilter] = useState<'all' | 'main' | 'side' | 'daily' | 'weekly'>('all');

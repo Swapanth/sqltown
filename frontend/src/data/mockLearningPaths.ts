@@ -1,4 +1,4 @@
-import type { LearningPath, Chapter, Lesson, CodeExample } from '../models/types';
+import type { LearningPath, Lesson, CodeExample } from '../models/types';
 
 // Helper function to generate code examples for different dialects
 const generateCodeExamples = (lessonId: number, baseCode: string, explanation: string): CodeExample[] => {

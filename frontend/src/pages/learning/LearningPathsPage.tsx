@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent, Badge, ProgressBar } from '../../components/common';
+import { Card, CardTitle, CardContent, Badge, ProgressBar } from '../../components/common';
 import { mockLearningPaths } from '../../data/mockLearningPaths';
 
 export const LearningPathsPage: React.FC = () => {

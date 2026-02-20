@@ -7,14 +7,7 @@ interface QueryResult {
   executionTime?: string;
 }
 
-interface Props {
-  result: QueryResult | null;
-}
-
-
-
-
-const Output: React.FC<{ result: any }> = ({ result }) => {
+const Output: React.FC<{ result: QueryResult | null }> = ({ result }) => {
   if (!result) {
     return (
       <div className="text-black/40 p-12 text-center">

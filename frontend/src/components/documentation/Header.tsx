@@ -2,8 +2,8 @@ import React from 'react';
 import type { HeaderProps } from '../../models/Documentation';
 
 export const Header: React.FC<HeaderProps> = ({
-  title,
-  version,
+  title: _title,
+  version: _version,
   searchQuery,
   onSearchChange
 }) => {

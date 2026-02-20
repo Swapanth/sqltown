@@ -17,35 +17,37 @@ const ERBlock: React.FC<{ onView?: () => void }> = ({ onView }) => {
   }, []);
 
   return (
-    <div className="bg-white p-4 rounded shadow mb-4">
+    <div className="p-4 rounded h-full flex flex-col overflow-hidden">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-semibold text-lg">🗂️ ER Diagram</h2>
+        <h2 className="font-semibold text-lg text-white flex items-center gap-2">🗂️ ER Diagram</h2>
         {onView && (
-          <button onClick={onView} className="text-blue-500 text-sm hover:underline">
-            View Full
+          <button onClick={onView} className="text-violet-400 text-sm hover:text-violet-300 transition-colors font-medium">
+            View Full →
           </button>
         )}
       </div>
 
-      <div className="bg-gray-50 p-4 rounded border text-center">
-        <p className="text-sm text-gray-600 mb-2">Database Structure</p>
+      <div className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm p-4 rounded-lg border border-white/20 text-center">
+        <p className="text-sm text-white/70 mb-2">Database Structure</p>
         {tables.length > 0 ? (
           <div className="flex flex-wrap gap-2 justify-center">
             {tables.map((table) => (
               <div
                 key={table}
-                className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-mono"
+                className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 backdrop-blur-sm text-violet-300 px-3 py-1 rounded-lg text-xs font-mono border border-violet-400/30 shadow-lg shadow-violet-500/10"
               >
                 {table}
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-400">No tables available</p>
+          <p className="text-xs text-white/40">No tables available</p>
         )}
-        <p className="text-xs text-gray-500 mt-3">
-          Click View Full to see complete ER diagram with relationships
-        </p>
+        {onView && (
+          <p className="text-xs text-white/50 mt-3 flex-shrink-0">
+            Click View Full to see complete ER diagram with relationships
+          </p>
+        )}
       </div>
     </div>
   );

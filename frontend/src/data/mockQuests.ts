@@ -1,4 +1,4 @@
-import type { Quest, UserQuest, QuestObjective } from '../models/types';
+import type { Quest, UserQuest } from '../models/types';
 
 export const mockQuests: Quest[] = [
     {

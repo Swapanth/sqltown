@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { initializeDatabase, executeQuery } from "../playground/compiler";
+import React, { useState } from "react";
+import { executeQuery } from "../playground/compiler";
+import { usePracticeDatabase } from "../../context/PracticeDatabaseContext";
 
 const PracticeTerminal: React.FC = () => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<any>(null);
   const [isRunning, setIsRunning] = useState(false);
-  const [dbReady, setDbReady] = useState(false);
   const [hasExecuted, setHasExecuted] = useState(false);
+  const { databaseInfo, isLoading } = usePracticeDatabase();
+  const dbReady = !isLoading && databaseInfo !== null;
 
   const [editorWidth, setEditorWidth] = useState<number>(60);
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    const init = async () => {
-      await initializeDatabase();
-      setDbReady(true);
-    };
-    init();
-  }, []);
 
   const handleRun = async () => {
     if (!dbReady || !query.trim()) return;
@@ -75,20 +69,20 @@ const PracticeTerminal: React.FC = () => {
       {/* ================= EDITOR ================= */}
       <div
         style={{ width: hasExecuted ? `${editorWidth}%` : "100%" }}
-        className={`flex flex-col bg-gray-50 ${
-          hasExecuted ? "border-r" : ""
+        className={`flex flex-col ${
+          hasExecuted ? "border-r border-white/20" : ""
         }`}
       >
         {/* Header */}
-        <div className="relative p-3 border-b bg-gray-50">
-          <span className="text-xs font-semibold text-gray-600">
+        <div className="relative p-3 border-b border-white/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10 backdrop-blur-sm">
+          <span className="text-xs font-semibold text-white">
             SQL Editor
           </span>
 
           <div className="absolute right-3 top-2 flex gap-2">
             <button
               onClick={handleClear}
-              className="px-3 py-1 text-xs border rounded hover:bg-gray-100"
+              className="px-3 py-1 text-xs border border-white/20 rounded-lg hover:bg-white/10 bg-white/5 backdrop-blur-sm text-white transition-colors"
             >
               Clear
             </button>
@@ -96,7 +90,7 @@ const PracticeTerminal: React.FC = () => {
             <button
               onClick={handleRun}
               disabled={!dbReady || isRunning}
-              className="px-4 py-1 bg-black text-white rounded text-xs disabled:opacity-50"
+              className="px-4 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-xs disabled:opacity-50 hover:shadow-lg hover:shadow-purple-500/30 transition-all font-medium"
             >
               {isRunning ? "Running..." : "▶ Run"}
             </button>
@@ -105,7 +99,7 @@ const PracticeTerminal: React.FC = () => {
 
         {/* Textarea */}
         <textarea
-          className="flex-1 p-4 font-mono text-sm resize-none focus:outline-none bg-white"
+          className="flex-1 p-4 font-mono text-sm resize-none focus:outline-none bg-black/20 backdrop-blur-sm text-white placeholder:text-white/40"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={`Write your SQL query here...
@@ -119,26 +113,26 @@ SELECT * FROM Customers LIMIT 5;`}
       {hasExecuted && (
         <div
           onMouseDown={() => setIsDragging(true)}
-          className="w-2 cursor-col-resize bg-gray-200 hover:bg-gray-400"
+          className="w-2 cursor-col-resize bg-white/10 hover:bg-purple-500/30 transition-colors"
         />
       )}
 
       {/* ================= OUTPUT ================= */}
       {hasExecuted && (
-        <div className="flex-1 flex flex-col min-w-0 bg-gray-50">
-          <div className="p-3 border-b text-xs font-semibold text-gray-600">
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="p-3 border-b border-white/20 text-xs font-semibold text-white bg-gradient-to-r from-pink-500/10 to-purple-500/10 backdrop-blur-sm">
             Output
           </div>
 
-          <div className="flex-1 overflow-auto p-4 min-w-0">
+          <div className="flex-1 overflow-auto p-4 min-w-0 bg-black/20 backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {isRunning && (
-              <div className="text-blue-600 text-sm">
-                ⏳ Running query...
+              <div className="text-purple-400 text-sm flex items-center gap-2">
+                <span className="animate-pulse">⏳</span> Running query...
               </div>
             )}
 
             {!isRunning && result && result.success === false && (
-              <div className="text-red-600 bg-red-50 p-3 rounded text-sm">
+              <div className="text-red-300 bg-red-500/20 border border-red-400/30 p-3 rounded-lg text-sm backdrop-blur-sm">
                 ❌ {result.error}
               </div>
             )}
@@ -146,27 +140,27 @@ SELECT * FROM Customers LIMIT 5;`}
             {!isRunning && result && result.success === true && (
               <>
                 {!result.data || result.data.length === 0 ? (
-                  <div className="text-green-600 bg-green-50 p-3 rounded text-sm">
+                  <div className="text-green-300 bg-green-500/20 border border-green-400/30 p-3 rounded-lg text-sm backdrop-blur-sm">
                     ✅ Query executed successfully •{" "}
                     {result.executionTime}
                   </div>
                 ) : (
                   <>
-                    <div className="text-xs text-gray-500 mb-2">
+                    <div className="text-xs text-white/60 mb-2">
                       {result.data[0]?.values?.length || 0} rows •{" "}
                       {result.executionTime}
                     </div>
 
                     {/* 🔥 Horizontal Scroll Fix */}
-                    <div className="overflow-x-auto overflow-y-auto border rounded bg-white">
+                    <div className="overflow-x-auto overflow-y-auto border border-white/20 rounded-lg bg-black/20 backdrop-blur-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                       <table className="min-w-max text-xs">
-                        <thead className="bg-gray-100 sticky top-0">
+                        <thead className="bg-white/10 backdrop-blur-sm sticky top-0">
                           <tr>
                             {result.data[0]?.columns?.map(
                               (col: string, i: number) => (
                                 <th
                                   key={i}
-                                  className="p-2 border text-left font-semibold whitespace-nowrap"
+                                  className="p-2 border-b border-white/20 text-left font-semibold whitespace-nowrap text-purple-300"
                                 >
                                   {col}
                                 </th>
@@ -177,15 +171,15 @@ SELECT * FROM Customers LIMIT 5;`}
                         <tbody>
                           {result.data[0]?.values?.map(
                             (row: any[], i: number) => (
-                              <tr key={i} className="hover:bg-gray-50">
+                              <tr key={i} className="hover:bg-white/5 transition-colors">
                                 {row.map((cell: any, j: number) => (
                                   <td
                                     key={j}
-                                    className="p-2 border whitespace-nowrap"
+                                    className="p-2 border-b border-white/10 whitespace-nowrap text-white/80"
                                   >
                                     {cell !== null
                                       ? cell.toString()
-                                      : "NULL"}
+                                      : <span className="text-white/40 italic">NULL</span>}
                                   </td>
                                 ))}
                               </tr>

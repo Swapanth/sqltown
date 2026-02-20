@@ -11,7 +11,7 @@ const awsConfig = {
           scopes: ['openid', 'email', 'profile'],
           redirectSignIn: [import.meta.env.VITE_REDIRECT_URI || window.location.origin + '/callback'],
           redirectSignOut: [window.location.origin],
-          responseType: 'code',
+          responseType: 'code' as const,
         },
       },
     },

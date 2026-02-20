@@ -14,7 +14,7 @@ interface CityVisualizationProps {
 export const CityVisualization: React.FC<CityVisualizationProps> = ({
     city,
     interactive = false,
-    mode = 'view',
+    mode: _mode = 'view',
     onBuildingClick,
     animated = true,
     compact = false,

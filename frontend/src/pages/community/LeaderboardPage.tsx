@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+
 import { Card, CardContent } from '../../components/common';
 import { fullLeaderboard } from '../../data/mockLeaderboard';
 
