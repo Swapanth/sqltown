@@ -751,7 +751,7 @@ ORDER BY salary DESC, hire_date ASC;`}
           <ul className="prose">
             <li><strong>Use parentheses with AND/OR:</strong> Makes logic clear and prevents errors</li>
             <li><strong>Use IN instead of multiple ORs:</strong> More readable and often faster</li>
-            <li><strong>Use BETWEEN for ranges:</strong> Cleaner than >= AND <=</li>
+            <li><strong>Use BETWEEN for ranges:</strong> Cleaner than = AND =</li>
             <li><strong>Be careful with LIKE:</strong> Can be slow on large tables without indexes</li>
             <li><strong>Test complex filters:</strong> Start simple, add conditions gradually</li>
             <li><strong>Consider NULL values:</strong> Use IS NULL or IS NOT NULL explicitly</li>
