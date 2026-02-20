@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   dbReady: boolean;
 }
 
 const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
+  const navigate = useNavigate();
   const [isCompressed, setIsCompressed] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -21,6 +23,9 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
+  const handlePracticeClick = () => {
+    navigate('/practice');
+  };
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 pt-4 transition-all">
@@ -48,6 +53,13 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
               >
                 Schema
+              </button>
+              <button
+                onClick={handlePracticeClick}
+                className="bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white px-4 py-1.5 text-sm font-medium rounded-lg hover:from-[#4F46E5] hover:to-[#4338CA] transition-all shadow-sm hover:shadow-md"
+                style={{ fontFamily: "'Syne', sans-serif" }}
+              >
+                Practice
               </button>
               <button
                 className="text-[#555] px-3 py-1.5 text-sm font-medium hover:text-black transition-colors"
@@ -131,6 +143,16 @@ const PlaygroundHeader: React.FC<Props> = ({ dbReady }) => {
               SQL Playground
             </span>
           </div>
+          <button
+            className="w-full text-left px-4 py-3 text-base bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white hover:from-[#4F46E5] hover:to-[#4338CA] transition-all rounded-lg font-medium"
+            style={{ fontFamily: "'Syne', sans-serif" }}
+            onClick={() => {
+              handlePracticeClick();
+              toggleDrawer();
+            }}
+          >
+            Practice
+          </button>
           <button
             className="w-full text-left px-4 py-3 text-base text-[#333] hover:bg-black/5 transition-colors"
             onClick={toggleDrawer}

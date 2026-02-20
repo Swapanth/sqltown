@@ -13,6 +13,8 @@ import { ProtectedRoute } from '../components/ProtectedRoute';
 import {GroundPage} from '../pages/playground/playground';
 import InterviewPage from '../pages/interview/InterviewPage';
 import Navbar from '../components/layout/Navbar';
+import PracticePage from '../pages/playground/practice';
+import PracticeListPage from '../pages/playground/PracticeListPage';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -94,6 +96,14 @@ export const AppRoutes: React.FC = () => {
               <InterviewPage />
           }
         />
+        <Route
+          path="/practice/:dbId"
+          element={<PracticePage />}
+        />
+        <Route
+        path="/practice"
+          element={<PracticeListPage />}
+          />
       </Routes>
     </Router>
   );
