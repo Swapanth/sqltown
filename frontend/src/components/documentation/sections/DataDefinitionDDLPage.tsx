@@ -8,7 +8,7 @@ interface DataDefinitionDDLPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const DataDefinitionDDLPage: React.FC<DataDefinitionDDLPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const DataDefinitionDDLPage: React.FC<DataDefinitionDDLPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const DataDefinitionDDLPage: React.FC<DataDefinitionDDLPageProps> = ({ initialTh
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="create">
-            <span className="lecture-icon">▶️</span> CREATE
+             CREATE
           </h2>
           <div className="subtitle">Duration: 6:19</div>
         </div>
@@ -165,7 +165,7 @@ WHERE salary > 50000;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="alter">
-            <span className="lecture-icon">▶️</span> ALTER
+             ALTER
           </h2>
           <div className="subtitle">Duration: 3:22</div>
         </div>
@@ -286,7 +286,7 @@ RENAME TABLE employees TO staff;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="drop">
-            <span className="lecture-icon">▶️</span> DROP
+             DROP
           </h2>
           <div className="subtitle">Duration: 1:45</div>
         </div>

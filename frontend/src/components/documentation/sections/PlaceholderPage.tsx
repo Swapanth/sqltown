@@ -15,7 +15,7 @@ interface PlaceholderPageProps {
 }
 
 const PlaceholderPage: React.FC<PlaceholderPageProps> = ({ 
-  initialTheme = 'dark', 
+  initialTheme = 'light', 
   onNavigate,
   title,
   description,

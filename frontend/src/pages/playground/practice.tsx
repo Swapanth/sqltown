@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import PracticeTerminal from "../../components/practice/PracticeTerminal";
+import PracticePlayground from "../../components/practice/PracticePlayground";
 import DataPreview from "../../components/practice/DataPreview";
 import ERBlock from "../../components/practice/ERBlock";
 import ERDiagramGenerator from "../../components/practice/ERDiagramGenerator";
@@ -9,72 +12,107 @@ import AnalystBlock from "../../components/practice/AnalystBlock";
 
 const PracticePage: React.FC = () => {
   const [activeView, setActiveView] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const navigate = useNavigate();
+  const { dbId } = useParams();
+
+  const handleBackToPracticeList = () => {
+    navigate('/practice');
+  };
+
+  const handleExpand = (viewType: string) => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setActiveView(viewType);
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  const handleCollapse = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setActiveView(null);
+      setIsAnimating(false);
+    }, 300);
+  };
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* TOP ROW - Data Preview & Terminal */}
-<div className="flex-1 flex gap-4 p-4 min-h-0">
-        {/* Data Preview - Left Half */}
-        <div className="w-1/2 overflow-auto">
-          <DataPreview onView={() => setActiveView("data")} />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Back Navigation Header */}
+        <div className="mb-6">
+          <button
+            onClick={handleBackToPracticeList}
+            className="flex items-center text-gray-600 hover:text-gray-900 hover:bg-orange-100 rounded-full transition-colors duration-200 group"
+          >
+            <ArrowLeftIcon className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
+          </button>
         </div>
 
-        {/* Terminal with Output - Right Half */}
-<div className="w-1/2 border rounded flex min-w-0">
-  <PracticeTerminal />
-</div>
+        <div className="space-y-6 relative">
+          {/* Compact Grid View */}
+          {!activeView && (
+            <div className={`transition-all duration-300 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+              {/* TOP ROW - Data Preview & Terminal */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* Data Preview */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow">
+                  <DataPreview dbId={dbId} onView={() => handleExpand("data")} />
+                </div>
 
-      </div>
+                {/* Terminal */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow">
+                  <PracticeTerminal dbId={dbId} onView={() => handleExpand("terminal")} />
+                </div>
+              </div>
 
-      {/* BOTTOM ROW - 4 Blocks */}
-      <div className="h-[280px] grid grid-cols-4 gap-4 p-4 bg-gray-50 border-t">
-        <div className="overflow-auto">
-          <JoinPathFinder onView={() => setActiveView("joins")} />
-        </div>
+              {/* BOTTOM ROW - 4 Blocks */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
+                  <JoinPathFinder onView={() => handleExpand("joins")} />
+                </div>
 
-        <div className="overflow-auto">
-          <QueryLibrary onView={() => setActiveView("library")} />
-        </div>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
+                  <QueryLibrary onView={() => handleExpand("library")} />
+                </div>
 
-        <div className="overflow-auto">
-          <ERBlock onView={() => setActiveView("er")} />
-        </div>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
+                  <ERBlock onView={() => handleExpand("er")} />
+                </div>
 
-        <div className="overflow-auto">
-          <AnalystBlock onView={() => setActiveView("analyst")} />
-        </div>
-      </div>
-
-      {/* FULLSCREEN VIEW */}
-      {activeView && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white w-[95%] h-[95%] rounded-lg shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-gray-50">
-              <h3 className="font-semibold text-lg">
-                {activeView === "data" && "📊 Data Preview & Schema"}
-                {activeView === "er" && "🗂️ Interactive ER Diagram"}
-                {activeView === "joins" && "🔗 Join Path Finder"}
-                {activeView === "library" && "📚 Query Library"}
-                {activeView === "analyst" && "💡 SQL Tips & Tricks"}
-              </h3>
-              <button
-                onClick={() => setActiveView(null)}
-                className="px-4 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm"
-              >
-                Close
-              </button>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
+                  <AnalystBlock onView={() => handleExpand("analyst")} />
+                </div>
+              </div>
             </div>
+          )}
 
-            <div className="flex-1 overflow-auto">
-              {activeView === "data" && <DataPreview />}
-              {activeView === "er" && <ERDiagramGenerator />}
-              {activeView === "joins" && <JoinPathFinder />}
-              {activeView === "library" && <QueryLibrary />}
-              {activeView === "analyst" && <AnalystBlock />}
+          {/* Expanded View */}
+          {activeView && (
+            <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 overflow-hidden transition-all duration-500 transform ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+              <div className="flex items-center justify-between px-6 py-4">
+                <h3 className="font-semibold text-lg text-gray-800">
+                
+                </h3>
+                <button
+                  onClick={handleCollapse}
+                  className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                 X
+                </button>
+              </div>
+              <div className="min-h-[70vh] overflow-auto">
+                {activeView === "data" && <DataPreview dbId={dbId} />}
+                {activeView === "terminal" && <PracticePlayground dbId={dbId} />}
+                {activeView === "er" && <ERDiagramGenerator dbId={dbId} />}
+                {activeView === "joins" && <JoinPathFinder dbId={dbId} />}
+                {activeView === "library" && <QueryLibrary dbId={dbId} />}
+                {activeView === "analyst" && <AnalystBlock dbId={dbId} />}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

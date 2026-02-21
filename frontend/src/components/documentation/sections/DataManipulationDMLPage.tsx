@@ -8,7 +8,7 @@ interface DataManipulationDMLPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const DataManipulationDMLPage: React.FC<DataManipulationDMLPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const DataManipulationDMLPage: React.FC<DataManipulationDMLPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const DataManipulationDMLPage: React.FC<DataManipulationDMLPageProps> = ({ initi
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="insert">
-            <span className="lecture-icon">▶️</span> INSERT
+             INSERT
           </h2>
           <div className="subtitle">Duration: 13:26 • Preview Available</div>
         </div>
@@ -176,7 +176,7 @@ ON DUPLICATE KEY UPDATE
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="update">
-            <span className="lecture-icon">▶️</span> UPDATE
+             UPDATE
           </h2>
           <div className="subtitle">Duration: 6:30</div>
         </div>
@@ -350,7 +350,7 @@ SET
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="delete">
-            <span className="lecture-icon">▶️</span> DELETE
+             DELETE
           </h2>
           <div className="subtitle">Duration: 4:21</div>
         </div>

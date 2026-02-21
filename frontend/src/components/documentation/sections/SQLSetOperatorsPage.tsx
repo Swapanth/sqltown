@@ -8,7 +8,7 @@ interface SQLSetOperatorsPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const SQLSetOperatorsPage: React.FC<SQLSetOperatorsPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const SQLSetOperatorsPage: React.FC<SQLSetOperatorsPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const SQLSetOperatorsPage: React.FC<SQLSetOperatorsPageProps> = ({ initialTheme 
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intro-set-operators">
-            <span className="lecture-icon">▶️</span> Introduction to SET Operators
+             Introduction to SET Operators
           </h2>
           <div className="subtitle">Duration: 0:33 • Preview Available</div>
         </div>
@@ -85,7 +85,7 @@ const SQLSetOperatorsPage: React.FC<SQLSetOperatorsPageProps> = ({ initialTheme 
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="set-rules-syntax">
-            <span className="lecture-icon">▶️</span> SET Rules & Syntax
+             SET Rules & Syntax
           </h2>
           <div className="subtitle">Duration: 11:58</div>
         </div>
@@ -177,7 +177,7 @@ ORDER BY column1;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="union">
-            <span className="lecture-icon">▶️</span> UNION
+             UNION
           </h2>
           <div className="subtitle">Duration: 5:25</div>
         </div>
@@ -229,7 +229,7 @@ ORDER BY name;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="union-all">
-            <span className="lecture-icon">▶️</span> UNION ALL
+             UNION ALL
           </h2>
           <div className="subtitle">Duration: 3:54</div>
         </div>
@@ -287,7 +287,7 @@ ORDER BY log_date DESC;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="except">
-            <span className="lecture-icon">▶️</span> EXCEPT
+             EXCEPT
           </h2>
           <div className="subtitle">Duration: 5:18</div>
         </div>
@@ -343,7 +343,7 @@ WHERE s.city IS NULL;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intersect">
-            <span className="lecture-icon">▶️</span> INTERSECT
+             INTERSECT
           </h2>
           <div className="subtitle">Duration: 2:36</div>
         </div>
@@ -398,7 +398,7 @@ SELECT product_id FROM category_featured;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="usecase-combine">
-            <span className="lecture-icon">▶️</span> Use Case: Combine Information
+             Use Case: Combine Information
           </h2>
           <div className="subtitle">Duration: 9:43</div>
         </div>
@@ -491,7 +491,7 @@ ORDER BY sale_date, region;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="usecase-delta">
-            <span className="lecture-icon">▶️</span> Use Case: Delta Detection
+             Use Case: Delta Detection
           </h2>
           <div className="subtitle">Duration: 3:55</div>
         </div>
@@ -537,7 +537,7 @@ FROM target_orders;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="set-summary">
-            <span className="lecture-icon">▶️</span> SET Operators Summary
+             SET Operators Summary
           </h2>
           <div className="subtitle">Duration: 2:02</div>
         </div>

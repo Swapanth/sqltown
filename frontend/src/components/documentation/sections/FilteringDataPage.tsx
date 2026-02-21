@@ -8,7 +8,7 @@ interface FilteringDataPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const FilteringDataPage: React.FC<FilteringDataPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const FilteringDataPage: React.FC<FilteringDataPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const FilteringDataPage: React.FC<FilteringDataPageProps> = ({ initialTheme = 'd
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intro-filtering">
-            <span className="lecture-icon">▶️</span> Intro - What is Data Filtering
+             Intro - What is Data Filtering
           </h2>
           <div className="subtitle">Duration: 1:03</div>
         </div>
@@ -85,7 +85,7 @@ WHERE order_date >= '2024-01-01' AND total_amount > 1000;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="comparison-operators">
-            <span className="lecture-icon">▶️</span> Comparison Operators
+             Comparison Operators
           </h2>
           <div className="subtitle">Duration: 9:15</div>
         </div>
@@ -200,7 +200,7 @@ SELECT * FROM orders WHERE total_amount <= 500;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="and-operator">
-            <span className="lecture-icon">▶️</span> AND Operator
+             AND Operator
           </h2>
           <div className="subtitle">Duration: 4:41</div>
         </div>
@@ -261,7 +261,7 @@ WHERE department = 'Engineering'
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="or-operator">
-            <span className="lecture-icon">▶️</span> OR Operator
+             OR Operator
           </h2>
           <div className="subtitle">Duration: 2:53</div>
         </div>
@@ -318,7 +318,7 @@ WHERE (status = 'Shipped' OR status = 'Delivered')
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="not-operator">
-            <span className="lecture-icon">▶️</span> NOT Operator
+             NOT Operator
           </h2>
           <div className="subtitle">Duration: 3:28</div>
         </div>
@@ -362,7 +362,7 @@ WHERE phone IS NOT NULL;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="between-operator">
-            <span className="lecture-icon">▶️</span> BETWEEN Operator
+             BETWEEN Operator
           </h2>
           <div className="subtitle">Duration: 4:28</div>
         </div>
@@ -405,7 +405,7 @@ WHERE sale_date BETWEEN '2024-01-01' AND '2024-03-31'
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="in-operator">
-            <span className="lecture-icon">▶️</span> IN Operator
+             IN Operator
           </h2>
           <div className="subtitle">Duration: 4:14</div>
         </div>
@@ -496,7 +496,7 @@ WHERE (department, job_title) IN (
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="like-operators">
-            <span className="lecture-icon">▶️</span> LIKE Operators
+             LIKE Operators
           </h2>
           <div className="subtitle">Duration: 10:46</div>
         </div>

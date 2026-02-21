@@ -8,7 +8,7 @@ interface JoinPath {
   query: string;
 }
 
-const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
+const JoinPathFinder: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView, dbId }) => {
   const [tables, setTables] = useState<string[]>([]);
   const [sourceTable, setSourceTable] = useState<string>("");
   const [targetTable, setTargetTable] = useState<string>("");
@@ -18,7 +18,7 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
   useEffect(() => {
     const loadTables = async () => {
       try {
-        const tableList = await getTables();
+        const tableList = await getTables(dbId);
         setTables(tableList);
         if (tableList.length >= 2) {
           setSourceTable(tableList[0]);
@@ -29,7 +29,7 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
       }
     };
     loadTables();
-  }, []);
+  }, [dbId]);
 
   useEffect(() => {
     if (sourceTable && targetTable && sourceTable !== targetTable) {
@@ -41,8 +41,8 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
     const paths: JoinPath[] = [];
 
     // Direct join detection
-    const sourceSchema = getTableSchema(sourceTable);
-    const targetSchema = getTableSchema(targetTable);
+    const sourceSchema = getTableSchema(sourceTable, dbId);
+    const targetSchema = getTableSchema(targetTable, dbId);
 
     // Check for foreign keys in source table
     sourceSchema.forEach((col: any) => {
@@ -78,7 +78,7 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
     tables.forEach((intermediateTable) => {
       if (intermediateTable === sourceTable || intermediateTable === targetTable) return;
 
-      const intermediateSchema = getTableSchema(intermediateTable);
+      const intermediateSchema = getTableSchema(intermediateTable, dbId);
       const sourceSingular = sourceTable.toLowerCase().replace(/s$/, "");
       const targetSingular = targetTable.toLowerCase().replace(/s$/, "");
 
@@ -118,26 +118,29 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
   };
 
   return (
-    <div className={`bg-white p-4 rounded shadow ${!isFullscreen ? 'mb-4' : 'h-full flex flex-col overflow-auto'}`}>
+    <div className="h-full flex flex-col p-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className={`font-semibold ${isFullscreen ? 'text-xl' : 'text-lg'}`}>
-          🔗 Join Path Finder
-        </h2>
+        <h3 className="font-semibold text-sm text-gray-800">Join Path Finder</h3>
         {onView && (
-          <button onClick={onView} className="text-blue-500 text-sm hover:underline">
-            View Full
+          <button 
+            onClick={onView} 
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
           </button>
         )}
       </div>
 
       {/* Table Selectors */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-3">
         <div>
-          <label className="block text-xs font-semibold mb-1 text-gray-600">From Table</label>
+          <label className="block text-xs font-semibold mb-1 text-gray-700">From</label>
           <select
             value={sourceTable}
             onChange={(e) => setSourceTable(e.target.value)}
-            className="w-full p-2 border rounded text-sm"
+            className="w-full p-2 border border-gray-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-transparent"
           >
             {tables.map((table) => (
               <option key={table} value={table}>
@@ -147,11 +150,11 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
           </select>
         </div>
         <div>
-          <label className="block text-xs font-semibold mb-1 text-gray-600">To Table</label>
+          <label className="block text-xs font-semibold mb-1 text-gray-700">To</label>
           <select
             value={targetTable}
             onChange={(e) => setTargetTable(e.target.value)}
-            className="w-full p-2 border rounded text-sm"
+            className="w-full p-2 border border-gray-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-transparent"
           >
             {tables.map((table) => (
               <option key={table} value={table}>
@@ -163,48 +166,47 @@ const JoinPathFinder: React.FC<{ onView?: () => void }> = ({ onView }) => {
       </div>
 
       {/* Join Paths */}
-      {joinPaths.length > 0 ? (
-        <div className="space-y-3">
-          {joinPaths.map((path, i) => (
-            <div key={i} className="border rounded p-3 bg-gray-50">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="font-semibold text-blue-600">{path.from}</span>
-                  <span className="text-gray-400">→</span>
-                  {path.via !== path.from && path.via !== path.to && (
-                    <>
-                      <span className="text-purple-600 font-semibold">{path.via}</span>
-                      <span className="text-gray-400">→</span>
-                    </>
-                  )}
-                  <span className="font-semibold text-green-600">{path.to}</span>
+      <div className="flex-1 overflow-y-auto">
+        {joinPaths.length > 0 ? (
+          <div className="space-y-2">
+            {joinPaths.slice(0, 1).map((path, i) => (
+              <div key={i} className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1 text-xs">
+                    <span className="font-semibold text-orange-600">{path.from}</span>
+                    <span className="text-gray-400">→</span>
+                    {path.via !== path.from && path.via !== path.to && (
+                      <>
+                        <span className="text-blue-600 font-semibold">{path.via}</span>
+                        <span className="text-gray-400">→</span>
+                      </>
+                    )}
+                    <span className="font-semibold text-green-600">{path.to}</span>
+                  </div>
+                  <button
+                    onClick={() => copyQuery(path.query)}
+                    className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                  >
+                    Copy
+                  </button>
                 </div>
-                <button
-                  onClick={() => copyQuery(path.query)}
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  Copy
-                </button>
+                <pre className="text-xs bg-gray-900 text-green-400 p-2 rounded overflow-x-auto font-mono max-h-16">
+                  {path.query.split('\n').slice(0, 2).join('\n')}...
+                </pre>
               </div>
-              <pre className="text-xs bg-gray-900 text-green-400 p-2 rounded overflow-x-auto font-mono">
-                {path.query}
-              </pre>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 text-gray-400">
-          <div className="text-4xl mb-2">🔍</div>
-          <p className="text-sm">No direct join path found between these tables</p>
-          <p className="text-xs mt-1">Try selecting different tables</p>
-        </div>
-      )}
-
-      {!isFullscreen && joinPaths.length > 0 && (
-        <p className="text-xs text-gray-500 mt-3 italic">
-          Click View Full to see all possible join paths
-        </p>
-      )}
+            ))}
+            {joinPaths.length > 1 && (
+              <p className="text-xs text-gray-500 text-center">+{joinPaths.length - 1} more paths</p>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-gray-400">
+            <div className="text-2xl mb-1">🔍</div>
+            <p className="text-xs font-medium">No join path found</p>
+            <p className="text-xs">Try different tables</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

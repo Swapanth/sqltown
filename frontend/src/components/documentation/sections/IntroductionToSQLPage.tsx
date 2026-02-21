@@ -8,10 +8,10 @@ interface IntroductionToSQLPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const IntroductionToSQLPage: React.FC<IntroductionToSQLPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const IntroductionToSQLPage: React.FC<IntroductionToSQLPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
-      theme={initialTheme}
+      theme={'light'}
       onToggleTheme={() => {}}
       breadcrumb={{ section: 'basics', subsection: 'introduction-to-sql' }}
       currentSection="introduction-to-sql"
@@ -39,7 +39,7 @@ const IntroductionToSQLPage: React.FC<IntroductionToSQLPageProps> = ({ initialTh
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="introduction">
-            <span className="lecture-icon">▶️</span> Introduction
+             Introduction
           </h2>
           <div className="subtitle">Duration: 1:29 • Preview Available</div>
         </div>
@@ -92,7 +92,7 @@ const IntroductionToSQLPage: React.FC<IntroductionToSQLPageProps> = ({ initialTh
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="course-roadmap">
-            <span className="lecture-icon">▶️</span> Course Roadmap & Structure
+             Course Roadmap & Structure
           </h2>
           <div className="subtitle">Duration: 5:51 • Preview Available</div>
         </div>
@@ -129,7 +129,7 @@ const IntroductionToSQLPage: React.FC<IntroductionToSQLPageProps> = ({ initialTh
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="what-is-sql">
-            <span className="lecture-icon">▶️</span> What is SQL and Databases
+             What is SQL and Databases
           </h2>
           <div className="subtitle">Duration: 3:13 • Preview Available</div>
         </div>
@@ -175,7 +175,7 @@ ORDER BY customer_name;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="dbms-sql-server">
-            <span className="lecture-icon">▶️</span> What is DBMS and SQL Server
+             What is DBMS and SQL Server
           </h2>
           <div className="subtitle">Duration: 2:18</div>
         </div>
@@ -208,7 +208,7 @@ ORDER BY customer_name;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="types-of-databases">
-            <span className="lecture-icon">▶️</span> Types of Databases
+             Types of Databases
           </h2>
           <div className="subtitle">Duration: 2:13</div>
         </div>
@@ -244,7 +244,7 @@ ORDER BY customer_name;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="types-of-sql-commands">
-            <span className="lecture-icon">▶️</span> Types of SQL Commands
+             Types of SQL Commands
           </h2>
           <div className="subtitle">Duration: 2:10</div>
         </div>
@@ -311,7 +311,7 @@ COMMIT;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="why-learn-sql">
-            <span className="lecture-icon">▶️</span> Why Learn SQL
+             Why Learn SQL
           </h2>
           <div className="subtitle">Duration: 2:06 • Preview Available</div>
         </div>
@@ -336,7 +336,7 @@ COMMIT;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="environment-setup">
-            <span className="lecture-icon">▶️</span> Environment Setup: SQL Server, SSMS and Databases
+             Environment Setup: SQL Server, SSMS and Databases
           </h2>
           <div className="subtitle">Duration: 20:04</div>
         </div>

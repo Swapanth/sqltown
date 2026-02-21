@@ -3,9 +3,10 @@ import { getTables, getTableSchema } from "./compiler";
 
 interface Props {
   dbReady: boolean;
+  dbId?: string;
 }
 
-const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
+const SchemaBrowser: React.FC<Props> = ({ dbReady, dbId }) => {
   const [tables, setTables] = useState<string[]>([]);
   const [expandedTables, setExpandedTables] = useState<Set<string>>(new Set());
   const [schemas, setSchemas] = useState<Record<string, any[]>>({});
@@ -14,7 +15,7 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
     if (!dbReady) return;
 
     const loadTables = async () => {
-      const tableList = await getTables();
+      const tableList = await getTables(dbId);
       setTables(tableList);
       // Expand first table by default
       if (tableList.length > 0) {
@@ -31,7 +32,7 @@ const SchemaBrowser: React.FC<Props> = ({ dbReady }) => {
     // Load schemas for expanded tables
     expandedTables.forEach((tableName) => {
       if (!schemas[tableName]) {
-        const schema = getTableSchema(tableName);
+        const schema = getTableSchema(tableName, dbId);
         setSchemas((prev) => ({ ...prev, [tableName]: schema }));
       }
     });

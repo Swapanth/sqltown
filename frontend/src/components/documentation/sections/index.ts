@@ -1,18 +1,3 @@
-/**
- * docs-pages/index.ts
- *
- * Lazy-loaded exports for all MySQL documentation subsection pages.
- *
- * Usage in your router or Documentation component:
- *
- *   import { lazyPages, SubsectionId } from './docs-pages';
- *
- *   const PageComponent = lazyPages[activeSubsection];
- *   if (PageComponent) {
- *     return <Suspense fallback={<PageSkeleton />}><PageComponent /></Suspense>;
- *   }
- */
-
 import { lazy, type ComponentType } from 'react';
 
 export type SubsectionId =
@@ -44,9 +29,6 @@ export interface SubsectionPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-// ─── Lazy Page Map ────────────────────────────────────────────────────────────
-// Each page is code-split into its own chunk — only loaded when navigated to.
-
 export const lazyPages: Record<SubsectionId, ComponentType<SubsectionPageProps>> = {
   'welcome': lazy(() => import('./WelcomePage')),
   'what-is-mysql': lazy(() => import('./WhatIsMySQLPage')),
@@ -71,8 +53,6 @@ export const lazyPages: Record<SubsectionId, ComponentType<SubsectionPageProps>>
   'subqueries': lazy(() => import('./SubqueriesPage')),
   'indexes': lazy(() => import('./IndexesPage')),
 };
-
-// ─── Metadata (for breadcrumbs, titles, etc.) ─────────────────────────────────
 
 export const subsectionMeta: Record<SubsectionId, {
   title: string;

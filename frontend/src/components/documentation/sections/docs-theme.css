@@ -108,6 +108,7 @@ body {
 
 /* ===== PAGE LAYOUT ===== */
 .page-wrapper {
+  margin-top: -120px;
   min-height: 100vh;
   background: var(--bg);
   padding: 0 0 80px 0;

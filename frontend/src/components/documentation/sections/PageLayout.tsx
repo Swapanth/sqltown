@@ -20,7 +20,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   onNavigate,
 }) => {
   return (
-    <div className="page-wrapper" data-theme={theme}>
+    <div className="page-wrapper" data-theme={'light'}>
       <header className="page-header">
         <div className="breadcrumb">
           <span>mysql</span>

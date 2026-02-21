@@ -1,50 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { getTables } from "../playground/compiler";
 
-const ERBlock: React.FC<{ onView?: () => void }> = ({ onView }) => {
+const ERBlock: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView, dbId }) => {
   const [tables, setTables] = useState<string[]>([]);
 
   useEffect(() => {
     const loadTables = async () => {
       try {
-        const tableList = await getTables();
+        const tableList = await getTables(dbId);
         setTables(tableList);
       } catch (err) {
         console.error("Failed to load tables:", err);
       }
     };
     loadTables();
-  }, []);
+  }, [dbId]);
 
   return (
-    <div className="bg-white p-4 rounded shadow mb-4">
+    <div className="h-full flex flex-col p-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className="font-semibold text-lg">🗂️ ER Diagram</h2>
+        <h3 className="font-semibold text-sm text-gray-800">ER Diagram</h3>
         {onView && (
-          <button onClick={onView} className="text-blue-500 text-sm hover:underline">
-            View Full
+          <button 
+            onClick={onView} 
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
           </button>
         )}
       </div>
 
-      <div className="bg-gray-50 p-4 rounded border text-center">
-        <p className="text-sm text-gray-600 mb-2">Database Structure</p>
+      <div className="flex-1 bg-gray-50 p-3 rounded-lg border border-gray-100 text-center overflow-hidden">
+        <p className="text-xs text-gray-600 mb-2">Database Structure</p>
         {tables.length > 0 ? (
-          <div className="flex flex-wrap gap-2 justify-center">
-            {tables.map((table) => (
+          <div className="flex flex-wrap gap-1 justify-center mb-2 overflow-y-auto mb-2">
+            {tables.slice(0, 6).map((table) => (
               <div
                 key={table}
-                className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs font-mono"
+                className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-medium"
               >
                 {table}
               </div>
             ))}
+            {tables.length > 6 && (
+              <div className="text-xs text-gray-500">+{tables.length - 6} more</div>
+            )}
           </div>
         ) : (
-          <p className="text-xs text-gray-400">No tables available</p>
+          <p className="text-xs text-gray-400 mb-2">No tables available</p>
         )}
-        <p className="text-xs text-gray-500 mt-3">
-          Click View Full to see complete ER diagram with relationships
+        <p className="text-xs text-gray-500 mt-2">
+          Click View Full for complete diagram
         </p>
       </div>
     </div>

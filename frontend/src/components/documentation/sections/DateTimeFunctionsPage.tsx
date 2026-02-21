@@ -8,7 +8,7 @@ interface DateTimeFunctionsPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const DateTimeFunctionsPage: React.FC<DateTimeFunctionsPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const DateTimeFunctionsPage: React.FC<DateTimeFunctionsPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const DateTimeFunctionsPage: React.FC<DateTimeFunctionsPageProps> = ({ initialTh
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="what-is-datetime">
-            <span className="lecture-icon">▶️</span> What is Date & Time
+             What is Date & Time
           </h2>
           <div className="subtitle">Duration: 3:31</div>
         </div>
@@ -104,7 +104,7 @@ CREATE TABLE events (
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="overview-functions">
-            <span className="lecture-icon">▶️</span> Overview Date & Time Functions
+             Overview Date & Time Functions
           </h2>
           <div className="subtitle">Duration: 2:39</div>
         </div>
@@ -164,7 +164,7 @@ CREATE TABLE events (
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datetime-scripts">
-            <span className="lecture-icon">📄</span> Date & Time Scripts
+             Date & Time Scripts
           </h2>
           <div className="subtitle">Duration: 0:10</div>
         </div>
@@ -179,7 +179,7 @@ CREATE TABLE events (
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="day-month-year">
-            <span className="lecture-icon">▶️</span> DAY, MONTH, YEAR
+             DAY, MONTH, YEAR
           </h2>
           <div className="subtitle">Duration: 2:59</div>
         </div>
@@ -235,7 +235,7 @@ WHERE YEAR(order_date) = 2024 AND MONTH(order_date) = 12;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datepart">
-            <span className="lecture-icon">▶️</span> DATEPART
+             DATEPART
           </h2>
           <div className="subtitle">Duration: 5:53</div>
         </div>
@@ -289,7 +289,7 @@ SELECT EXTRACT(QUARTER FROM '2024-12-25');`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datename">
-            <span className="lecture-icon">▶️</span> DATENAME
+             DATENAME
           </h2>
           <div className="subtitle">Duration: 4:34</div>
         </div>
@@ -344,7 +344,7 @@ FROM orders;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datetrunc">
-            <span className="lecture-icon">▶️</span> DATETRUNC
+             DATETRUNC
           </h2>
           <div className="subtitle">Duration: 8:10</div>
         </div>
@@ -394,7 +394,7 @@ SELECT DATE_FORMAT(order_date, '%Y-%m-01') AS month_start FROM orders;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="eomonth">
-            <span className="lecture-icon">▶️</span> EOMONTH
+             EOMONTH
           </h2>
           <div className="subtitle">Duration: 3:31</div>
         </div>
@@ -444,7 +444,7 @@ FROM orders;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="usecase-extraction">
-            <span className="lecture-icon">▶️</span> Use Cases: Date Extraction
+             Use Cases: Date Extraction
           </h2>
           <div className="subtitle">Duration: 5:03</div>
         </div>
@@ -501,7 +501,7 @@ ORDER BY hour;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="compare-extract">
-            <span className="lecture-icon">▶️</span> Compare Extract Functions
+             Compare Extract Functions
           </h2>
           <div className="subtitle">Duration: 3:38</div>
         </div>
@@ -536,7 +536,7 @@ ORDER BY hour;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intro-formatting">
-            <span className="lecture-icon">▶️</span> Intro to Formatting & Casting
+             Intro to Formatting & Casting
           </h2>
           <div className="subtitle">Duration: 5:34</div>
         </div>
@@ -573,7 +573,7 @@ SELECT DATE_FORMAT(order_date, '%M %d, %Y') FROM orders;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="format">
-            <span className="lecture-icon">▶️</span> FORMAT
+             FORMAT
           </h2>
           <div className="subtitle">Duration: 13:13</div>
         </div>
@@ -623,7 +623,7 @@ FROM orders;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="convert">
-            <span className="lecture-icon">▶️</span> CONVERT
+             CONVERT
           </h2>
           <div className="subtitle">Duration: 6:23</div>
         </div>
@@ -669,7 +669,7 @@ SELECT STR_TO_DATE('December 25, 2024', '%M %d, %Y');`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="cast">
-            <span className="lecture-icon">▶️</span> CAST
+             CAST
           </h2>
           <div className="subtitle">Duration: 5:08</div>
         </div>
@@ -713,7 +713,7 @@ WHERE CAST(order_date AS DATE) >= CAST(GETDATE() AS DATE);
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="dateadd">
-            <span className="lecture-icon">▶️</span> DATEADD
+             DATEADD
           </h2>
           <div className="subtitle">Duration: 4:43</div>
         </div>
@@ -772,7 +772,7 @@ WHERE order_date >= DATEADD(DAY, -30, GETDATE());`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datediff">
-            <span className="lecture-icon">▶️</span> DATEDIFF
+             DATEDIFF
           </h2>
           <div className="subtitle">Duration: 10:04</div>
         </div>
@@ -846,7 +846,7 @@ SELECT TIMESTAMPDIFF(YEAR, '2020-01-01', '2024-12-25');`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="isdate">
-            <span className="lecture-icon">▶️</span> ISDATE
+             ISDATE
           </h2>
           <div className="subtitle">Duration: 7:24</div>
         </div>
@@ -907,7 +907,7 @@ FROM imported_data;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="datetime-summary">
-            <span className="lecture-icon">▶️</span> Date & Time Summary
+             Date & Time Summary
           </h2>
           <div className="subtitle">Duration: 1:07</div>
         </div>

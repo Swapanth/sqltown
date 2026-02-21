@@ -8,7 +8,7 @@ interface SelectQueryPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const SelectQueryPage: React.FC<SelectQueryPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const SelectQueryPage: React.FC<SelectQueryPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const SelectQueryPage: React.FC<SelectQueryPageProps> = ({ initialTheme = 'dark'
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="components-sql">
-            <span className="lecture-icon">▶️</span> Components of SQL
+             Components of SQL
           </h2>
           <div className="subtitle">Duration: 2:45</div>
         </div>
@@ -85,7 +85,7 @@ const SelectQueryPage: React.FC<SelectQueryPageProps> = ({ initialTheme = 'dark'
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="what-is-sql-query">
-            <span className="lecture-icon">▶️</span> What is SQL Query
+             What is SQL Query
           </h2>
           <div className="subtitle">Duration: 1:46 • Preview Available</div>
         </div>
@@ -112,7 +112,7 @@ WHERE country = 'USA';
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="select-from">
-            <span className="lecture-icon">▶️</span> SELECT & FROM
+             SELECT & FROM
           </h2>
           <div className="subtitle">Duration: 8:01</div>
         </div>
@@ -164,7 +164,7 @@ FROM products;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="where">
-            <span className="lecture-icon">▶️</span> WHERE
+             WHERE
           </h2>
           <div className="subtitle">Duration: 6:03</div>
         </div>
@@ -198,7 +198,7 @@ WHERE status = 'Shipped' OR status = 'Delivered';`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="order-by">
-            <span className="lecture-icon">▶️</span> ORDER BY
+             ORDER BY
           </h2>
           <div className="subtitle">Duration: 8:55</div>
         </div>
@@ -233,7 +233,7 @@ ORDER BY 3 DESC;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="group-by">
-            <span className="lecture-icon">▶️</span> GROUP BY
+             GROUP BY
           </h2>
           <div className="subtitle">Duration: 8:17</div>
         </div>
@@ -278,7 +278,7 @@ GROUP BY category;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="having">
-            <span className="lecture-icon">▶️</span> HAVING
+             HAVING
           </h2>
           <div className="subtitle">Duration: 7:57</div>
         </div>
@@ -335,7 +335,7 @@ HAVING AVG(salary) > 60000;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="distinct">
-            <span className="lecture-icon">▶️</span> DISTINCT
+             DISTINCT
           </h2>
           <div className="subtitle">Duration: 3:22</div>
         </div>
@@ -366,7 +366,7 @@ FROM employees;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="top">
-            <span className="lecture-icon">▶️</span> TOP
+             TOP
           </h2>
           <div className="subtitle">Duration: 5:13</div>
         </div>
@@ -406,7 +406,7 @@ ORDER BY score DESC;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="coding-execution-order">
-            <span className="lecture-icon">▶️</span> Coding & Execution Order
+             Coding & Execution Order
           </h2>
           <div className="subtitle">Duration: 4:00 • Preview Available</div>
         </div>
@@ -466,7 +466,7 @@ ORDER BY avg_salary DESC;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="cool-sql-stuff">
-            <span className="lecture-icon">▶️</span> Cool SQL Stuff
+             Cool SQL Stuff
           </h2>
           <div className="subtitle">Duration: 4:50</div>
         </div>

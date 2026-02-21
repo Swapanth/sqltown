@@ -8,7 +8,7 @@ interface QueryTemplate {
   difficulty: "Easy" | "Medium" | "Hard";
 }
 
-const QueryLibrary: React.FC<{ onView?: () => void }> = ({ onView }) => {
+const QueryLibrary: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView, dbId }) => {
   const isFullscreen = !onView;
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [copied, setCopied] = useState<number | null>(null);
@@ -127,74 +127,56 @@ const QueryLibrary: React.FC<{ onView?: () => void }> = ({ onView }) => {
   };
 
   return (
-    <div className={`bg-white p-4 rounded shadow ${!isFullscreen ? 'mb-4' : 'h-full flex flex-col'}`}>
+    <div className="h-full flex flex-col p-4">
       <div className="flex justify-between items-center mb-3">
-        <h2 className={`font-semibold ${isFullscreen ? 'text-xl' : 'text-lg'}`}>
-          📚 Query Library
-        </h2>
+        <h3 className="font-semibold text-sm text-gray-800"> Query Library</h3>
         {onView && (
-          <button onClick={onView} className="text-blue-500 text-sm hover:underline">
-            View All
+          <button 
+            onClick={onView} 
+            className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
           </button>
         )}
       </div>
 
-      {/* Category Filter */}
-      {isFullscreen && (
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-3 py-1 rounded text-xs font-semibold whitespace-nowrap ${
-                selectedCategory === category
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Query Templates */}
-      <div className={`space-y-3 ${isFullscreen ? 'flex-1 overflow-auto' : ''}`}>
-        {(isFullscreen ? filteredQueries : filteredQueries.slice(0, 3)).map((template, i) => (
-          <div key={i} className="border rounded p-3 hover:border-blue-300 transition">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-sm font-semibold text-gray-800">{template.name}</h3>
+      <div className="flex-1 space-y-2 overflow-y-auto">
+        {filteredQueries.slice(0, 2).map((template, i) => (
+          <div key={i} className="border border-gray-200 rounded-lg p-2 hover:border-orange-300 transition-colors">
+            <div className="flex items-start justify-between mb-1">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1 mb-1">
+                  <h4 className="text-xs font-semibold text-gray-800 truncate">{template.name}</h4>
                   <span
-                    className={`text-xs px-2 py-0.5 rounded ${getDifficultyColor(
+                    className={`text-xs px-1 py-0.5 rounded font-medium ${getDifficultyColor(
                       template.difficulty
                     )}`}
                   >
                     {template.difficulty}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600">{template.description}</p>
+                <p className="text-xs text-gray-600 line-clamp-1">{template.description}</p>
               </div>
               <button
                 onClick={() => copyQuery(template.query, i)}
-                className="text-xs text-blue-600 hover:underline ml-2"
+                className="text-xs text-orange-600 hover:text-orange-700 font-medium ml-2 transition-colors flex-shrink-0"
               >
-                {copied === i ? "✓ Copied" : "Copy"}
+                {copied === i ? "✓" : "Copy"}
               </button>
             </div>
-            <pre className="text-xs bg-gray-900 text-green-400 p-2 rounded overflow-x-auto font-mono">
-              {template.query}
+            <pre className="text-xs bg-gray-900 text-green-400 p-2 rounded overflow-x-auto font-mono max-h-12">
+              {template.query.split('\n')[0]}...
             </pre>
           </div>
         ))}
       </div>
 
-      {!isFullscreen && (
-        <p className="text-xs text-gray-500 mt-3 italic">
-          Click View All to see {queryTemplates.length} query templates
-        </p>
-      )}
+      <p className="text-xs text-gray-500 mt-2">
+        Click View All to see {queryTemplates.length} templates
+      </p>
     </div>
   );
 };

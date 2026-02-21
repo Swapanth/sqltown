@@ -8,7 +8,7 @@ interface StringFunctionsPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const StringFunctionsPage: React.FC<StringFunctionsPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const StringFunctionsPage: React.FC<StringFunctionsPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const StringFunctionsPage: React.FC<StringFunctionsPageProps> = ({ initialTheme 
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intro-transformation">
-            <span className="lecture-icon">▶️</span> Intro - What is Data Transformation
+             Intro - What is Data Transformation
           </h2>
           <div className="subtitle">Duration: 1:03</div>
         </div>
@@ -86,7 +86,7 @@ FROM employees;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="sql-functions">
-            <span className="lecture-icon">▶️</span> SQL Functions
+             SQL Functions
           </h2>
           <div className="subtitle">Duration: 5:16</div>
         </div>
@@ -173,7 +173,7 @@ FROM employees;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="concat">
-            <span className="lecture-icon">▶️</span> CONCAT
+             CONCAT
           </h2>
           <div className="subtitle">Duration: 3:04</div>
         </div>
@@ -247,7 +247,7 @@ FROM employees;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="upper-lower">
-            <span className="lecture-icon">▶️</span> UPPER & LOWER
+             UPPER & LOWER
           </h2>
           <div className="subtitle">Duration: 2:30</div>
         </div>
@@ -300,7 +300,7 @@ FROM employees;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="trim">
-            <span className="lecture-icon">▶️</span> TRIM
+             TRIM
           </h2>
           <div className="subtitle">Duration: 5:27</div>
         </div>
@@ -358,7 +358,7 @@ WHERE email LIKE '% %' OR email != TRIM(email);`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="replace">
-            <span className="lecture-icon">▶️</span> REPLACE
+             REPLACE
           </h2>
           <div className="subtitle">Duration: 3:31</div>
         </div>
@@ -424,7 +424,7 @@ SELECT REPLACE('Hello hello HELLO', 'hello', 'hi');
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="len">
-            <span className="lecture-icon">▶️</span> LEN
+             LEN
           </h2>
           <div className="subtitle">Duration: 1:49</div>
         </div>
@@ -479,7 +479,7 @@ SELECT
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="left-right">
-            <span className="lecture-icon">▶️</span> LEFT & RIGHT
+             LEFT & RIGHT
           </h2>
           <div className="subtitle">Duration: 3:11</div>
         </div>
@@ -541,7 +541,7 @@ FROM contacts;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="substring">
-            <span className="lecture-icon">▶️</span> SUBSTRING
+             SUBSTRING
           </h2>
           <div className="subtitle">Duration: 6:08</div>
         </div>
@@ -613,7 +613,7 @@ FROM customers;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="number-functions">
-            <span className="lecture-icon">▶️</span> Number Functions
+             Number Functions
           </h2>
           <div className="subtitle">Duration: 4:14</div>
         </div>

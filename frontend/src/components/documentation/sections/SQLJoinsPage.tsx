@@ -8,7 +8,7 @@ interface SQLJoinsPageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const SQLJoinsPage: React.FC<SQLJoinsPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const SQLJoinsPage: React.FC<SQLJoinsPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
@@ -39,7 +39,7 @@ const SQLJoinsPage: React.FC<SQLJoinsPageProps> = ({ initialTheme = 'dark', onNa
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="intro-combining-data">
-            <span className="lecture-icon">▶️</span> Intro What is Combining Data
+             Intro What is Combining Data
           </h2>
           <div className="subtitle">Duration: 1:33</div>
         </div>
@@ -92,7 +92,7 @@ Jane Smith   | 103      | 2024-03-10  | 320.00`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="introduction-joins">
-            <span className="lecture-icon">▶️</span> Introduction to JOINs
+             Introduction to JOINs
           </h2>
           <div className="subtitle">Duration: 8:57 • Preview Available</div>
         </div>
@@ -140,7 +140,7 @@ JOIN orders ON customers.customer_id = orders.customer_id;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="no-join">
-            <span className="lecture-icon">▶️</span> NO JOIN
+             NO JOIN
           </h2>
           <div className="subtitle">Duration: 1:40</div>
         </div>
@@ -169,7 +169,7 @@ FROM customers, orders;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="inner-join">
-            <span className="lecture-icon">▶️</span> INNER JOIN
+             INNER JOIN
           </h2>
           <div className="subtitle">Duration: 12:30 • Preview Available</div>
         </div>
@@ -239,7 +239,7 @@ JOIN products p ON oi.product_id = p.product_id;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="left-join">
-            <span className="lecture-icon">▶️</span> LEFT JOIN
+             LEFT JOIN
           </h2>
           <div className="subtitle">Duration: 7:12</div>
         </div>
@@ -301,7 +301,7 @@ GROUP BY c.customer_id, c.customer_name;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="right-join">
-            <span className="lecture-icon">▶️</span> RIGHT JOIN
+             RIGHT JOIN
           </h2>
           <div className="subtitle">Duration: 4:55</div>
         </div>
@@ -339,7 +339,7 @@ LEFT JOIN orders ON customers.customer_id = orders.customer_id;
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="full-join">
-            <span className="lecture-icon">▶️</span> FULL JOIN
+             FULL JOIN
           </h2>
           <div className="subtitle">Duration: 4:39</div>
         </div>
@@ -395,7 +395,7 @@ RIGHT JOIN orders o ON c.customer_id = o.customer_id;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="left-anti-join">
-            <span className="lecture-icon">▶️</span> LEFT ANTI JOIN
+             LEFT ANTI JOIN
           </h2>
           <div className="subtitle">Duration: 4:03</div>
         </div>
@@ -433,7 +433,7 @@ WHERE oi.order_id IS NULL;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="right-anti-join">
-            <span className="lecture-icon">▶️</span> RIGHT ANTI JOIN
+             RIGHT ANTI JOIN
           </h2>
           <div className="subtitle">Duration: 4:56</div>
         </div>
@@ -464,7 +464,7 @@ WHERE c.customer_id IS NULL;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="full-anti-join">
-            <span className="lecture-icon">▶️</span> FULL ANTI JOIN
+             FULL ANTI JOIN
           </h2>
           <div className="subtitle">Duration: 6:57</div>
         </div>
@@ -497,7 +497,7 @@ WHERE c.customer_id IS NULL;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="cross-join">
-            <span className="lecture-icon">▶️</span> CROSS JOIN
+             CROSS JOIN
           </h2>
           <div className="subtitle">Duration: 3:16</div>
         </div>
@@ -548,7 +548,7 @@ FROM colors, sizes;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="choose-join">
-            <span className="lecture-icon">▶️</span> How to Choose The Correct Join
+             How to Choose The Correct Join
           </h2>
           <div className="subtitle">Duration: 1:39</div>
         </div>
@@ -616,7 +616,7 @@ FROM colors, sizes;`}
       <div className="doc-card">
         <div className="doc-card-header">
           <h2 id="multiple-joins">
-            <span className="lecture-icon">▶️</span> Multiple Table Joins
+             Multiple Table Joins
           </h2>
           <div className="subtitle">Duration: 13:22</div>
         </div>

@@ -55,17 +55,18 @@ const Output: React.FC<{ result: any }> = ({ result }) => {
   return (
     <div className="space-y-8">
       {result.data.map((table: any, index: number) => {
-        // SQL.js uses 'lc' for columns, not 'columns'
-        if (!table || !table.lc || !table.values) return null;
-
-        const columns = table.lc; // Extract columns from 'lc' property
+        // Handle both sql.js format (lc) and Alasql format (columns)
+        const columns = table.lc || table.columns;
+        const values = table.values;
+        
+        if (!table || !columns || !values) return null;
 
         return (
           <div key={index} className="space-y-3">
             <div className="text-sm text-black/60 flex items-center gap-2">
               <span className="font-medium text-black/80">Result {index + 1}</span>
               <span>•</span>
-              <span>{table.values.length} rows</span>
+              <span>{values.length} rows</span>
               <span>•</span>
               <span className="font-mono text-xs bg-black/5 px-2 py-0.5 rounded">
                 {result.executionTime}
@@ -88,7 +89,7 @@ const Output: React.FC<{ result: any }> = ({ result }) => {
                 </thead>
 
                 <tbody>
-                  {table.values.map((row: any[], i: number) => (
+                  {values.map((row: any[], i: number) => (
                     <tr key={i} className="hover:bg-black/2 transition-colors">
                       {row.map((cell, j) => (
                         <td 
@@ -96,7 +97,7 @@ const Output: React.FC<{ result: any }> = ({ result }) => {
                           className="px-4 py-3 border-b border-black/5 text-black/70"
                           style={{ fontSize: '13px' }}
                         >
-                          {cell}
+                          {cell !== null ? cell : <span className="text-black/40 italic">NULL</span>}
                         </td>
                       ))}
                     </tr>

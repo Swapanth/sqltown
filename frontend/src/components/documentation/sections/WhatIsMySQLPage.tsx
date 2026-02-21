@@ -36,7 +36,7 @@ const concepts = [
   },
 ];
 
-const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const WhatIsMySQLPage: React.FC<WhatIsMySQLPageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}

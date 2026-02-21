@@ -8,7 +8,7 @@ interface WelcomePageProps {
   onNavigate?: (sectionId: SubsectionId) => void;
 }
 
-const WelcomePage: React.FC<WelcomePageProps> = ({ initialTheme = 'dark', onNavigate }) => {
+const WelcomePage: React.FC<WelcomePageProps> = ({ initialTheme = 'light', onNavigate }) => {
   return (
     <PageLayout
       theme={initialTheme}
