@@ -31,23 +31,21 @@ export const AppRoutes: React.FC = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
               <DashboardPage />
-            </ProtectedRoute>
           }
         />
         <Route
           path="/learning"
           element={
-            <ProtectedRoute>
+            
               <LearningPathsPage />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/lesson/:lessonId"
           element={
-            <ProtectedRoute>
+            
               <InteractiveLessonPage
                 lesson={getLessonById(1)!}
                 dialect="mysql"
@@ -55,23 +53,23 @@ export const AppRoutes: React.FC = () => {
                 onNext={() => console.log('Next lesson')}
                 onPrevious={() => console.log('Previous lesson')}
               />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/quests"
           element={
-            <ProtectedRoute>
+            
               <QuestsPage />
-            </ProtectedRoute>
+            
           }
         />
         <Route
           path="/leaderboard"
           element={
-            <ProtectedRoute>
+            
               <LeaderboardPage />
-            </ProtectedRoute>
+            
           }
         />
         <Route

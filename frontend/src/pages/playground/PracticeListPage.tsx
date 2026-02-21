@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { MagnifyingGlassIcon, Squares2X2Icon, ListBulletIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon, Squares2X2Icon, ListBulletIcon, CloudArrowUpIcon, DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { CircleStackIcon } from "@heroicons/react/24/solid";
 
 interface DatabaseScenario {
@@ -121,6 +121,7 @@ const sqlFiles = [
 
 const PracticeListPage: React.FC = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState("All difficulties");
   const [filterStatus, setFilterStatus] = useState("Any status");
@@ -128,6 +129,8 @@ const PracticeListPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [databases, setDatabases] = useState<DatabaseScenario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<DatabaseScenario[]>([]);
 
   // Load real data from SQL files
   useEffect(() => {
@@ -149,7 +152,129 @@ const PracticeListPage: React.FC = () => {
     loadDatabases();
   }, []);
 
-  const filteredDatabases = databases.filter(db => {
+  // Handle file upload
+  const handleFileUpload = async (files: FileList) => {
+    const newDatabases: DatabaseScenario[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.type === 'application/sql' || file.name.endsWith('.sql')) {
+        try {
+          const content = await file.text();
+          const db = await parseUploadedSqlContent(content, file.name);
+          if (db) {
+            newDatabases.push(db);
+          }
+        } catch (error) {
+          console.error(`Error processing ${file.name}:`, error);
+        }
+      }
+    }
+    
+    setUploadedFiles(prev => [...prev, ...newDatabases]);
+  };
+
+  // Parse uploaded SQL content
+  const parseUploadedSqlContent = async (content: string, filename: string): Promise<DatabaseScenario | null> => {
+    try {
+      const lines = content.split('\n');
+      
+      // Extract metadata from comments
+      let name = '';
+      let description = '';
+      let tablesList: string[] = [];
+      
+      for (let i = 0; i < Math.min(20, lines.length); i++) {
+        const line = lines[i];
+        
+        if (line.includes('DATABASE') && line.includes(':')) {
+          const match = line.match(/DATABASE \d+: (.+?) \((.+?)\)/);
+          if (match) {
+            description = match[1];
+            name = match[2];
+          }
+        }
+        
+        if (line.includes('Tables:')) {
+          let tablesText = line.replace('-- Tables:', '').trim();
+          let j = i + 1;
+          while (j < lines.length && lines[j].startsWith('--')) {
+            const nextLine = lines[j].replace('--', '').trim();
+            if (nextLine && !nextLine.includes('=')) {
+              tablesText += ' ' + nextLine;
+            } else {
+              break;
+            }
+            j++;
+          }
+          tablesList = tablesText.split(',').map(t => t.trim()).filter(t => t.length > 0);
+        }
+      }
+      
+      // Count actual CREATE TABLE statements
+      const tableCount = (content.match(/CREATE TABLE/gi) || []).length;
+      
+      // Create better description using table names
+      if (tablesList.length > 0 && !description) {
+        const mainTables = tablesList.slice(0, 6).join(', ');
+        const remaining = tablesList.length > 6 ? ` and ${tablesList.length - 6} more` : '';
+        description = `Database with ${mainTables}${remaining}`;
+      }
+      
+      // Determine difficulty based on table count
+      let difficulty: 'Beginner' | 'Intermediate' | 'Advanced' = 'Beginner';
+      if (tableCount > 15) difficulty = 'Advanced';
+      else if (tableCount > 10) difficulty = 'Intermediate';
+      
+      return {
+        id: `uploaded_${Date.now()}_${filename.replace('.sql', '')}`,
+        name: name || filename.replace('.sql', '').replace(/_/g, ' '),
+        description: description || `Uploaded database from ${filename}`,
+        difficulty,
+        category: 'Custom',
+        tables: tableCount,
+        queries: Math.floor(tableCount * 2.5),
+        completionRate: 0,
+        lastEdited: "Just uploaded",
+        thumbnail: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',
+        status: "Not Started",
+        creator: "You"
+      };
+    } catch (error) {
+      console.error(`Error parsing uploaded file ${filename}:`, error);
+      return null;
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files);
+    }
+  };
+
+  const allDatabases = [...databases, ...uploadedFiles];
+  const filteredDatabases = allDatabases.filter(db => {
     const matchesSearch = db.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          db.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDifficulty = filterDifficulty === "All difficulties" || db.difficulty === filterDifficulty;
@@ -182,6 +307,13 @@ const PracticeListPage: React.FC = () => {
     }
   };
 
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "Custom": return "text-purple-300 bg-purple-500/10";
+      default: return "text-gray-300 bg-gray-500/10";
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -208,7 +340,7 @@ const PracticeListPage: React.FC = () => {
                 placeholder="Search databases..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/5 border border-black/10 rounded-lg pl-10 pr-3 py-2 text-sm  placeholder:text-black/40 focus:outline-none focus:border-[#6366F1] transition-colors"
+                className="w-full  border border-black/10 rounded-lg pl-10 pr-3 py-2 text-sm  placeholder:text-black/40 focus:outline-none focus:border-[#6366F1] transition-colors"
               />
             </div>
 
@@ -216,7 +348,7 @@ const PracticeListPage: React.FC = () => {
             <select
               value={filterDifficulty}
               onChange={(e) => setFilterDifficulty(e.target.value)}
-              className="bg-black/5 border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
+              className=" border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1rem' }}
             >
               <option value="All difficulties" className="">All difficulties</option>
@@ -227,7 +359,7 @@ const PracticeListPage: React.FC = () => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-black/5 border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
+              className=" border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1rem' }}
             >
               <option value="Any status" className="">Any status</option>
@@ -239,7 +371,7 @@ const PracticeListPage: React.FC = () => {
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="bg-black/5 border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
+              className=" border border-black/10 rounded-lg px-3 py-2 text-sm text-black focus:outline-none focus:border-[#6366F1] cursor-pointer appearance-none pr-8"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1rem' }}
             >
               <option value="All categories" className="">All categories</option>
@@ -247,10 +379,11 @@ const PracticeListPage: React.FC = () => {
               <option value="Education" className="">Education</option>
               <option value="Business" className="">Business</option>
               <option value="Finance" className="">Finance</option>
+              <option value="Custom" className="">Custom</option>
             </select>
 
             {/* View Toggle */}
-            <div className="flex gap-1 bg-black/5 border border-black/10 rounded-lg p-0.5">
+            <div className="flex gap-1  border border-black/10 rounded-lg p-0.5">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded transition-colors ${
@@ -280,9 +413,115 @@ const PracticeListPage: React.FC = () => {
             <h3 className="text-lg font-semibold text-/60 mb-1">Loading databases...</h3>
             <p className="text-sm text-/40">Parsing SQL files and extracting metadata</p>
           </div>
+        ) : viewMode === "list" ? (
+          <div className="space-y-1 ">
+            {/* Upload Card - List View */}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`group flex items-center gap-3 h-16 px-2 py-2 rounded border-2 border-dashed transition-all duration-200 cursor-pointer ${
+                isDragOver 
+                  ? 'border-[#6366F1] bg-[#6366F1]/5' 
+                  : 'border-gray-300 hover:border-[#6366F1]/60 hover:bg-black/5'
+              }`}
+            >
+              <CloudArrowUpIcon className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1] transition-colors flex-shrink-0" />
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <h3 className="text-sm font-medium text-gray-600 group-hover:text-[#6366F1] transition-colors">
+                  Upload your SQL database
+                </h3>
+                <span className="px-1.5 py-0.5 rounded text-xs font-medium text-purple-300 bg-purple-500/10">
+                  Custom
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-gray-500 flex-shrink-0">
+                <span>Drag & drop or click</span>
+              </div>
+            </div>
+
+            {/* List View - Compact Rows */}
+            {filteredDatabases.map((db) => (
+              <div
+                key={db.id}
+                onClick={() => handleDatabaseClick(db.id)}
+                className="group flex items-center gap-3 h-16 px-2 py-2 rounded border border-black/10 hover:border-[#6366F1]/60 hover:bg-black/5 transition-all duration-200 cursor-pointer"
+              >
+                {/* Icon */}
+                <CircleStackIcon className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1] transition-colors flex-shrink-0" />
+
+                {/* Name & Difficulty */}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <h3 className="text-sm font-medium text-gray-900 group-hover:text-[#6366F1] transition-colors truncate">
+                    {db.name}
+                  </h3>
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getDifficultyColor(db.difficulty)}`}>
+                    {db.difficulty}
+                  </span>
+                  {db.category === 'Custom' && (
+                    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${getCategoryColor(db.category)}`}>
+                      Custom
+                    </span>
+                  )}
+                </div>
+
+                {/* Stats */}
+                <div className="flex items-center gap-3 text-xs text-gray-500 flex-shrink-0">
+                  <span>{db.tables}T</span>
+                  <span>{db.queries}Q</span>
+                  <span className="text-gray-400">{db.category}</span>
+                </div>
+
+                {/* Status */}
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(db.status)} flex-shrink-0`}>
+                  {db.status}
+                </span>
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className={`grid ${viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"} gap-4`}>
-            {/* Database Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {/* Upload Card - Grid View */}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`group relative rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden min-h-[280px] flex flex-col items-center justify-center ${
+                isDragOver 
+                  ? 'border-[#6366F1] bg-[#6366F1]/5 scale-105' 
+                  : 'border-gray-300 hover:border-[#6366F1]/60 hover:bg-black/5 hover:-translate-y-1'
+              }`}
+            >
+              <div className="text-center p-6">
+                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isDragOver ? 'bg-[#6366F1]/20' : 'bg-gray-100 group-hover:bg-[#6366F1]/10'
+                }`}>
+                  <CloudArrowUpIcon className={`w-8 h-8 transition-colors duration-300 ${
+                    isDragOver ? 'text-[#6366F1]' : 'text-gray-400 group-hover:text-[#6366F1]'
+                  }`} />
+                </div>
+                
+                <h3 className="text-lg font-bold text-gray-600 group-hover:text-[#6366F1] transition-colors duration-300 mb-2">
+                  Upload Database
+                </h3>
+                
+                <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-300 mb-4">
+                  Drag & drop your SQL file here or click to browse
+                </p>
+                
+                <div className="flex items-center justify-center gap-2 text-xs text-gray-400 group-hover:text-[#6366F1] transition-colors">
+                  <DocumentArrowUpIcon className="w-4 h-4" />
+                  <span>Supports .sql files</span>
+                </div>
+              </div>
+              
+              {/* Animated border on hover */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6366F1]/0 via-[#6366F1]/20 to-[#6366F1]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+            </div>
+
+            {/* Grid View - Database Cards */}
             {filteredDatabases.map((db) => (
             <div
               key={db.id}
@@ -315,9 +554,16 @@ const PracticeListPage: React.FC = () => {
                   <h3 className="text-sm font-bold text- group-hover:text-[#6366F1] transition-colors duration-300 flex-1 pr-2 line-clamp-1">
                     {db.name}
                   </h3>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-medium space-nowrap ${getDifficultyColor(db.difficulty)} transition-all duration-300 group-hover:scale-105`}>
-                    {db.difficulty}
-                  </span>
+                  <div className="flex gap-1">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-medium space-nowrap ${getDifficultyColor(db.difficulty)} transition-all duration-300 group-hover:scale-105`}>
+                      {db.difficulty}
+                    </span>
+                    {db.category === 'Custom' && (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium space-nowrap ${getCategoryColor(db.category)} transition-all duration-300 group-hover:scale-105`}>
+                        Custom
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-xs text-/60 mb-3 leading-relaxed line-clamp-2 group-hover:text-/80 transition-colors duration-300">
@@ -379,6 +625,16 @@ const PracticeListPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".sql"
+        multiple
+        onChange={handleFileInputChange}
+        className="hidden"
+      />
     </div>
   );
 };

@@ -5,7 +5,7 @@ export const currentUser: User = {
     user_id: 1,
     username: "swapanth",
     email: "swapanth@sqltown.dev",
-    full_name: "Swapanth Mukesh",
+    full_name: "Swapanth",
     avatar_url: "/avatars/user1.png",
     preferred_language: "en",
     account_status: "active",

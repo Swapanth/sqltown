@@ -16,9 +16,10 @@ const Navbar: React.FC = () => {
   }, []);
 
   const navItems = [
-    { path: '/documentation', label: 'Documentation' },
+    { path: '/dashboard', label: 'Gamezone' },
     { path: '/interview', label: 'Interview' },
     { path: '/practice', label: 'Practice' },
+        { path: '/documentation', label: 'Docs'}
   ];
 
   const isActive = (path: string) => {
