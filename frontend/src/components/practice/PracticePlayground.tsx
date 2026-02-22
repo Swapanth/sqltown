@@ -35,6 +35,7 @@ export const PracticePlayground: React.FC<PracticePlaygroundProps> = ({ dbId }) 
   useEffect(() => {
     const init = async () => {
       try {
+        setDbReady(false); // Reset when dbId changes
         await initializeDatabase(dbId);
         setDbReady(true);
       } catch (err) {

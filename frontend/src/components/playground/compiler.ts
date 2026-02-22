@@ -13,7 +13,7 @@ const clearAllTables = () => {
   
   for (const tableName of existingTables) {
     try {
-      db.exec(`DROP TABLE IF EXISTS \`${tableName}\``);
+      db.exec(`DROP TABLE IF EXISTS ${tableName}`);
       console.log(`Dropped table: ${tableName}`);
     } catch (dropError) {
       console.log(`Could not drop table ${tableName}:`, dropError);
@@ -29,31 +29,41 @@ const clearAllTables = () => {
 };
 
 export const initializeDatabase = async (dbId?: string): Promise<void> => {
-  // If we're switching to a different database, reset everything
-  if (dbId && currentDbId !== dbId) {
-    console.log(`Switching from database '${currentDbId}' to '${dbId}' - clearing old data`);
-    
-    // Clear all existing tables from Alasql
-    clearAllTables();
-    
-    db = null;
-    initPromise = null;
-    currentDbId = dbId;
-  }
+  // Check if we're switching to a different database
+  const isSwitchingDatabase = dbId && currentDbId !== dbId;
   
-  // 🔥 If already initialized for this database
-  if (db && currentDbId === dbId) return;
+  // 🔥 If already initialized for this database and not switching
+  if (!isSwitchingDatabase && db && currentDbId === dbId) {
+    console.log(`Database '${dbId}' already initialized, skipping`);
+    return;
+  }
 
-  // 🔥 If already initializing
-  if (initPromise) return initPromise;
+  // 🔥 If already initializing and not switching
+  if (!isSwitchingDatabase && initPromise) {
+    console.log(`Database initialization already in progress`);
+    return initPromise;
+  }
+
+  // If we're switching databases, log it
+  if (isSwitchingDatabase) {
+    console.log(`Switching from database '${currentDbId}' to '${dbId}' - will reload`);
+    initPromise = null; // Reset the promise so we can re-initialize
+  }
 
   initPromise = (async () => {
     try {
       console.log("Starting database initialization for:", dbId || "default");
       
-      // Initialize Alasql (it supports MySQL syntax natively)
+      // Update current database ID
+      currentDbId = dbId || null;
+      
+      // Initialize Alasql (it's a singleton)
       db = alasql;
-      console.log("Alasql database initialized");
+      
+      // Clear all existing tables from Alasql
+      clearAllTables();
+      
+      console.log("Alasql database initialized and cleared");
 
       // Determine which SQL file to load
       let sqlFilePath = "/data/data.sql"; // default fallback
@@ -78,11 +88,43 @@ export const initializeDatabase = async (dbId?: string): Promise<void> => {
       // Execute the SQL directly (Alasql supports MySQL syntax)
       console.log("Executing SQL...");
       
-      // Split SQL into individual statements and execute them one by one
-      const statements = sqlText
-        .split(';')
-        .map(stmt => stmt.trim())
-        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+      // Split SQL into individual statements
+      // Handle apostrophes in string values by using a more sophisticated split
+      const statements: string[] = [];
+      let currentStmt = '';
+      let inString = false;
+      let stringChar = '';
+      
+      for (let i = 0; i < sqlText.length; i++) {
+        const char = sqlText[i];
+        
+        // Track if we're inside a string
+        if ((char === "'" || char === '"') && sqlText[i - 1] !== '\\') {
+          if (!inString) {
+            inString = true;
+            stringChar = char;
+          } else if (char === stringChar) {
+            inString = false;
+            stringChar = '';
+          }
+        }
+        
+        currentStmt += char;
+        
+        // Split on semicolon only if not inside a string
+        if (char === ';' && !inString) {
+          const trimmed = currentStmt.trim();
+          if (trimmed.length > 0 && !trimmed.startsWith('--')) {
+            statements.push(trimmed.substring(0, trimmed.length - 1).trim()); // Remove the semicolon
+          }
+          currentStmt = '';
+        }
+      }
+      
+      // Add the last statement if any
+      if (currentStmt.trim().length > 0 && !currentStmt.trim().startsWith('--')) {
+        statements.push(currentStmt.trim());
+      }
       
       console.log(`Found ${statements.length} SQL statements to execute`);
       
@@ -91,8 +133,120 @@ export const initializeDatabase = async (dbId?: string): Promise<void> => {
       let insertErrors = 0;
       let successfulInserts = 0;
       
+      // Function to transform MySQL syntax to Alasql-compatible syntax
+      const transformSQLStatement = (stmt: string): string => {
+        let transformed = stmt;
+        
+        // Replace AUTO_INCREMENT with AUTOINCREMENT (Alasql syntax)
+        transformed = transformed.replace(/AUTO_INCREMENT/gi, 'AUTOINCREMENT');
+        
+        // Replace UNIQUE KEY with UNIQUE constraint inline
+        transformed = transformed.replace(/UNIQUE\s+KEY\s+`[^`]+`\s*\(([^)]+)\)/gi, 'UNIQUE($1)');
+        
+        // Remove ENGINE, CHARSET, COLLATE clauses (not supported in Alasql)
+        transformed = transformed.replace(/ENGINE\s*=\s*\w+/gi, '');
+        transformed = transformed.replace(/DEFAULT\s+CHARSET\s*=\s*\w+/gi, '');
+        transformed = transformed.replace(/COLLATE\s*=\s*\w+/gi, '');
+        
+        // Convert ENUM to VARCHAR (Alasql doesn't support ENUM)
+        transformed = transformed.replace(/ENUM\s*\([^)]+\)/gi, 'VARCHAR(50)');
+        
+        // Convert BOOLEAN/BOOL to INT (Alasql doesn't have native BOOLEAN)
+        transformed = transformed.replace(/\sBOOLEAN\b/gi, ' INT');
+        transformed = transformed.replace(/\sBOOL\b/gi, ' INT');
+        
+        // Convert DATETIME to DATE (Alasql has limited DATETIME support)
+        // Keep it as is for now, but if issues arise we can change to DATE
+        // transformed = transformed.replace(/DATETIME/gi, 'DATE');
+        
+        // Remove DEFAULT CURRENT_TIMESTAMP (Alasql doesn't support it the same way)
+        transformed = transformed.replace(/DEFAULT\s+CURRENT_TIMESTAMP/gi, '');
+        
+        // Remove ON UPDATE CURRENT_TIMESTAMP
+        transformed = transformed.replace(/ON\s+UPDATE\s+CURRENT_TIMESTAMP/gi, '');
+        
+        // Remove FOREIGN KEY constraints for now (Alasql has limited FK support)
+        transformed = transformed.replace(/,\s*FOREIGN\s+KEY\s*\([^)]+\)\s*REFERENCES\s+[^\s,)]+\s*\([^)]+\)(\s+ON\s+DELETE\s+\w+)?(\s+ON\s+UPDATE\s+\w+)?/gi, '');
+        
+        // Remove KEY indexes (Alasql doesn't need explicit KEY definitions)
+        transformed = transformed.replace(/,\s*KEY\s+`[^`]+`\s*\([^)]+\)/gi, '');
+        
+        // Remove backticks from identifiers (Alasql doesn't handle them well)
+        transformed = transformed.replace(/`/g, '');
+        
+        // Handle reserved keywords as table names by wrapping them in square brackets
+        // AlaSQL reserved keywords that might be used as table names
+        const reservedKeywords = ['RETURN', 'RETURNS', 'FUNCTION', 'PROCEDURE', 'TRIGGER', 'VIEW', 'INDEX', 'BEGIN', 'END', 'IF', 'THEN', 'ELSE', 'WHILE', 'LOOP', 'REPEAT'];
+        reservedKeywords.forEach(keyword => {
+          // For CREATE TABLE returns -> CREATE TABLE [returns]
+          transformed = transformed.replace(new RegExp(`CREATE\\s+TABLE\\s+(${keyword})\\s*\\(`, 'gi'), `CREATE TABLE [${keyword}] (`);
+          // For INSERT INTO returns -> INSERT INTO [returns]
+          transformed = transformed.replace(new RegExp(`INSERT\\s+INTO\\s+(${keyword})\\s*\\(`, 'gi'), `INSERT INTO [${keyword}] (`);
+          // For SELECT FROM returns -> SELECT FROM [returns]
+          transformed = transformed.replace(new RegExp(`FROM\\s+(${keyword})\\b`, 'gi'), `FROM [${keyword}]`);
+        });
+        
+        // Clean up any double commas or trailing commas before closing parenthesis
+        transformed = transformed.replace(/,\s*,/g, ',');
+        transformed = transformed.replace(/,\s*\)/g, ')');
+        
+        return transformed;
+      };
+      
+      // Function to fix common data errors in INSERT statements
+      const fixInsertStatement = (stmt: string): string => {
+        let fixed = stmt;
+        
+        // Step 1: Remove single quotes from column names in the column list
+        // Find the portion before VALUES and replace quoted identifiers
+        const valuesIndex = fixed.toUpperCase().indexOf(' VALUES');
+        if (valuesIndex > 0) {
+          const beforeValues = fixed.substring(0, valuesIndex);
+          const afterValues = fixed.substring(valuesIndex);
+          
+          // Debug: log what we're trying to fix
+          console.log(`🔍 Before VALUES (first 150 chars):`, beforeValues.substring(0, 150));
+          
+          // Debug: find quoted columns
+          const quotedColumns = beforeValues.match(/'([a-zA-Z_][a-zA-Z0-9_]*)'/g);
+          if (quotedColumns && quotedColumns.length > 0) {
+            console.log(`🔧 Found ${quotedColumns.length} quoted column names:`, quotedColumns.join(', '));
+          } else {
+            console.log(`✓ No quoted column names found in INSERT statement`);
+          }
+          
+          // In the column list portion, replace 'columnname' with columnname
+          // But be careful not to replace string values
+          const fixedBefore = beforeValues.replace(/'([a-zA-Z_][a-zA-Z0-9_]*)'/g, '$1');
+          
+          // Debug: check if anything changed
+          if (beforeValues !== fixedBefore) {
+            console.log(`✅ Successfully removed quotes from column names`);
+            console.log(`🔍 After fix (first 150 chars):`, fixedBefore.substring(0, 150));
+          }
+          
+          // Step 2: Fix unquoted string values in the VALUES portion ONLY (common error: ,India, should be ,'India',)
+          // Match pattern: ,word, where word contains only letters and is not a number or NULL
+          const fixedAfter = afterValues.replace(/,\s*([A-Za-z][A-Za-z]+)\s*,/g, (match, word) => {
+            // Don't quote SQL keywords like NULL, TRUE, FALSE
+            const keywords = ['NULL', 'TRUE', 'FALSE', 'DEFAULT'];
+            if (keywords.includes(word.toUpperCase())) {
+              return match;
+            }
+            // Quote the word
+            return `,'${word}',`;
+          });
+          
+          fixed = fixedBefore + fixedAfter;
+        } else {
+          console.log(`⚠️ No VALUES keyword found in INSERT statement`);
+        }
+         
+        return fixed;
+      };
+      
       for (let i = 0; i < statements.length; i++) {
-        const statement = statements[i];
+        let statement = statements[i];
         if (statement.trim()) {
           try {
             const isCreateTable = statement.toUpperCase().includes('CREATE TABLE');
@@ -106,22 +260,40 @@ export const initializeDatabase = async (dbId?: string): Promise<void> => {
               continue;
             }
             
+            // Transform MySQL-specific syntax to Alasql-compatible syntax
             if (isCreateTable) {
-              console.log(`Executing CREATE TABLE ${i + 1}:`, statement.substring(0, 150) + '...');
+              statement = transformSQLStatement(statement);
+              // Extract table name for logging
+              const tableNameMatch = statement.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?/i);
+              const tableName = tableNameMatch ? tableNameMatch[1] : 'unknown';
+              console.log(`Executing CREATE TABLE for '${tableName}' (statement ${i + 1}):`, statement.substring(0, 150) + '...');
             } else if (isInsert) {
-              console.log(`Executing INSERT ${i + 1}:`, statement.substring(0, 100) + '...');
+              console.log(`📋 Original INSERT ${i + 1} (first 200 chars):`, statement.substring(0, 200));
+              // Transform reserved keywords first
+              statement = transformSQLStatement(statement);
+              console.log(`🔄 After transformSQLStatement (first 200 chars):`, statement.substring(0, 200));
+              // Then fix common data errors in INSERT statements
+              statement = fixInsertStatement(statement);
+              console.log(`✅ Final statement before execution (first 200 chars):`, statement.substring(0, 200));
             } else {
               console.log(`Executing statement ${i + 1}:`, statement.substring(0, 100) + '...');
             }
             
             // Execute with Alasql
             db.exec(statement);
-            console.log(`Statement ${i + 1} executed successfully`);
+            
+            // Log success with table name for CREATE TABLE
+            if (isCreateTable) {
+              const tableNameMatch = statement.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?/i);
+              const tableName = tableNameMatch ? tableNameMatch[1] : 'unknown';
+              console.log(`✓ Successfully created table '${tableName}' (statement ${i + 1})`);
+              successfulTables++;
+            } else {
+              console.log(`Statement ${i + 1} executed successfully`);
+            }
             
             // Count successful statements by type
-            if (isCreateTable) {
-              successfulTables++;
-            } else if (isInsert) {
+            if (isInsert) {
               successfulInserts++;
             }
           } catch (stmtError) {
@@ -131,7 +303,10 @@ export const initializeDatabase = async (dbId?: string): Promise<void> => {
             console.error(`Error executing statement ${i + 1}:`, stmtError);
             
             if (isCreateTable) {
-              console.error(`Failed CREATE TABLE statement:`, statement);
+              const tableNameMatch = statement.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?/i);
+              const tableName = tableNameMatch ? tableNameMatch[1] : 'unknown';
+              console.error(`✗ Failed to create table '${tableName}':`, stmtError);
+              console.error(`Failed CREATE TABLE statement (first 300 chars):`, statement.substring(0, 300));
               createTableErrors++;
             } else if (isInsert) {
               console.error(`Failed INSERT statement (first 200 chars):`, statement.substring(0, 200));
@@ -346,26 +521,112 @@ export const getTableSchema = (table: string, dbId?: string) => {
   }
 
   try {
-    // For Alasql, we can try to get schema information from the table structure
-    // Since Alasql doesn't have a standard DESCRIBE command, we'll use a different approach
+    // Try to access Alasql's internal table structure
+    const alasqlTable = (db as any).tables?.[table];
+    console.log("Alasql table structure:", alasqlTable);
     
-    // Try to get a sample row to determine column structure
-    const sampleResult = db.exec(`SELECT * FROM \`${table}\` LIMIT 1`);
+    if (alasqlTable && alasqlTable.columns) {
+      // Use Alasql's column definitions
+      return alasqlTable.columns.map((col: any, index: number) => {
+        const colName = col.columnid || col.name || `column_${index}`;
+        const colLower = colName.toLowerCase();
+        
+        // Detect if column is a primary key (check column name pattern)
+        const tableSingular = table.toLowerCase().replace(/s$/, '').replace(/ies$/, 'y').replace(/es$/, '');
+        const isPK = colLower.includes('_id') && 
+                     (colLower === `${table.toLowerCase()}_id` ||
+                      colLower === `${tableSingular}_id` ||
+                      index === 0); // First column often PK
+        
+        // Detect if column is a foreign key (ends with _id but not the table's own PK)
+        const isFK = colLower.includes('_id') && !isPK;
+        
+        // Get data type (Alasql may have dbtypeid or we infer from name)
+        let dataType = 'TEXT';
+        if (col.dbtypeid) {
+          dataType = col.dbtypeid.toUpperCase();
+        } else if (colLower.includes('id')) {
+          dataType = 'INTEGER';
+        } else if (colLower.includes('price') || 
+                   colLower.includes('amount') ||
+                   colLower.includes('salary')) {
+          dataType = 'DECIMAL';
+        } else if (colLower.includes('date')) {
+          dataType = 'DATE';
+        }
+        
+        // Detect nullable - assume columns can be null unless they are PK
+        const isNullable = !isPK;
+        
+        return [
+          index, // cid
+          colName, // name
+          dataType, // type
+          isNullable ? 1 : 0, // nullable (1 = can be null, 0 = NOT NULL)
+          null, // dflt_value
+          isPK ? 1 : 0, // pk
+          isFK ? 1 : 0 // fk (added)
+        ];
+      });
+    }
+    
+    // Fallback: Try to get a sample row to determine column structure
+    const sampleResult = db.exec(`SELECT * FROM ${table} LIMIT 1`);
     console.log("Sample result for schema:", sampleResult);
     
     if (Array.isArray(sampleResult) && sampleResult.length > 0 && typeof sampleResult[0] === 'object') {
       // Extract column names from the first row
       const columns = Object.keys(sampleResult[0]);
       
-      // Create a schema-like structure (simplified)
-      return columns.map((col, index) => [
-        index, // cid
-        col, // name
-        'TEXT', // type (simplified - Alasql doesn't provide detailed type info easily)
-        0, // notnull (unknown)
-        null, // dflt_value (unknown)
-        0 // pk (unknown)
-      ]);
+      // Try to infer types from sample data
+      const sampleRow = sampleResult[0];
+      
+      return columns.map((col, index) => {
+        const value = sampleRow[col];
+        const colLower = col.toLowerCase();
+        let dataType = 'TEXT';
+        
+        // Infer type from column name and sample value
+        if (colLower.includes('id')) {
+          dataType = 'INTEGER';
+        } else if (colLower.includes('price') || 
+                   colLower.includes('amount') ||
+                   colLower.includes('salary') ||
+                   colLower.includes('rating')) {
+          dataType = 'DECIMAL';
+        } else if (colLower.includes('date')) {
+          dataType = 'DATE';
+        } else if (colLower.includes('time')) {
+          dataType = 'DATETIME';
+        } else if (typeof value === 'number') {
+          dataType = Number.isInteger(value) ? 'INTEGER' : 'DECIMAL';
+        } else if (value instanceof Date) {
+          dataType = 'DATETIME';
+        }
+        
+        // Detect if column is likely a primary key
+        const tableSingular = table.toLowerCase().replace(/s$/, '').replace(/ies$/, 'y').replace(/es$/, '');
+        const isPK = colLower.includes('_id') && 
+                     (colLower === `${table.toLowerCase()}_id` ||
+                      colLower === `${tableSingular}_id` ||
+                      index === 0);
+        
+        // Detect if column is a foreign key (ends with _id but not the table's own PK)
+        const isFK = colLower.includes('_id') && !isPK;
+        
+        // Detect nullable - assume columns can be null unless they are PK
+        const isNullable = !isPK;
+        
+        return [
+          index, // cid
+          col, // name
+          dataType, // type
+          isNullable ? 1 : 0, // nullable (1 = can be null, 0 = NOT NULL)
+          null, // dflt_value (unknown)
+          isPK ? 1 : 0, // pk
+          isFK ? 1 : 0 // fk (added)
+        ];
+      });
     }
     
     return [];
@@ -390,43 +651,20 @@ export const getTableRowCount = async (table: string, dbId?: string): Promise<nu
   }
 
   try {
-    // Try different COUNT syntax approaches for Alasql
-    let result;
-    
+    // Alasql approach: Just get all rows and count them
+    // This is more reliable than COUNT(*) which has parsing issues with backticks
     try {
-      // Method 1: Simple COUNT without alias
-      result = db.exec(`SELECT COUNT() FROM \`${table}\``);
-      console.log(`Row count result (COUNT()) for ${table}:`, result);
-    } catch (countError) {
-      console.log("COUNT() failed, trying alternative:", countError);
+      const result = db.exec(`SELECT * FROM ${table}`);
+      console.log(`Row count result for ${table}:`, result?.length || 0);
       
-      try {
-        // Method 2: Get all rows and count them (less efficient but works)
-        result = db.exec(`SELECT * FROM \`${table}\``);
-        console.log(`Row count result (SELECT *) for ${table}:`, result?.length || 0);
-        
-        if (Array.isArray(result)) {
-          return result.length;
-        }
-      } catch (selectError) {
-        console.log("SELECT * also failed:", selectError);
-        return 0;
+      if (Array.isArray(result)) {
+        return result.length;
       }
+      return 0;
+    } catch (selectError) {
+      console.log("SELECT * failed:", selectError);
+      return 0;
     }
-    
-    if (Array.isArray(result) && result.length > 0) {
-      // Handle different possible result formats from Alasql
-      if (typeof result[0] === 'object') {
-        const count = result[0].count || result[0].COUNT || result[0]['COUNT()'] || result[0]['COUNT(*)'] || 0;
-        console.log(`Total rows in ${table}:`, count);
-        return count;
-      } else if (typeof result[0] === 'number') {
-        console.log(`Total rows in ${table}:`, result[0]);
-        return result[0];
-      }
-    }
-    
-    return 0;
   } catch (error) {
     console.error(`Error getting row count for table ${table}:`, error);
     return 0;
@@ -449,7 +687,7 @@ export const getTableData = async (table: string, dbId?: string, page: number = 
 
   try {
     const offset = (page - 1) * pageSize;
-    const result = db.exec(`SELECT * FROM \`${table}\` LIMIT ${pageSize} OFFSET ${offset}`);
+    const result = db.exec(`SELECT * FROM ${table} LIMIT ${pageSize} OFFSET ${offset}`);
     
     console.log(`Table data for ${table} (page ${page}):`, result);
     

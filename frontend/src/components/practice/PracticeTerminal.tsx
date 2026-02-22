@@ -236,15 +236,15 @@ const PracticeTerminal: React.FC<{ dbId?: string; onView?: () => void }> = ({ db
         </div>
       ) : (
         // Compact version
-        <div className="h-full flex flex-col p-4">
-          <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold text-sm text-gray-800">SQL Terminal</h3>
+        <div className="h-full flex flex-col p-3">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold text-xs text-gray-800">SQL Terminal</h3>
             {onView && (
               <button 
                 onClick={onView} 
                 className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               </button>
@@ -266,7 +266,7 @@ const PracticeTerminal: React.FC<{ dbId?: string; onView?: () => void }> = ({ db
             
             <div className="flex-1 relative">
               <textarea
-                className="w-full h-full p-3 bg-gray-900 text-green-400 font-mono text-xs resize-none focus:outline-none border-none"
+                className="w-full h-full p-2 bg-gray-900 text-green-400 font-mono text-xs resize-none focus:outline-none border-none"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="SELECT * FROM Customers LIMIT 5;"
@@ -289,7 +289,7 @@ const PracticeTerminal: React.FC<{ dbId?: string; onView?: () => void }> = ({ db
 
           {/* Compact Results */}
           {result && (
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200 max-h-32 overflow-auto">
+            <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200 max-h-32 overflow-auto">
               {result.success ? (
                 <div className="text-xs text-green-600">
                   ✓ {result.data?.[0]?.values?.length || 0} rows • {result.executionTime}

@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     PORT: int = 3000
     DEBUG: bool = False
     
-    # AWS Configuration
-    AWS_ACCESS_KEY_ID: str
-    AWS_SECRET_ACCESS_KEY: str
+    # AWS Configuration (Optional for local development)
+    AWS_ACCESS_KEY_ID: Optional[str] = None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = None
     AWS_REGION: str = "ap-southeast-2"
     AWS_S3_BUCKET: str = "sqltown-bucket1"
     

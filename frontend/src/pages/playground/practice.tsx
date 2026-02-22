@@ -14,10 +14,27 @@ const PracticePage: React.FC = () => {
   const [activeView, setActiveView] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
-  const { dbId } = useParams();
+  const { dbId } = useParams<{ dbId: string }>();
+
+  // Redirect if no dbId provided
+  React.useEffect(() => {
+    if (!dbId) {
+      navigate('/practice');
+    }
+  }, [dbId, navigate]);
 
   const handleBackToPracticeList = () => {
     navigate('/practice');
+  };
+
+  const getDatabaseDisplayName = (id?: string) => {
+    if (!id) return 'Practice Database';
+    return id
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+      .replace(/^\d+\s*/, ''); // Remove leading numbers like "01 "
   };
 
   const handleExpand = (viewType: string) => {
@@ -40,13 +57,19 @@ const PracticePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Back Navigation Header */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <button
             onClick={handleBackToPracticeList}
-            className="flex items-center text-gray-600 hover:text-gray-900 hover:bg-orange-100 rounded-full transition-colors duration-200 group"
+            className="flex items-center text-gray-600 hover:text-gray-900 hover:bg-orange-100 px-3 py-2 rounded-full transition-colors duration-200 group"
           >
-            <ArrowLeftIcon className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" />
+            <ArrowLeftIcon className="w-5 h-5 mr-2 transition-transform duration-200 group-hover:-translate-x-1" />
+            <span className="text-sm font-medium">Back to Databases</span>
           </button>
+          
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="text-sm font-semibold text-gray-700">{getDatabaseDisplayName(dbId)}</span>
+          </div>
         </div>
 
         <div className="space-y-6 relative">
@@ -69,19 +92,19 @@ const PracticePage: React.FC = () => {
               {/* BOTTOM ROW - 4 Blocks */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
-                  <JoinPathFinder onView={() => handleExpand("joins")} />
+                  <JoinPathFinder dbId={dbId} onView={() => handleExpand("joins")} />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
-                  <QueryLibrary onView={() => handleExpand("library")} />
+                  <QueryLibrary dbId={dbId} onView={() => handleExpand("library")} />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
-                  <ERBlock onView={() => handleExpand("er")} />
+                  <ERBlock dbId={dbId} onView={() => handleExpand("er")} />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
-                  <AnalystBlock onView={() => handleExpand("analyst")} />
+                  <AnalystBlock dbId={dbId} onView={() => handleExpand("analyst")} />
                 </div>
               </div>
             </div>
