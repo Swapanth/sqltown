@@ -1,4 +1,5 @@
 import alasql from "alasql";
+import { getDatabaseUrl } from "../../utils/databaseRegistry";
 
 let db: any = null;
 let initPromise: Promise<void> | null = null;
@@ -65,10 +66,11 @@ export const initializeDatabase = async (dbId?: string): Promise<void> => {
       
       console.log("Alasql database initialized and cleared");
 
-      // Determine which SQL file to load
+      // Determine which SQL file to load (from S3 or local)
       let sqlFilePath = "/data/data.sql"; // default fallback
       if (dbId) {
-        sqlFilePath = `/practiceData/${dbId}.sql`;
+        // Use database registry to get URL (S3 or local)
+        sqlFilePath = await getDatabaseUrl(dbId);
       }
 
       // Test if we can fetch the SQL file

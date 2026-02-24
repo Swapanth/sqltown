@@ -11,6 +11,23 @@ interface Question {
   status: 'not-started' | 'in-progress' | 'completed';
 }
 
+type NavItemId = 'overview' | 'practice' | 'tracks' | 'filters' | 'questions' | 'analytics';
+type ActiveNavItemId = 'overview' | 'tracks' | 'filters' | 'questions' | 'analytics';
+
+interface NavChild {
+  id: string;
+  label: string;
+  count?: number;
+  arrow?: boolean;
+}
+
+interface NavItem {
+  id: NavItemId;
+  icon: string;
+  label: string;
+  children: NavChild[];
+}
+
 export const mockQuestions: Question[] = [
   { id: 1, title: 'Find the top 3 customers by total order value', difficulty: 'Easy', topics: ['JOIN', 'GROUP BY', 'ORDER BY'], companies: ['Google', 'Amazon'], acceptance: 78.5, status: 'completed' },
   { id: 2, title: 'Calculate running total of sales by month', difficulty: 'Medium', topics: ['Window Functions', 'Aggregation'], companies: ['Microsoft', 'Meta'], acceptance: 65.2, status: 'in-progress' },
@@ -140,7 +157,7 @@ const InterviewPage: React.FC = () => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>('');
   const [selectedTrack, setSelectedTrack] = useState<string | null>('');
   const [isSideNavCollapsed, setIsSideNavCollapsed] = useState(false);
-  const [activeNavItem, setActiveNavItem] = useState<'overview' | 'tracks' | 'filters' | 'questions' | 'analytics'>('overview');
+  const [activeNavItem, setActiveNavItem] = useState<ActiveNavItemId>('overview');
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
 
@@ -240,7 +257,7 @@ const InterviewPage: React.FC = () => {
 
 
 
-  const sideNavItems = [
+  const sideNavItems: NavItem[] = [
     { 
       id: 'overview', 
       icon: '⌂', 
@@ -284,7 +301,7 @@ const InterviewPage: React.FC = () => {
 
 
 
-  const handleSideNavClick = (sectionId: 'overview' | 'tracks' | 'filters' | 'questions' | 'analytics') => {
+  const handleSideNavClick = (sectionId: ActiveNavItemId) => {
     setActiveNavItem(sectionId);
     const el = document.getElementById(sectionId);
     if (el) {
@@ -333,7 +350,13 @@ const InterviewPage: React.FC = () => {
                   <div key={item.id}>
                     <div className="relative">
                       <button
-                        onClick={() => handleSideNavClick(item.id)}
+                        onClick={() => {
+                          // Only call if the id is a valid active nav item
+                          const validIds: ActiveNavItemId[] = ['overview', 'tracks', 'filters', 'questions', 'analytics'];
+                          if (validIds.includes(item.id as ActiveNavItemId)) {
+                            handleSideNavClick(item.id as ActiveNavItemId);
+                          }
+                        }}
                         onMouseEnter={() => setHoveredItem(item.id)}
                         onMouseLeave={() => {
                           // Only close if not moving to tooltip
@@ -378,7 +401,7 @@ const InterviewPage: React.FC = () => {
                                 {/* Vertical connecting line */}
                                 <div className="absolute left-5 top-0 bottom-0 w-px bg-gray-300"></div>
                                 
-                                {item.children.map((child, index) => (
+                                {item.children.map((child) => (
                                   <div key={child.id} className="relative">
                                     {/* Horizontal connecting line */}
                                     <div className="absolute left-5 top-1/2 w-3 h-px bg-gray-300"></div>
@@ -393,7 +416,7 @@ const InterviewPage: React.FC = () => {
                                       <span className="font-medium">{child.label}</span>
                                       <div className="flex items-center gap-1.5">
                                      
-                                        {child.arrow && (
+                                        {'arrow' in child && child.arrow && (
                                           <span className="text-xs text-gray-500">›</span>
                                         )}
                                       </div>
@@ -416,7 +439,7 @@ const InterviewPage: React.FC = () => {
                         {/* Vertical connecting line */}
                         <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-300"></div>
                         
-                        {item.children.map((child, index) => (
+                        {item.children.map((child) => (
                           <div key={child.id} className="relative">
                             {/* Horizontal connecting line */}
                             <div className="absolute left-0 top-1/2 w-4 h-px bg-gray-300"></div>
@@ -429,12 +452,12 @@ const InterviewPage: React.FC = () => {
                             >
                               <span className="text-sm font-medium flex-1 text-left">{child.label}</span>
                               <div className="flex items-center gap-2">
-                                {child.count && (
+                                {'count' in child && child.count && (
                                   <span className="px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium">
                                     {child.count}
                                   </span>
                                 )}
-                                {child.arrow && (
+                                {'arrow' in child && child.arrow && (
                                   <span className="text-xs text-gray-400">→</span>
                                 )}
                               </div>

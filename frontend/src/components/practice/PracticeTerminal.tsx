@@ -264,13 +264,8 @@ const PracticeTerminal: React.FC<{ dbId?: string; onView?: () => void }> = ({ db
               </div>
             </div>
             
-            <div className="flex-1 relative">
-              <textarea
-                className="w-full h-full p-2 bg-gray-900 text-green-400 font-mono text-xs resize-none focus:outline-none border-none"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="SELECT * FROM Customers LIMIT 5;"
-              />
+            <div className="flex-1 relative bg-[#1e1e1e]">
+              <Terminal value={query} onChange={setQuery} />
             </div>
             
             <div className="bg-gray-800 px-3 py-2 border-t border-gray-700 flex items-center justify-between">
@@ -280,6 +275,7 @@ const PracticeTerminal: React.FC<{ dbId?: string; onView?: () => void }> = ({ db
               <button
                 onClick={handleRun}
                 disabled={!dbReady || isRunning}
+                data-testid="run-button"
                 className="px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs font-medium disabled:opacity-50 transition-colors"
               >
                 {isRunning ? "..." : "▶ Run"}
