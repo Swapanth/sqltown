@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLTown Interactive Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .demo-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        
+        .demo-button.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .demo-button.secondary:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .level-preview {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .level-list {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .level-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #ff6b35;
+        }
+        
+        .level-green { border-left-color: #28a745; }
+        .level-yellow { border-left-color: #ffc107; }
+        .level-orange { border-left-color: #fd7e14; }
+        .level-blue { border-left-color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">🏙️ SQLTown Interactive Demo</h1>
+        <p class="demo-subtitle">
+            Experience building your first sacred SQL city through 10 progressive levels
+        </p>
+        
+        <div class="level-preview">
+            <h3 style="margin-top: 0; color: #333;">What you'll learn:</h3>
+            <div class="level-list">
+                <div class="level-item level-green">🟢 Level 1-3: CREATE DATABASE, CREATE TABLE, INSERT</div>
+                <div class="level-item level-green">🟢 Level 4: CREATE TABLE pilgrims (population layer)</div>
+                <div class="level-item level-yellow">🟡 Level 5-6: INSERT pilgrims, SELECT COUNT(*)</div>
+                <div class="level-item level-yellow">🟡 Level 7: UPDATE (upgrade building)</div>
+                <div class="level-item level-orange">🟠 Level 8-9: CREATE temple, ALTER TABLE (relations)</div>
+                <div class="level-item level-blue">🔵 Level 10: UPDATE (pilgrims visit temple) - City comes alive!</div>
+            </div>
+        </div>
+        
+        <div style="margin: 2rem 0;">
+            <a href="simple-demo.html" class="demo-button">
+                🎮 Start Interactive Demo
+            </a>
+            <br><br>
+            <a href="frontend/index.html#/demo" class="demo-button secondary">
+                🚀 React Version (Advanced)
+            </a>
+            <br><br>
+            <a href="landingpage/landing.html" class="demo-button secondary">
+                ← Back to Landing Page
+            </a>
+        </div>
+        
+        <p style="color: #666; font-size: 0.9rem; margin-top: 2rem;">
+            💡 <strong>Tip:</strong> Type the exact SQL commands shown to progress through each level.<br>
+            Watch your city grow as you master SQL fundamentals!
+        </p>
+    </div>
+    
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const levelItems = document.querySelectorAll('.level-item');
+            
+            levelItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(-20px)';
+                    item.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateX(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

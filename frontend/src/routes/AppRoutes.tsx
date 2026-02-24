@@ -12,9 +12,12 @@ import { OAuthCallbackPage } from '../pages/auth/OAuthCallbackPage';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import {GroundPage} from '../pages/playground/playground';
 import InterviewPage from '../pages/interview/InterviewPage';
+import ProblemSolvePage from '../pages/interview/ProblemSolvePage';
 import Navbar from '../components/layout/Navbar';
 import PracticePage from '../pages/playground/practice';
 import PracticeListPage from '../pages/playground/PracticeListPage';
+import GameDemo from '../pages/GameDemo';
+import StandaloneDemo from '../pages/StandaloneDemo';
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -25,6 +28,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/callback" element={<OAuthCallbackPage />} />
+        <Route path="/demo" element={<StandaloneDemo />} />
 
         {/* Protected routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -92,6 +96,12 @@ export const AppRoutes: React.FC = () => {
           path="/interview"
           element={
               <InterviewPage />
+          }
+        />
+        <Route
+          path="/interview/problem/:id"
+          element={
+              <ProblemSolvePage />
           }
         />
         <Route

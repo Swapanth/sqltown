@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, Input } from '../../components/common';
 
 interface Question {
@@ -134,6 +135,7 @@ export const mockQuestions: Question[] = [
 ];
 
 const InterviewPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<string | null>('');
   const [selectedCompany, setSelectedCompany] = useState<string | null>('');
@@ -870,7 +872,7 @@ const InterviewPage: React.FC = () => {
                           <tr
                             key={question.id}
                             className="hover:bg-gray-50 transition-colors cursor-pointer"
-                            onClick={() => console.log('Question clicked:', question.id)}
+                            onClick={() => navigate(`/interview/problem/${question.id}`)}
                           >
                             <td className="px-4 py-3">
                               <span className={`text-base font-medium ${getStatusColor(question.status)}`}>

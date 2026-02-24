@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Test - SQL Town</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .test-button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .test-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .test-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8eaff;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Upload Test</h1>
+        <p class="subtitle">Test server connectivity and CORS configuration</p>
+
+        <!-- Server Connection Test -->
+        <div class="test-section">
+            <h3>1. Server Connection Test</h3>
+            <button class="test-button" onclick="testServerConnection()">Test Server Connection</button>
+            <div id="connectionResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- CORS Test -->
+        <div class="test-section">
+            <h3>2. CORS Test</h3>
+            <button class="test-button" onclick="testCORS()">Test CORS Policy</button>
+            <div id="corsResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Upload URL Test -->
+        <div class="test-section">
+            <h3>3. Upload URL Generation Test</h3>
+            <button class="test-button" onclick="testUploadURL()">Test Upload URL Generation</button>
+            <div id="uploadUrlResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- File Upload Test -->
+        <div class="test-section">
+            <h3>4. File Upload Test</h3>
+            <div class="upload-area" onclick="document.getElementById('testFileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div>Click to select a test file</div>
+            </div>
+            <input type="file" id="testFileInput" onchange="handleTestFile(this.files[0])">
+            <div id="fileInfo" class="file-info"></div>
+            <button class="test-button" id="testUploadBtn" onclick="testFileUpload()" style="display: none;">Test File Upload</button>
+            <div id="fileUploadResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let selectedTestFile = null;
+
+        async function testServerConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = 'Testing server connection...';
+
+            try {
+                const response = await fetch(`${API_URL}/`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Server is running!\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Server responded with status: ${response.status}\n${response.statusText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Connection failed:\n${error.message}\n\nPossible issues:\n- Server is not running\n- Wrong port (check if server is on port 3000)\n- Network connectivity issues`;
+            }
+        }
+
+        async function testCORS() {
+            const resultDiv = document.getElementById('corsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = 'Testing CORS policy...';
+
+            try {
+                const response = await fetch(`${API_URL}/`, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                    'Access-Control-Allow-Credentials': response.headers.get('Access-Control-Allow-Credentials')
+                };
+
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ CORS preflight successful!\n\nCORS Headers:\n${JSON.stringify(corsHeaders, null, 2)}\n\nYour origin: ${window.location.origin}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ CORS test failed:\n${error.message}\n\nThis means the server is not allowing requests from your origin (${window.location.origin})`;
+            }
+        }
+
+        async function testUploadURL() {
+            const resultDiv = document.getElementById('uploadUrlResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = 'Testing upload URL generation...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/upload-url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileName: 'test-file.txt',
+                        fileType: 'text/plain'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Upload URL generated successfully!\n\nResponse:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Upload URL generation failed:\nStatus: ${response.status}\nResponse: ${errorText}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Request failed:\n${error.message}`;
+            }
+        }
+
+        function handleTestFile(file) {
+            if (!file) return;
+
+            selectedTestFile = file;
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.className = 'file-info active';
+            fileInfo.innerHTML = `
+                <strong>Selected file:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${formatFileSize(file.size)}<br>
+                <strong>Type:</strong> ${file.type || 'unknown'}
+            `;
+            document.getElementById('testUploadBtn').style.display = 'block';
+        }
+
+        async function testFileUpload() {
+            if (!selectedTestFile) return;
+
+            const resultDiv = document.getElementById('fileUploadResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result info';
+            resultDiv.textContent = 'Testing file upload process...';
+
+            try {
+                // Step 1: Get upload URL
+                resultDiv.textContent += '\n\nStep 1: Getting upload URL...';
+                const urlResponse = await fetch(`${API_URL}/api/upload-url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fileName: selectedTestFile.name,
+                        fileType: selectedTestFile.type || 'application/octet-stream'
+                    })
+                });
+
+                if (!urlResponse.ok) {
+                    throw new Error(`Failed to get upload URL: ${urlResponse.status}`);
+                }
+
+                const { uploadUrl, fileUrl } = await urlResponse.json();
+                resultDiv.textContent += '\n✅ Upload URL received';
+
+                // Step 2: Upload file
+                resultDiv.textContent += '\n\nStep 2: Uploading file to S3...';
+                const uploadResponse = await fetch(uploadUrl, {
+                    method: 'PUT',
+                    body: selectedTestFile
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error(`Failed to upload file: ${uploadResponse.status}`);
+                }
+
+                resultDiv.className = 'result success';
+                resultDiv.textContent += `\n✅ File uploaded successfully!\n\nFile URL: ${fileUrl}`;
+
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent += `\n\n❌ Upload failed: ${error.message}`;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
