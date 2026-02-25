@@ -24,7 +24,8 @@ class Settings(BaseSettings):
     COGNITO_ISSUER: str = ""
     
     # Database Configuration
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/sqltown"
+    # DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/sqltown"
+    DATABASE_URL: str
     
     # CORS Configuration
     CORS_ORIGINS: List[str] = ["*"]

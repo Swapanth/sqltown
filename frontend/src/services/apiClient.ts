@@ -3,8 +3,7 @@ import { tokenStorage } from '../utils/tokenStorage';
 import { authService } from './authService';
 
 const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
-    headers: {
+baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',    headers: {
         'Content-Type': 'application/json',
     },
 });

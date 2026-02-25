@@ -174,3 +174,15 @@
   background-color: rgba(230, 115, 80, 0.3);
   color: inherit;
 }
+
+/* Hide scrollbar for mobile tabs */
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, Input } from '../../components/common';
+import { fetchQuestions } from "../../services/questionService";
 
 interface Question {
   id: number;
@@ -29,128 +30,6 @@ interface NavItem {
   children: NavChild[];
 }
 
-export const mockQuestions: Question[] = [
-  { id: 1, title: 'Find the top 3 customers by total order value', difficulty: 'Easy', topics: ['JOIN', 'GROUP BY', 'ORDER BY'], companies: ['Google', 'Amazon'], acceptance: 78.5, status: 'completed' },
-  { id: 2, title: 'Calculate running total of sales by month', difficulty: 'Medium', topics: ['Window Functions', 'Aggregation'], companies: ['Microsoft', 'Meta'], acceptance: 65.2, status: 'in-progress' },
-  { id: 3, title: 'Find employees who earn more than their managers', difficulty: 'Medium', topics: ['Self JOIN', 'Subquery'], companies: ['Apple', 'Netflix'], acceptance: 58.9, status: 'not-started' },
-  { id: 4, title: 'Rank products by sales within each category', difficulty: 'Hard', topics: ['Window Functions', 'RANK', 'PARTITION BY'], companies: ['Google', 'Amazon', 'Microsoft'], acceptance: 42.3, status: 'not-started' },
-  { id: 5, title: 'Find duplicate email addresses', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Meta'], acceptance: 82.1, status: 'completed' },
-  { id: 6, title: 'Calculate percentage of total sales per region', difficulty: 'Medium', topics: ['Window Functions', 'Aggregation'], companies: ['Amazon', 'Apple'], acceptance: 71.4, status: 'not-started' },
-
-  { id: 7, title: 'Find customers who never placed an order', difficulty: 'Easy', topics: ['LEFT JOIN', 'NULL'], companies: ['Google'], acceptance: 79.2, status: 'not-started' },
-  { id: 8, title: 'Get the second highest salary', difficulty: 'Easy', topics: ['ORDER BY', 'LIMIT'], companies: ['Amazon'], acceptance: 84.6, status: 'completed' },
-  { id: 9, title: 'Find the highest paid employee in each department', difficulty: 'Medium', topics: ['GROUP BY', 'MAX', 'JOIN'], companies: ['Microsoft'], acceptance: 69.1, status: 'not-started' },
-  { id: 10, title: 'Count orders per customer per year', difficulty: 'Easy', topics: ['GROUP BY', 'YEAR'], companies: ['Meta'], acceptance: 80.4, status: 'completed' },
-
-  { id: 11, title: 'Find products never sold', difficulty: 'Easy', topics: ['LEFT JOIN', 'NULL'], companies: ['Amazon'], acceptance: 77.5, status: 'not-started' },
-  { id: 12, title: 'Average salary by department', difficulty: 'Easy', topics: ['GROUP BY', 'AVG'], companies: ['Google'], acceptance: 88.2, status: 'completed' },
-  { id: 13, title: 'Top selling product per category', difficulty: 'Medium', topics: ['GROUP BY', 'MAX', 'JOIN'], companies: ['Amazon'], acceptance: 64.3, status: 'not-started' },
-  { id: 14, title: 'Employees hired in last 6 months', difficulty: 'Easy', topics: ['DATE', 'WHERE'], companies: ['Meta'], acceptance: 85.1, status: 'completed' },
-  { id: 15, title: 'Find customers with more than 5 orders', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Google'], acceptance: 83.7, status: 'completed' },
-
-  { id: 16, title: 'Running total per customer', difficulty: 'Medium', topics: ['Window Functions', 'PARTITION'], companies: ['Microsoft'], acceptance: 60.2, status: 'not-started' },
-  { id: 17, title: 'Dense rank employees by salary', difficulty: 'Medium', topics: ['DENSE_RANK', 'Window'], companies: ['Amazon'], acceptance: 62.8, status: 'not-started' },
-  { id: 18, title: 'Monthly revenue growth rate', difficulty: 'Hard', topics: ['LAG', 'Window'], companies: ['Netflix'], acceptance: 45.3, status: 'not-started' },
-  { id: 19, title: 'Customers with consecutive orders', difficulty: 'Hard', topics: ['Window', 'LAG'], companies: ['Meta'], acceptance: 40.7, status: 'not-started' },
-  { id: 20, title: 'Find gaps in order dates', difficulty: 'Hard', topics: ['LEAD', 'Window'], companies: ['Amazon'], acceptance: 39.9, status: 'not-started' },
-
-  { id: 21, title: 'Total sales per day', difficulty: 'Easy', topics: ['GROUP BY'], companies: ['Google'], acceptance: 90.2, status: 'completed' },
-  { id: 22, title: 'Top 5 products by revenue', difficulty: 'Easy', topics: ['ORDER BY', 'LIMIT'], companies: ['Amazon'], acceptance: 86.9, status: 'completed' },
-  { id: 23, title: 'Customers with highest single order', difficulty: 'Medium', topics: ['MAX', 'JOIN'], companies: ['Meta'], acceptance: 66.2, status: 'not-started' },
-  { id: 24, title: 'Department with highest avg salary', difficulty: 'Medium', topics: ['GROUP BY', 'AVG'], companies: ['Microsoft'], acceptance: 63.5, status: 'not-started' },
-  { id: 25, title: 'Find duplicate phone numbers', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Google'], acceptance: 82.9, status: 'completed' },
-
-  { id: 26, title: 'Find customers with orders in every month', difficulty: 'Hard', topics: ['GROUP BY', 'COUNT DISTINCT'], companies: ['Amazon'], acceptance: 41.5, status: 'not-started' },
-  { id: 27, title: 'Employees with same salary', difficulty: 'Easy', topics: ['SELF JOIN'], companies: ['Meta'], acceptance: 79.6, status: 'completed' },
-  { id: 28, title: 'Median salary', difficulty: 'Hard', topics: ['Window', 'Percentile'], companies: ['Netflix'], acceptance: 37.4, status: 'not-started' },
-  { id: 29, title: 'Nth highest salary', difficulty: 'Medium', topics: ['ORDER', 'LIMIT'], companies: ['Amazon'], acceptance: 70.3, status: 'not-started' },
-  { id: 30, title: 'Sales per quarter', difficulty: 'Easy', topics: ['DATE', 'GROUP'], companies: ['Google'], acceptance: 87.1, status: 'completed' },
-
-  { id: 31, title: 'Top customer per region', difficulty: 'Medium', topics: ['GROUP', 'JOIN'], companies: ['Amazon'], acceptance: 67.8, status: 'not-started' },
-  { id: 32, title: 'Lowest salary per department', difficulty: 'Easy', topics: ['MIN', 'GROUP'], companies: ['Meta'], acceptance: 84.5, status: 'completed' },
-  { id: 33, title: 'Customers with no activity 1 year', difficulty: 'Medium', topics: ['DATE', 'JOIN'], companies: ['Netflix'], acceptance: 61.9, status: 'not-started' },
-  { id: 34, title: 'Average order value per customer', difficulty: 'Easy', topics: ['AVG', 'GROUP'], companies: ['Amazon'], acceptance: 88.8, status: 'completed' },
-  { id: 35, title: 'Employees older than manager', difficulty: 'Medium', topics: ['SELF JOIN'], companies: ['Google'], acceptance: 65.9, status: 'not-started' },
-
-  { id: 36, title: 'Top 3 salaries per department', difficulty: 'Hard', topics: ['RANK', 'Window'], companies: ['Microsoft'], acceptance: 43.6, status: 'not-started' },
-  { id: 37, title: 'Rolling 7 day revenue', difficulty: 'Hard', topics: ['Window'], companies: ['Amazon'], acceptance: 39.2, status: 'not-started' },
-  { id: 38, title: 'Customers with increasing purchases', difficulty: 'Hard', topics: ['LAG'], companies: ['Meta'], acceptance: 36.8, status: 'not-started' },
-  { id: 39, title: 'Daily active users', difficulty: 'Easy', topics: ['COUNT', 'DATE'], companies: ['Google'], acceptance: 91.3, status: 'completed' },
-  { id: 40, title: 'Monthly active users', difficulty: 'Easy', topics: ['COUNT', 'DATE'], companies: ['Meta'], acceptance: 90.4, status: 'completed' },
-
-  { id: 41, title: 'Churned customers', difficulty: 'Medium', topics: ['DATE', 'JOIN'], companies: ['Netflix'], acceptance: 62.7, status: 'not-started' },
-  { id: 42, title: 'First order date per customer', difficulty: 'Easy', topics: ['MIN', 'GROUP'], companies: ['Amazon'], acceptance: 89.5, status: 'completed' },
-  { id: 43, title: 'Last login per user', difficulty: 'Easy', topics: ['MAX', 'GROUP'], companies: ['Google'], acceptance: 92.2, status: 'completed' },
-  { id: 44, title: 'Users with multiple devices', difficulty: 'Medium', topics: ['COUNT', 'GROUP'], companies: ['Meta'], acceptance: 68.4, status: 'not-started' },
-  { id: 45, title: 'Revenue by country', difficulty: 'Easy', topics: ['GROUP'], companies: ['Amazon'], acceptance: 87.9, status: 'completed' },
-
-  { id: 46, title: 'Top category per region', difficulty: 'Medium', topics: ['GROUP', 'JOIN'], companies: ['Google'], acceptance: 64.1, status: 'not-started' },
-  { id: 47, title: 'User retention cohorts', difficulty: 'Hard', topics: ['Window', 'DATE'], companies: ['Meta'], acceptance: 35.9, status: 'not-started' },
-  { id: 48, title: 'Average session duration', difficulty: 'Easy', topics: ['AVG'], companies: ['Netflix'], acceptance: 88.6, status: 'completed' },
-  { id: 49, title: 'Peak traffic hour', difficulty: 'Medium', topics: ['GROUP', 'DATE'], companies: ['Google'], acceptance: 69.3, status: 'not-started' },
-  { id: 50, title: 'Orders above avg value', difficulty: 'Medium', topics: ['Subquery'], companies: ['Amazon'], acceptance: 72.6, status: 'not-started' },
-
-  { id: 51, title: 'Employees hired per year', difficulty: 'Easy', topics: ['GROUP', 'DATE'], companies: ['Microsoft'], acceptance: 89.1, status: 'completed' },
-  { id: 52, title: 'Most common salary', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 63.2, status: 'not-started' },
-  { id: 53, title: 'Revenue cumulative sum', difficulty: 'Medium', topics: ['Window'], companies: ['Amazon'], acceptance: 67.5, status: 'not-started' },
-  { id: 54, title: 'Sales rank by month', difficulty: 'Medium', topics: ['RANK'], companies: ['Google'], acceptance: 66.8, status: 'not-started' },
-  { id: 55, title: 'Top referrer per user', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 41.2, status: 'not-started' },
-
-  { id: 56, title: 'Orders per weekday', difficulty: 'Easy', topics: ['GROUP', 'DATE'], companies: ['Amazon'], acceptance: 90.8, status: 'completed' },
-  { id: 57, title: 'Revenue per device type', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 88.4, status: 'completed' },
-  { id: 58, title: 'Most popular product per month', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 65.7, status: 'not-started' },
-  { id: 59, title: 'Users with no purchases', difficulty: 'Easy', topics: ['LEFT JOIN'], companies: ['Amazon'], acceptance: 85.9, status: 'completed' },
-  { id: 60, title: 'Revenue change MoM', difficulty: 'Medium', topics: ['LAG'], companies: ['Netflix'], acceptance: 61.3, status: 'not-started' },
-
-  { id: 61, title: 'Top city per country', difficulty: 'Medium', topics: ['GROUP'], companies: ['Google'], acceptance: 63.9, status: 'not-started' },
-  { id: 62, title: 'Customers with refunds', difficulty: 'Easy', topics: ['JOIN'], companies: ['Amazon'], acceptance: 87.6, status: 'completed' },
-  { id: 63, title: 'Refund rate per product', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 64.7, status: 'not-started' },
-  { id: 64, title: 'Longest active user streak', difficulty: 'Hard', topics: ['Window'], companies: ['Netflix'], acceptance: 38.6, status: 'not-started' },
-  { id: 65, title: 'Average basket size', difficulty: 'Easy', topics: ['AVG'], companies: ['Amazon'], acceptance: 89.7, status: 'completed' },
-
-  { id: 66, title: 'Products bought together', difficulty: 'Hard', topics: ['SELF JOIN'], companies: ['Google'], acceptance: 44.9, status: 'not-started' },
-  { id: 67, title: 'User lifetime value', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 40.2, status: 'not-started' },
-  { id: 68, title: 'Repeat purchase rate', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 69.8, status: 'not-started' },
-  { id: 69, title: 'Top search keyword', difficulty: 'Easy', topics: ['COUNT'], companies: ['Google'], acceptance: 92.7, status: 'completed' },
-  { id: 70, title: 'Click through rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Meta'], acceptance: 66.1, status: 'not-started' },
-
-  { id: 71, title: 'Ad impressions per campaign', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 91.5, status: 'completed' },
-  { id: 72, title: 'Top campaign by ROI', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 42.7, status: 'not-started' },
-  { id: 73, title: 'Avg delivery time', difficulty: 'Easy', topics: ['AVG'], companies: ['Amazon'], acceptance: 88.3, status: 'completed' },
-  { id: 74, title: 'Delayed orders rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Amazon'], acceptance: 67.2, status: 'not-started' },
-  { id: 75, title: 'Top warehouse by volume', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 65.4, status: 'not-started' },
-
-  { id: 76, title: 'Stockout frequency', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 63.7, status: 'not-started' },
-  { id: 77, title: 'Supplier lead time', difficulty: 'Medium', topics: ['AVG'], companies: ['Amazon'], acceptance: 64.5, status: 'not-started' },
-  { id: 78, title: 'Top supplier per category', difficulty: 'Hard', topics: ['RANK'], companies: ['Amazon'], acceptance: 41.8, status: 'not-started' },
-  { id: 79, title: 'Customer acquisition cost', difficulty: 'Hard', topics: ['JOIN'], companies: ['Meta'], acceptance: 39.1, status: 'not-started' },
-  { id: 80, title: 'Marketing spend per channel', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 90.9, status: 'completed' },
-
-  { id: 81, title: 'Revenue per employee', difficulty: 'Medium', topics: ['JOIN'], companies: ['Microsoft'], acceptance: 68.6, status: 'not-started' },
-  { id: 82, title: 'Top office by headcount', difficulty: 'Easy', topics: ['GROUP'], companies: ['Microsoft'], acceptance: 87.4, status: 'completed' },
-  { id: 83, title: 'Attrition rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Microsoft'], acceptance: 66.9, status: 'not-started' },
-  { id: 84, title: 'Promotion rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Meta'], acceptance: 65.3, status: 'not-started' },
-  { id: 85, title: 'Gender pay gap', difficulty: 'Hard', topics: ['AVG'], companies: ['Google'], acceptance: 43.1, status: 'not-started' },
-
-  { id: 86, title: 'Overtime hours per dept', difficulty: 'Easy', topics: ['SUM'], companies: ['Microsoft'], acceptance: 88.9, status: 'completed' },
-  { id: 87, title: 'Project cost overrun', difficulty: 'Medium', topics: ['CASE'], companies: ['Amazon'], acceptance: 67.6, status: 'not-started' },
-  { id: 88, title: 'Top project by margin', difficulty: 'Hard', topics: ['RANK'], companies: ['Microsoft'], acceptance: 41.9, status: 'not-started' },
-  { id: 89, title: 'Budget utilization', difficulty: 'Medium', topics: ['SUM'], companies: ['Meta'], acceptance: 69.2, status: 'not-started' },
-  { id: 90, title: 'Expense per category', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 91.1, status: 'completed' },
-
-  { id: 91, title: 'Fraudulent transactions', difficulty: 'Hard', topics: ['CASE'], companies: ['PayPal'], acceptance: 38.2, status: 'not-started' },
-  { id: 92, title: 'Chargeback rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Stripe'], acceptance: 64.8, status: 'not-started' },
-  { id: 93, title: 'Top merchant by volume', difficulty: 'Medium', topics: ['GROUP'], companies: ['PayPal'], acceptance: 66.5, status: 'not-started' },
-  { id: 94, title: 'Avg transaction value', difficulty: 'Easy', topics: ['AVG'], companies: ['Stripe'], acceptance: 89.3, status: 'completed' },
-  { id: 95, title: 'Daily transaction count', difficulty: 'Easy', topics: ['COUNT'], companies: ['PayPal'], acceptance: 92.4, status: 'completed' },
-
-  { id: 96, title: 'Active merchants', difficulty: 'Easy', topics: ['COUNT'], companies: ['Stripe'], acceptance: 90.6, status: 'completed' },
-  { id: 97, title: 'Dormant accounts', difficulty: 'Medium', topics: ['DATE'], companies: ['PayPal'], acceptance: 65.7, status: 'not-started' },
-  { id: 98, title: 'Top region by revenue', difficulty: 'Easy', topics: ['GROUP'], companies: ['Stripe'], acceptance: 88.7, status: 'completed' },
-  { id: 99, title: 'Cross border transactions', difficulty: 'Medium', topics: ['CASE'], companies: ['PayPal'], acceptance: 67.1, status: 'not-started' },
-  { id: 100, title: 'Currency conversion impact', difficulty: 'Hard', topics: ['JOIN'], companies: ['Stripe'], acceptance: 40.5, status: 'not-started' }
-];
-
 const InterviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,7 +40,7 @@ const InterviewPage: React.FC = () => {
   const [isSideNavCollapsed, setIsSideNavCollapsed] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState<ActiveNavItemId>('overview');
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -175,20 +54,30 @@ const InterviewPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
 
-  const allTopics = Array.from(new Set(mockQuestions.flatMap(q => q.topics)));
-  const allCompanies = Array.from(new Set(mockQuestions.flatMap(q => q.companies || [])));
-
+  const allTopics = Array.from(new Set(questions.flatMap(q => q.topics || [])));
+const allCompanies = Array.from(new Set(questions.flatMap(q => q.companies || [])));
   // Filter questions
-  let filteredQuestions = mockQuestions.filter(q => {
-    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTopic = !selectedTopic || q.topics.includes(selectedTopic);
-    const matchesCompany = !selectedCompany || (q.companies && q.companies.includes(selectedCompany));
-    const matchesDifficulty = !selectedDifficulty || q.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
-    const matchesStatus = statusFilter === 'all' || q.status === statusFilter;
-    const matchesDifficultyFilter = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
+  let filteredQuestions = questions.filter(q => {
+  const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesTopic = !selectedTopic || q.topics.includes(selectedTopic);
+  const matchesCompany = !selectedCompany || (q.companies && q.companies.includes(selectedCompany));
+  const matchesDifficulty = !selectedDifficulty || q.difficulty === selectedDifficulty;
+  const matchesStatus = statusFilter === 'all' || q.status === statusFilter;
+  const matchesDifficultyFilter = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
 
-    return matchesSearch && matchesTopic && matchesCompany && matchesDifficulty && matchesStatus && matchesDifficultyFilter;
+  return matchesSearch && matchesTopic && matchesCompany && matchesDifficulty && matchesStatus && matchesDifficultyFilter;
+});
+
+useEffect(() => {
+  fetchQuestions().then((data) => {
+    const formatted = data.map((q: any) => ({
+      ...q,
+      acceptance: 75,
+      status: "not-started"
+    }));
+    setQuestions(formatted);
   });
+}, []);
 
   // Sort questions
   if (sortColumn) {

@@ -1,0 +1,227 @@
+[
+  {
+    "title": "Highest Paid Employee",
+    "slug": "highest-paid-employee",
+    "description": "Write a query to find the employee with the highest salary.",
+    "difficulty": "Easy",
+    "topics": ["ORDER BY", "LIMIT"],
+    "companies": ["Amazon"],
+    "schema": {
+      "tables": [
+        {
+          "name": "employees",
+          "columns": [
+            {"name": "id", "type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+            {"name": "name", "type": "TEXT", "constraints": []},
+            {"name": "salary", "type": "INT", "constraints": []}
+          ],
+          "sampleData": [
+            [1, "Alice", 50000],
+            [2, "Bob", 70000],
+            [3, "Charlie", 60000]
+          ]
+        }
+      ]
+    },
+    "examples": [
+      {
+        "description": "Find employee with highest salary",
+        "expectedColumns": ["name", "salary"],
+        "expectedOutput": [
+          ["Bob", 70000]
+        ]
+      }
+    ],
+    "hints": ["Use ORDER BY salary DESC", "Use LIMIT 1"],
+    "solution": "SELECT name, salary FROM employees ORDER BY salary DESC LIMIT 1;",
+    "test_cases": [
+      {
+        "setup_sql": "CREATE TABLE employees(id INT, name TEXT, salary INT); INSERT INTO employees VALUES (1,'Alice',50000),(2,'Bob',70000),(3,'Charlie',60000);",
+        "expected_output": [
+          {"name": "Bob", "salary": 70000}
+        ]
+      }
+    ]
+  },
+
+  {
+    "title": "Average Salary",
+    "slug": "average-salary",
+    "description": "Find the average salary of all employees.",
+    "difficulty": "Easy",
+    "topics": ["AVG"],
+    "companies": ["Google"],
+    "schema": {
+      "tables": [
+        {
+          "name": "employees",
+          "columns": [
+            {"name": "id", "type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+            {"name": "salary", "type": "INT", "constraints": []}
+          ],
+          "sampleData": [
+            [1, 50000],
+            [2, 70000],
+            [3, 60000]
+          ]
+        }
+      ]
+    },
+    "examples": [
+      {
+        "description": "Find average salary",
+        "expectedColumns": ["avg_salary"],
+        "expectedOutput": [
+          [60000]
+        ]
+      }
+    ],
+    "hints": ["Use AVG() function"],
+    "solution": "SELECT AVG(salary) AS avg_salary FROM employees;",
+    "test_cases": [
+      {
+        "setup_sql": "CREATE TABLE employees(id INT, salary INT); INSERT INTO employees VALUES (1,50000),(2,70000),(3,60000);",
+        "expected_output": [
+          {"avg_salary": 60000}
+        ]
+      }
+    ]
+  },
+
+  {
+    "title": "Count Products",
+    "slug": "count-products",
+    "description": "Count total number of products available.",
+    "difficulty": "Easy",
+    "topics": ["COUNT"],
+    "companies": ["Flipkart"],
+    "schema": {
+      "tables": [
+        {
+          "name": "products",
+          "columns": [
+            {"name": "id", "type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+            {"name": "name", "type": "TEXT", "constraints": []}
+          ],
+          "sampleData": [
+            [1, "Phone"],
+            [2, "Laptop"],
+            [3, "Tablet"]
+          ]
+        }
+      ]
+    },
+    "examples": [
+      {
+        "description": "Count all products",
+        "expectedColumns": ["total_products"],
+        "expectedOutput": [
+          [3]
+        ]
+      }
+    ],
+    "hints": ["Use COUNT(*)"],
+    "solution": "SELECT COUNT(*) AS total_products FROM products;",
+    "test_cases": [
+      {
+        "setup_sql": "CREATE TABLE products(id INT, name TEXT); INSERT INTO products VALUES (1,'Phone'),(2,'Laptop'),(3,'Tablet');",
+        "expected_output": [
+          {"total_products": 3}
+        ]
+      }
+    ]
+  },
+
+  {
+    "title": "Orders Above 100",
+    "slug": "orders-above-100",
+    "description": "Find orders where amount is greater than 100.",
+    "difficulty": "Easy",
+    "topics": ["WHERE"],
+    "companies": ["Amazon"],
+    "schema": {
+      "tables": [
+        {
+          "name": "orders",
+          "columns": [
+            {"name": "id", "type": "INTEGER", "constraints": ["PRIMARY KEY"]},
+            {"name": "amount", "type": "INT", "constraints": []}
+          ],
+          "sampleData": [
+            [1, 50],
+            [2, 200],
+            [3, 150]
+          ]
+        }
+      ]
+    },
+    "examples": [
+      {
+        "description": "Orders greater than 100",
+        "expectedColumns": ["id", "amount"],
+        "expectedOutput": [
+          [2, 200],
+          [3, 150]
+        ]
+      }
+    ],
+    "hints": ["Use WHERE amount > 100"],
+    "solution": "SELECT id, amount FROM orders WHERE amount > 100;",
+    "test_cases": [
+      {
+        "setup_sql": "CREATE TABLE orders(id INT, amount INT); INSERT INTO orders VALUES (1,50),(2,200),(3,150);",
+        "expected_output": [
+          {"id": 2, "amount": 200},
+          {"id": 3, "amount": 150}
+        ]
+      }
+    ]
+  },
+
+  {
+    "title": "Department Employee Count",
+    "slug": "department-employee-count",
+    "description": "Find total employees in each department.",
+    "difficulty": "Medium",
+    "topics": ["GROUP BY", "COUNT"],
+    "companies": ["Microsoft"],
+    "schema": {
+      "tables": [
+        {
+          "name": "employees",
+          "columns": [
+            {"name": "id", "type": "INT", "constraints": []},
+            {"name": "department", "type": "TEXT", "constraints": []}
+          ],
+          "sampleData": [
+            [1, "HR"],
+            [2, "IT"],
+            [3, "IT"]
+          ]
+        }
+      ]
+    },
+    "examples": [
+      {
+        "description": "Count employees per department",
+        "expectedColumns": ["department", "total"],
+        "expectedOutput": [
+          ["IT", 2],
+          ["HR", 1]
+        ]
+      }
+    ],
+    "hints": ["Use GROUP BY department"],
+    "solution": "SELECT department, COUNT(*) AS total FROM employees GROUP BY department;",
+    "test_cases": [
+      {
+        "setup_sql": "CREATE TABLE employees(id INT, department TEXT); INSERT INTO employees VALUES (1,'HR'),(2,'IT'),(3,'IT');",
+        "expected_output": [
+          {"department": "IT", "total": 2},
+          {"department": "HR", "total": 1}
+        ]
+      }
+    ]
+  }
+
+]
