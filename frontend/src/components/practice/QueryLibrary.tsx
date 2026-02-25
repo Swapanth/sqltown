@@ -127,15 +127,15 @@ const QueryLibrary: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
   };
 
   return (
-    <div className="h-full flex flex-col p-4">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="font-semibold text-sm text-gray-800"> Query Library</h3>
+    <div className="h-full flex flex-col p-3">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-semibold text-xs text-gray-800"> Query Library</h3>
         {onView && (
           <button 
             onClick={onView} 
             className="text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
             </svg>
           </button>
@@ -143,9 +143,9 @@ const QueryLibrary: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
       </div>
 
       {/* Query Templates */}
-      <div className="flex-1 space-y-2 overflow-y-auto">
+      <div className="flex-1 space-y-1.5 overflow-y-auto">
         {filteredQueries.slice(0, 2).map((template, i) => (
-          <div key={i} className="border border-gray-200 rounded-lg p-2 hover:border-orange-300 transition-colors">
+          <div key={i} className="border border-gray-200 rounded-lg p-1.5 hover:border-orange-300 transition-colors">
             <div className="flex items-start justify-between mb-1">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1 mb-1">
@@ -167,7 +167,7 @@ const QueryLibrary: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
                 {copied === i ? "✓" : "Copy"}
               </button>
             </div>
-            <pre className="text-xs bg-gray-900 text-green-400 p-2 rounded overflow-x-auto font-mono max-h-12">
+            <pre className="text-xs bg-gray-900 text-green-400 p-1.5 rounded overflow-x-auto font-mono max-h-12">
               {template.query.split('\n')[0]}...
             </pre>
           </div>

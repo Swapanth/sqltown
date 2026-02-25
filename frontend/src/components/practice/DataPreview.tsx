@@ -16,6 +16,15 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
   useEffect(() => {
     const loadTables = async () => {
       try {
+        // Reset state when switching databases
+        setTables([]);
+        setSelectedTable("");
+        setData(null);
+        setSchema([]);
+        setRowCount(0);
+        setTotalRowCount(0);
+        setCurrentPage(1);
+        
         // Initialize database with dbId first
         await initializeDatabase(dbId);
         const tableList = await getTables(dbId);
@@ -121,13 +130,13 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
             {totalRowCount > 0 ? totalRowCount.toLocaleString() : rowCount}
           </div>
         </div>
-        <div className="bg-green-50 p-3 rounded-xl border border-green-100">
+        <div className="bg-green-50 p-2 rounded-lg border border-green-100">
           <div className="text-xs text-green-600 font-semibold">Columns</div>
-          <div className="text-lg font-bold text-green-700">{schema.length}</div>
+          <div className="text-sm font-bold text-green-700">{schema.length}</div>
         </div>
-        <div className="bg-blue-50 p-3 rounded-xl border border-blue-100">
+        <div className="bg-blue-50 p-2 rounded-lg border border-blue-100">
           <div className="text-xs text-blue-600 font-semibold">Tables</div>
-          <div className="text-lg font-bold text-blue-700">{tables.length}</div>
+          <div className="text-sm font-bold text-blue-700">{tables.length}</div>
         </div>
       </div>
 
@@ -142,7 +151,9 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
                   <th className="p-3 border-b border-gray-200 text-left font-semibold text-gray-700">Column</th>
                   <th className="p-3 border-b border-gray-200 text-left font-semibold text-gray-700">Type</th>
                   <th className="p-3 border-b border-gray-200 text-center font-semibold text-gray-700">PK</th>
+                  <th className="p-3 border-b border-gray-200 text-center font-semibold text-gray-700">FK</th>
                   <th className="p-3 border-b border-gray-200 text-center font-semibold text-gray-700">Not Null</th>
+                  <th className="p-3 border-b border-gray-200 text-center font-semibold text-gray-700">Nullable</th>
                 </tr>
               </thead>
               <tbody>
@@ -151,6 +162,8 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
                     <td className="p-3 border-b border-gray-100 font-mono font-semibold text-gray-800">{col[1]}</td>
                     <td className="p-3 border-b border-gray-100 text-gray-600">{col[2]}</td>
                     <td className="p-3 border-b border-gray-100 text-center">{col[5] ? "✓" : ""}</td>
+                    <td className="p-3 border-b border-gray-100 text-center">{col[6] ? "✓" : ""}</td>
+                    <td className="p-3 border-b border-gray-100 text-center">{!col[3] ? "✓" : ""}</td>
                     <td className="p-3 border-b border-gray-100 text-center">{col[3] ? "✓" : ""}</td>
                   </tr>
                 ))}

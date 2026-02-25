@@ -101,6 +101,98 @@ class S3Service:
             return True
         except ClientError:
             return False
+    
+    def upload_file(self, file_content: bytes, file_name: str, content_type: str = 'application/sql') -> str:
+        """
+        Upload a file directly to S3
+        
+        Args:
+            file_content: File content as bytes
+            file_name: Name of the file
+            content_type: MIME type of the file
+            
+        Returns:
+            Public URL of the uploaded file
+            
+        Raises:
+            ClientError: If AWS S3 operation fails
+        """
+        # Generate unique key with timestamp in datasets folder
+        key = f"datasets/{int(time() * 1000)}-{file_name}"
+        
+        try:
+            # Upload file to S3 (public access controlled by bucket policy)
+            self.client.put_object(
+                Bucket=self.bucket_name,
+                Key=key,
+                Body=file_content,
+                ContentType=content_type
+            )
+            
+            # Return public URL
+            file_url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{key}"
+            return file_url
+        except ClientError as e:
+            raise e
+    
+    def list_database_files(self) -> list:
+        """
+        List all SQL database files from S3
+        
+        Returns:
+            List of database file objects with metadata
+        """
+        try:
+            response = self.client.list_objects_v2(
+                Bucket=self.bucket_name,
+                Prefix="datasets"
+            )
+            
+            files = []
+            if 'Contents' in response:
+                for obj in response['Contents']:
+                    # Get file name from key
+                    file_name = obj['Key'].split('/')[-1]
+                    
+                    # Generate presigned URL for downloading
+                    file_url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{obj['Key']}"
+                    
+                    files.append({
+                        'key': obj['Key'],
+                        'filename': file_name,
+                        'url': file_url,
+                        'size': obj['Size'],
+                        'last_modified': obj['LastModified'].isoformat()
+                    })
+            
+            return files
+        except ClientError as e:
+            print(f"Error listing S3 files: {e}")
+            return []
+    
+    def generate_presigned_download_url(self, key: str, expiration: int = 3600) -> str:
+        """
+        Generate a presigned URL for downloading a file from S3
+        
+        Args:
+            key: S3 object key
+            expiration: URL expiration time in seconds (default: 1 hour)
+            
+        Returns:
+            Presigned download URL
+        """
+        try:
+            url = self.client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': self.bucket_name,
+                    'Key': key
+                },
+                ExpiresIn=expiration
+            )
+            return url
+        except ClientError as e:
+            raise e
 
 
 # Singleton instance

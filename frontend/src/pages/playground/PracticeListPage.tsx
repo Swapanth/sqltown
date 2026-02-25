@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { MagnifyingGlassIcon, Squares2X2Icon, ListBulletIcon, CloudArrowUpIcon, DocumentArrowUpIcon } from "@heroicons/react/24/outline";
 import { CircleStackIcon } from "@heroicons/react/24/solid";
+import { registerDatabaseUrl, preloadDatabaseUrls } from "../../utils/databaseRegistry";
 
 interface DatabaseScenario {
   id: string;
@@ -19,9 +20,9 @@ interface DatabaseScenario {
 }
 
 // Function to parse SQL file and extract metadata
-const parseSqlFile = async (filename: string): Promise<DatabaseScenario | null> => {
+const parseSqlFile = async (url: string, filename: string): Promise<DatabaseScenario | null> => {
   try {
-    const response = await fetch(`/practiceData/${filename}`);
+    const response = await fetch(url);
     if (!response.ok) return null;
     
     const content = await response.text();
@@ -92,7 +93,7 @@ const parseSqlFile = async (filename: string): Promise<DatabaseScenario | null> 
     };
     
     return {
-      id: filename.replace('.sql', ''),
+      id: filename.replace('.sql', '').replace(/^\d+-/, ''),
       name: name || filename.replace('.sql', '').replace(/_/g, ' '),
       description: description || `Database scenario from ${filename}`,
       difficulty,
@@ -111,13 +112,15 @@ const parseSqlFile = async (filename: string): Promise<DatabaseScenario | null> 
   }
 };
 
-// SQL files to load
+// SQL files to load from local public folder as fallback
 const sqlFiles = [
   '01_ecommerce_shopnow.sql',
   '02_university_edutrack.sql',
   '03_hr_payroll_peoplecore.sql',
   '04_banking_nexbank.sql'
 ];
+
+const API_BASE_URL = 'http://localhost:3000/api';
 
 const PracticeListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -131,17 +134,62 @@ const PracticeListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<DatabaseScenario[]>([]);
+  const [uploading, setUploading] = useState(false);
 
-  // Load real data from SQL files
+  // Load real data from S3 via API
   useEffect(() => {
     const loadDatabases = async () => {
       setLoading(true);
       const loadedDatabases: DatabaseScenario[] = [];
       
-      for (const filename of sqlFiles) {
-        const db = await parseSqlFile(filename);
-        if (db) {
-          loadedDatabases.push(db);
+      try {
+        // Preload database URLs for faster access
+        await preloadDatabaseUrls();
+        
+        // Try to fetch databases from S3 via API
+        const response = await fetch(`${API_BASE_URL}/list-databases`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Fetched databases from S3:', data);
+          
+          // Parse each database file from S3
+          if (data.databases && data.databases.length > 0) {
+            for (const dbFile of data.databases) {
+              const db = await parseSqlFile(dbFile.url, dbFile.filename);
+              if (db) {
+                // Register the database URL for later use
+                registerDatabaseUrl(db.id, dbFile.url);
+                loadedDatabases.push(db);
+              }
+            }
+          }
+        } else {
+          console.log('S3 API not available, loading from local files as fallback');
+          
+          // Fallback to local files if S3 is not configured
+          for (const filename of sqlFiles) {
+            const localUrl = `/practiceData/${filename}`;
+            const db = await parseSqlFile(localUrl, filename);
+            if (db) {
+              // Register local file URLs
+              registerDatabaseUrl(db.id, localUrl);
+              loadedDatabases.push(db);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading databases from API, using local fallback:', error);
+        
+        // Fallback to local files on error
+        for (const filename of sqlFiles) {
+          const localUrl = `/practiceData/${filename}`;
+          const db = await parseSqlFile(localUrl, filename);
+          if (db) {
+            // Register local file URLs
+            registerDatabaseUrl(db.id, localUrl);
+            loadedDatabases.push(db);
+          }
         }
       }
       
@@ -154,95 +202,66 @@ const PracticeListPage: React.FC = () => {
 
   // Handle file upload
   const handleFileUpload = async (files: FileList) => {
-    const newDatabases: DatabaseScenario[] = [];
+    setUploading(true);
+    const uploadPromises: Promise<void>[] = [];
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       if (file.type === 'application/sql' || file.name.endsWith('.sql')) {
-        try {
-          const content = await file.text();
-          const db = await parseUploadedSqlContent(content, file.name);
-          if (db) {
-            newDatabases.push(db);
-          }
-        } catch (error) {
-          console.error(`Error processing ${file.name}:`, error);
-        }
+        uploadPromises.push(uploadSingleFile(file));
+      } else {
+        alert(`${file.name} is not a valid SQL file. Only .sql files are supported.`);
       }
     }
     
-    setUploadedFiles(prev => [...prev, ...newDatabases]);
+    // Wait for all uploads to complete
+    try {
+      await Promise.all(uploadPromises);
+      console.log('All files uploaded successfully');
+    } catch (error) {
+      console.error('Some uploads failed:', error);
+    } finally {
+      setUploading(false);
+    }
   };
 
-  // Parse uploaded SQL content
-  const parseUploadedSqlContent = async (content: string, filename: string): Promise<DatabaseScenario | null> => {
+  // Upload single file to backend (S3)
+  const uploadSingleFile = async (file: File): Promise<void> => {
     try {
-      const lines = content.split('\n');
+      const formData = new FormData();
+      formData.append('file', file);
       
-      // Extract metadata from comments
-      let name = '';
-      let description = '';
-      let tablesList: string[] = [];
+      const response = await fetch(`${API_BASE_URL}/upload-sql-database`, {
+        method: 'POST',
+        body: formData,
+      });
       
-      for (let i = 0; i < Math.min(20, lines.length); i++) {
-        const line = lines[i];
-        
-        if (line.includes('DATABASE') && line.includes(':')) {
-          const match = line.match(/DATABASE \d+: (.+?) \((.+?)\)/);
-          if (match) {
-            description = match[1];
-            name = match[2];
-          }
-        }
-        
-        if (line.includes('Tables:')) {
-          let tablesText = line.replace('-- Tables:', '').trim();
-          let j = i + 1;
-          while (j < lines.length && lines[j].startsWith('--')) {
-            const nextLine = lines[j].replace('--', '').trim();
-            if (nextLine && !nextLine.includes('=')) {
-              tablesText += ' ' + nextLine;
-            } else {
-              break;
-            }
-            j++;
-          }
-          tablesList = tablesText.split(',').map(t => t.trim()).filter(t => t.length > 0);
-        }
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Upload failed');
       }
       
-      // Count actual CREATE TABLE statements
-      const tableCount = (content.match(/CREATE TABLE/gi) || []).length;
+      const result = await response.json();
+      console.log('Upload successful:', result);
       
-      // Create better description using table names
-      if (tablesList.length > 0 && !description) {
-        const mainTables = tablesList.slice(0, 6).join(', ');
-        const remaining = tablesList.length > 6 ? ` and ${tablesList.length - 6} more` : '';
-        description = `Database with ${mainTables}${remaining}`;
+      // Parse the uploaded file from S3 URL
+      const db = await parseSqlFile(result.url, result.filename);
+      if (db) {
+        // Mark as custom upload
+        db.category = 'Custom';
+        db.creator = 'You';
+        db.lastEdited = 'Just uploaded';
+        db.thumbnail = 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)';
+        
+        // Register the S3 URL for this database
+        registerDatabaseUrl(db.id, result.url);
+        
+        setUploadedFiles(prev => [...prev, db]);
       }
-      
-      // Determine difficulty based on table count
-      let difficulty: 'Beginner' | 'Intermediate' | 'Advanced' = 'Beginner';
-      if (tableCount > 15) difficulty = 'Advanced';
-      else if (tableCount > 10) difficulty = 'Intermediate';
-      
-      return {
-        id: `uploaded_${Date.now()}_${filename.replace('.sql', '')}`,
-        name: name || filename.replace('.sql', '').replace(/_/g, ' '),
-        description: description || `Uploaded database from ${filename}`,
-        difficulty,
-        category: 'Custom',
-        tables: tableCount,
-        queries: Math.floor(tableCount * 2.5),
-        completionRate: 0,
-        lastEdited: "Just uploaded",
-        thumbnail: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)',
-        status: "Not Started",
-        creator: "You"
-      };
     } catch (error) {
-      console.error(`Error parsing uploaded file ${filename}:`, error);
-      return null;
+      console.error(`Error uploading ${file.name}:`, error);
+      alert(`Failed to upload ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error;
     }
   };
 
@@ -417,28 +436,43 @@ const PracticeListPage: React.FC = () => {
           <div className="space-y-1 ">
             {/* Upload Card - List View */}
             <div
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => !uploading && fileInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`group flex items-center gap-3 h-16 px-2 py-2 rounded border-2 border-dashed transition-all duration-200 cursor-pointer ${
-                isDragOver 
-                  ? 'border-[#6366F1] bg-[#6366F1]/5' 
-                  : 'border-gray-300 hover:border-[#6366F1]/60 hover:bg-black/5'
+              className={`group flex items-center gap-3 h-16 px-2 py-2 rounded border-2 border-dashed transition-colors duration-300 ${
+                uploading
+                  ? 'border-gray-300 bg-gray-50 cursor-wait'
+                  : isDragOver 
+                    ? 'border-[#6366F1] bg-[#6366F1]/5 cursor-pointer' 
+                    : 'border-gray-300 hover:border-[#6366F1] hover:bg-[#6366F1]/5 cursor-pointer'
               }`}
             >
-              <CloudArrowUpIcon className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1] transition-colors flex-shrink-0" />
-              <div className="flex items-center gap-2 min-w-0 flex-1">
-                <h3 className="text-sm font-medium text-gray-600 group-hover:text-[#6366F1] transition-colors">
-                  Upload your SQL database
-                </h3>
-                <span className="px-1.5 py-0.5 rounded text-xs font-medium text-purple-300 bg-purple-500/10">
-                  Custom
-                </span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-gray-500 flex-shrink-0">
-                <span>Drag & drop or click</span>
-              </div>
+              {uploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6366F1] flex-shrink-0" />
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <h3 className="text-sm font-medium text-gray-600">
+                      Uploading database...
+                    </h3>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <CloudArrowUpIcon className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1] transition-colors flex-shrink-0" />
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <h3 className="text-sm font-medium text-gray-600 group-hover:text-[#6366F1] transition-colors">
+                      Upload your SQL database
+                    </h3>
+                    <span className="px-1.5 py-0.5 rounded text-xs font-medium text-purple-300 bg-purple-500/10">
+                      Custom
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-gray-500 flex-shrink-0">
+                    <span>Drag & drop or click</span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* List View - Compact Rows */}
@@ -446,7 +480,7 @@ const PracticeListPage: React.FC = () => {
               <div
                 key={db.id}
                 onClick={() => handleDatabaseClick(db.id)}
-                className="group flex items-center gap-3 h-16 px-2 py-2 rounded border border-black/10 hover:border-[#6366F1]/60 hover:bg-black/5 transition-all duration-200 cursor-pointer"
+                className="group flex items-center gap-3 h-16 px-2 py-2 rounded border border-black/10 hover:border-[#6366F1] hover:bg-[#6366F1]/5 transition-colors duration-300 cursor-pointer"
               >
                 {/* Icon */}
                 <CircleStackIcon className="w-6 h-6 text-gray-400 group-hover:text-[#6366F1] transition-colors flex-shrink-0" />
@@ -482,43 +516,63 @@ const PracticeListPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {/* Upload Card - Grid View */}
+            {/* Upload Card - Grid View */} 
             <div
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => !uploading && fileInputRef.current?.click()}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`group relative rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden min-h-[280px] flex flex-col items-center justify-center ${
-                isDragOver 
-                  ? 'border-[#6366F1] bg-[#6366F1]/5 scale-105' 
-                  : 'border-gray-300 hover:border-[#6366F1]/60 hover:bg-black/5 hover:-translate-y-1'
+              className={`group relative rounded-xl border-2 border-dashed transition-all duration-300 overflow-hidden min-h-[280px] flex flex-col items-center justify-center ${
+                uploading
+                  ? 'border-gray-300 bg-gray-50 cursor-wait'
+                  : isDragOver 
+                    ? 'border-[#6366F1] bg-[#6366F1]/5 scale-[1.02] cursor-pointer' 
+                    : 'border-gray-300 hover:border-[#6366F1] hover:bg-[#6366F1]/5 hover:-translate-y-1 cursor-pointer'
               }`}
             >
               <div className="text-center p-6">
-                <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  isDragOver ? 'bg-[#6366F1]/20' : 'bg-gray-100 group-hover:bg-[#6366F1]/10'
-                }`}>
-                  <CloudArrowUpIcon className={`w-8 h-8 transition-colors duration-300 ${
-                    isDragOver ? 'text-[#6366F1]' : 'text-gray-400 group-hover:text-[#6366F1]'
-                  }`} />
-                </div>
-                
-                <h3 className="text-lg font-bold text-gray-600 group-hover:text-[#6366F1] transition-colors duration-300 mb-2">
-                  Upload Database
-                </h3>
-                
-                <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-300 mb-4">
-                  Drag & drop your SQL file here or click to browse
-                </p>
-                
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-400 group-hover:text-[#6366F1] transition-colors">
-                  <DocumentArrowUpIcon className="w-4 h-4" />
-                  <span>Supports .sql files</span>
-                </div>
+                {uploading ? (
+                  <>
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-[#6366F1]/10">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-600 mb-2">
+                      Uploading...
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Please wait while your database is being uploaded
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      isDragOver ? 'bg-[#6366F1]/20' : 'bg-gray-100 group-hover:bg-[#6366F1]/10'
+                    }`}>
+                      <CloudArrowUpIcon className={`w-8 h-8 transition-colors duration-300 ${
+                        isDragOver ? 'text-[#6366F1]' : 'text-gray-400 group-hover:text-[#6366F1]'
+                      }`} />
+                    </div>
+                    
+                    <h3 className="text-lg font-bold text-gray-600 group-hover:text-[#6366F1] transition-colors duration-300 mb-2">
+                      Upload Database
+                    </h3>
+                    
+                    <p className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors duration-300 mb-4">
+                      Drag & drop your SQL file here or click to browse
+                    </p>
+                    
+                    <div className="flex items-center justify-center gap-2 text-xs text-gray-400 group-hover:text-[#6366F1] transition-colors">
+                      <DocumentArrowUpIcon className="w-4 h-4" />
+                      <span>Supports .sql files</span>
+                    </div>
+                  </>
+                )}
               </div>
               
               {/* Animated border on hover */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6366F1]/0 via-[#6366F1]/20 to-[#6366F1]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              {!uploading && (
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6366F1]/0 via-[#6366F1]/20 to-[#6366F1]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+              )}
             </div>
 
             {/* Grid View - Database Cards */}
@@ -526,58 +580,55 @@ const PracticeListPage: React.FC = () => {
             <div
               key={db.id}
               onClick={() => handleDatabaseClick(db.id)}
-              className="group relative rounded-xl border border-/10 hover:border-[#6366F1]/60 transition-all duration-300 cursor-pointer overflow-hidden  hover:bg-[#222222] hover:shadow-xl hover:shadow-[#6366F1]/20 hover:-translate-y-1 transform"
+              className="group relative rounded-xl border border-black/10 hover:border-[#6366F1] transition-all duration-300 cursor-pointer overflow-hidden hover:bg-[#6366F1]/5 hover:-translate-y-1"
             >
               {/* Thumbnail */}
               <div
                 className="aspect-video relative overflow-hidden"
                 style={{ background: db.thumbnail }}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-                
-                {/* Animated overlay on hover */}
-                <div className="absolute inset-0 bg-[#6366F1]/0 group-hover:bg-[#6366F1]/10 transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-[#6366F1]/20 transition-colors duration-300"></div>
                 
                 <div className="absolute top-2 right-2">
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-medium ${getStatusColor(db.status)} backdrop-blur-sm transition-all duration-300 group-hover:scale-105`}>
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-medium ${getStatusColor(db.status)} backdrop-blur-sm`}>
                     {db.status}
                   </span>
                 </div>
                 <div className="absolute bottom-2 left-2">
-                  <CircleStackIcon className="w-8 h-8 text-/80 transition-all duration-300 group-hover:text-[#6366F1] group-hover:scale-110" />
+                  <CircleStackIcon className="w-8 h-8 text-white/80 transition-colors duration-300 group-hover:text-[#6366F1]" />
                 </div>
               </div>
 
               {/* Content */}
               <div className="p-3">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-sm font-bold text- group-hover:text-[#6366F1] transition-colors duration-300 flex-1 pr-2 line-clamp-1">
+                  <h3 className="text-sm font-bold text-gray-900 group-hover:text-[#6366F1] transition-colors duration-300 flex-1 pr-2 line-clamp-1">
                     {db.name}
                   </h3>
                   <div className="flex gap-1">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-medium space-nowrap ${getDifficultyColor(db.difficulty)} transition-all duration-300 group-hover:scale-105`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${getDifficultyColor(db.difficulty)}`}>
                       {db.difficulty}
                     </span>
                     {db.category === 'Custom' && (
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium space-nowrap ${getCategoryColor(db.category)} transition-all duration-300 group-hover:scale-105`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${getCategoryColor(db.category)}`}>
                         Custom
                       </span>
                     )}
                   </div>
                 </div>
 
-                <p className="text-xs text-/60 mb-3 leading-relaxed line-clamp-2 group-hover:text-/80 transition-colors duration-300">
+                <p className="text-xs text-gray-600 mb-3 leading-relaxed line-clamp-2">
                   {db.description}
                 </p>
 
-                <div className="flex items-center gap-3 text-[11px] text-/50 mb-3 group-hover:text-/70 transition-colors duration-300">
+                <div className="flex items-center gap-3 text-[11px] text-gray-500 mb-3">
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full bg-[#6366F1] opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="w-1 h-1 rounded-full bg-[#6366F1]"></div>
                     <span>{db.tables} Tables</span>
                   </div>
                   <span>•</span>
                   <div className="flex items-center gap-1">
-                    <div className="w-1 h-1 rounded-full bg-[#6366F1] opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="w-1 h-1 rounded-full bg-[#6366F1]"></div>
                     <span>{db.queries} Queries</span>
                   </div>
                 </div>
@@ -586,31 +637,31 @@ const PracticeListPage: React.FC = () => {
                 {db.completionRate > 0 && (
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-[10px] mb-1">
-                      <span className="text-/60 group-hover:text-/80 transition-colors">Progress</span>
-                      <span className="text-/80 font-medium group-hover:text-[#6366F1] transition-colors">{db.completionRate}%</span>
+                      <span className="text-gray-600">Progress</span>
+                      <span className="text-gray-800 font-medium">{db.completionRate}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-/10 rounded-full overflow-hidden group-hover:bg-/15 transition-colors">
+                    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-[#6366F1] to-[#4F46E5] rounded-full transition-all duration-500 group-hover:shadow-lg group-hover:shadow-[#6366F1]/50"
+                        className="h-full bg-gradient-to-r from-[#6366F1] to-[#4F46E5] rounded-full transition-all duration-300"
                         style={{ width: `${db.completionRate}%` }}
                       ></div>
                     </div>
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-/10 group-hover:border-/20 transition-colors">
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center text-[10px] font-bold transition-transform duration-300 group-hover:scale-110 group-hover:shadow-md group-hover:shadow-[#6366F1]/30">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#6366F1] to-[#4F46E5] flex items-center justify-center text-[10px] font-bold text-white">
                       {db.creator.charAt(0)}
                     </div>
-                    <span className="text-[10px] text-/60 group-hover:text-/80 transition-colors">{db.creator}</span>
+                    <span className="text-[10px] text-gray-600">{db.creator}</span>
                   </div>
-                  <span className="text-[10px] text-/40 group-hover:text-[#6366F1] transition-colors font-medium">{db.category}</span>
+                  <span className="text-[10px] text-gray-500 font-medium">{db.category}</span>
                 </div>
               </div>
               
-              {/* Bottom edge glow on hover */}
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#6366F1] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              {/* Animated border on hover */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#6366F1]/0 via-[#6366F1]/20 to-[#6366F1]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
             </div>
           ))}
           </div>

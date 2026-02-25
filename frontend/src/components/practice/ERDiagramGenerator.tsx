@@ -38,7 +38,7 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
   const [editableCode, setEditableCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(300); // Start at 300% zoom
   const [showEditor, setShowEditor] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [dbReady, setDbReady] = useState(false);
@@ -46,6 +46,7 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 });
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Filter states
   const [activeTool, setActiveTool] = useState<'pan' | 'select'>('pan');
@@ -99,11 +100,15 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
   useEffect(() => {
     const init = async () => {
       try {
+        setDbReady(false); // Reset when dbId changes
+        setIsLoading(true);
         await initializeDatabase(dbId);
         setDbReady(true);
+        setIsLoading(false);
       } catch (err) {
         console.error("DB Init failed:", err);
         setError("Failed to initialize database");
+        setIsLoading(false);
       }
     };
     init();
@@ -286,14 +291,48 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
       code += "  }\n";
     });
 
-    // Add relationships
+    // Add relationships - detect FK relationships
+    const addedRelationships = new Set<string>();
+    
     tables.forEach((table) => {
       table.columns.forEach((col) => {
-        const fkMatch = col.name.match(/^(.+)_id$/);
-        if (fkMatch && !col.isPK) {
-          const referencedTable = fkMatch[1].charAt(0).toUpperCase() + fkMatch[1].slice(1) + "s";
-          if (tables.some((t) => t.name === referencedTable)) {
-            code += `  ${referencedTable} ||--o{ ${table.name} : "has"\n`;
+        // If this column is a FK (marked by our schema detection)
+        if (col.isFK && col.name.toLowerCase().includes('_id')) {
+          // Extract the referenced table name from the FK column name
+          const fkMatch = col.name.match(/^(.+)_id$/i);
+          if (fkMatch) {
+            const baseName = fkMatch[1];
+            
+            // Try different naming conventions to find the referenced table
+            const possibleTableNames = [
+              // Plural forms
+              baseName.charAt(0).toUpperCase() + baseName.slice(1) + 's',
+              baseName.charAt(0).toUpperCase() + baseName.slice(1) + 'es',
+              baseName.toLowerCase() + 's',
+              baseName.toLowerCase() + 'es',
+              // Singular forms
+              baseName.charAt(0).toUpperCase() + baseName.slice(1),
+              baseName.toLowerCase(),
+              // Handle 'y' to 'ies' conversion
+              baseName.charAt(0).toUpperCase() + baseName.slice(1, -1) + 'ies',
+            ];
+            
+            // Find matching table
+            for (const refTableName of possibleTableNames) {
+              if (tables.some((t) => t.name.toLowerCase() === refTableName.toLowerCase())) {
+                const actualRefTable = tables.find((t) => t.name.toLowerCase() === refTableName.toLowerCase())?.name;
+                if (actualRefTable) {
+                  // Create unique relationship key to avoid duplicates
+                  const relKey = `${actualRefTable}-${table.name}`;
+                  if (!addedRelationships.has(relKey)) {
+                    // One-to-many relationship: Referenced table (one) ||--o{ Current table (many)
+                    code += `  ${actualRefTable} ||--o{ ${table.name} : "has"\n`;
+                    addedRelationships.add(relKey);
+                  }
+                  break;
+                }
+              }
+            }
           }
         }
       });
@@ -333,25 +372,80 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
     });
 
     // Add relationships based on flow type
+    const addedRelationships = new Set<string>();
+    
     if (flowType === 'hierarchical') {
-      // Hierarchical: strict parent-child relationships
+      // Hierarchical: strict parent-child relationships based on FKs
       tables.forEach((table) => {
         table.columns.forEach((col) => {
-          const fkMatch = col.name.match(/^(.+)_id$/);
-          if (fkMatch && !col.isPK) {
-            const referencedTable = fkMatch[1].charAt(0).toUpperCase() + fkMatch[1].slice(1) + "s";
-            if (tables.some((t) => t.name === referencedTable)) {
-              code += `  ${referencedTable} --> ${table.name}\n`;
+          if (col.isFK && col.name.toLowerCase().includes('_id')) {
+            const fkMatch = col.name.match(/^(.+)_id$/i);
+            if (fkMatch) {
+              const baseName = fkMatch[1];
+              
+              // Try different naming conventions
+              const possibleTableNames = [
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + 's',
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + 'es',
+                baseName.toLowerCase() + 's',
+                baseName.charAt(0).toUpperCase() + baseName.slice(1),
+              ];
+              
+              for (const refTableName of possibleTableNames) {
+                if (tables.some((t) => t.name.toLowerCase() === refTableName.toLowerCase())) {
+                  const actualRefTable = tables.find((t) => t.name.toLowerCase() === refTableName.toLowerCase())?.name;
+                  if (actualRefTable) {
+                    const relKey = `${actualRefTable}-${table.name}`;
+                    if (!addedRelationships.has(relKey)) {
+                      code += `  ${actualRefTable} --> ${table.name}\n`;
+                      addedRelationships.add(relKey);
+                    }
+                    break;
+                  }
+                }
+              }
             }
           }
         });
       });
     } else {
-      // Adaptive: more flexible connections
-      tables.forEach((table, i) => {
-        tables.forEach((otherTable, j) => {
-          if (i !== j && Math.random() > 0.7) { // Some adaptive connections
-            code += `  ${table.name} -.-> ${otherTable.name}\n`;
+      // Adaptive: show FK relationships with labeled solid arrows for better clarity
+      tables.forEach((table) => {
+        table.columns.forEach((col) => {
+          if (col.isFK && col.name.toLowerCase().includes('_id')) {
+            const fkMatch = col.name.match(/^(.+)_id$/i);
+            if (fkMatch) {
+              const baseName = fkMatch[1];
+              
+              // Comprehensive table name matching (same as hierarchical)
+              const possibleTableNames = [
+                // Plural forms
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + 's',
+                baseName.charAt(0).toUpperCase() + baseName.slice(1) + 'es',
+                baseName.toLowerCase() + 's',
+                baseName.toLowerCase() + 'es',
+                // Singular forms
+                baseName.charAt(0).toUpperCase() + baseName.slice(1),
+                baseName.toLowerCase(),
+                // Handle 'y' to 'ies' conversion
+                baseName.charAt(0).toUpperCase() + baseName.slice(1, -1) + 'ies',
+              ];
+              
+              for (const refTableName of possibleTableNames) {
+                if (tables.some((t) => t.name.toLowerCase() === refTableName.toLowerCase())) {
+                  const actualRefTable = tables.find((t) => t.name.toLowerCase() === refTableName.toLowerCase())?.name;
+                  if (actualRefTable) {
+                    const relKey = `${actualRefTable}-${table.name}`;
+                    if (!addedRelationships.has(relKey)) {
+                      // Use solid arrow with label for cleaner, more readable connections
+                      code += `  ${actualRefTable} -->|"${col.name}"| ${table.name}\n`;
+                      addedRelationships.add(relKey);
+                    }
+                    break;
+                  }
+                }
+              }
+            }
           }
         });
       });
@@ -393,7 +487,7 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
           name: col[1],
           type: col[2],
           isPK: col[5] === 1,
-          isFK: false,
+          isFK: col[6] === 1, // Use FK flag from enhanced schema
         }));
 
         tableStructures.push({ name: tableName, columns });
@@ -436,13 +530,39 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
     setIsEditing(false);
   };
 
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 300));
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 25, 400));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 25, 25));
   const handleReset = () => {
-    setZoom(100);
+    setZoom(300); // Reset to 300%
     setPanOffset({ x: 0, y: 0 });
     setSelectedTable(null);
   };
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().then(() => {
+        setIsFullscreen(true);
+      }).catch((err) => {
+        console.error('Error attempting to enable fullscreen:', err);
+      });
+    } else {
+      document.exitFullscreen().then(() => {
+        setIsFullscreen(false);
+      });
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   // Pan functionality
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -483,7 +603,7 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
     const mouseY = e.clientY - rect.top;
 
     const delta = e.deltaY > 0 ? -10 : 10;
-    const newZoom = Math.max(25, Math.min(300, zoom + delta));
+    const newZoom = Math.max(25, Math.min(400, zoom + delta));
 
     if (newZoom !== zoom) {
       // Zoom towards mouse position
@@ -548,7 +668,7 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
             </span>
             <button
               onClick={handleZoomIn}
-              disabled={zoom >= 300}
+              disabled={zoom >= 400}
               className="px-3 py-2 hover:bg-gray-50 disabled:opacity-50 text-sm transition-colors"
               title="Zoom In"
             >
@@ -562,6 +682,22 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
             title="Reset View"
           >
             Reset
+          </button>
+
+          <button
+            onClick={toggleFullscreen}
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            )}
           </button>
 
           <button
