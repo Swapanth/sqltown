@@ -7,6 +7,8 @@ from src.middleware import setup_cors
 from src.controllers import upload_router, health_router
 from src.auth.auth_router import router as auth_router
 from src.controllers.question_router import router as question_router
+from src.routes.progress import router as progress_router
+from src.routes.sql_executor import router as sql_router
 # 👇 ADD THESE IMPORTS PROPERLY
 from src.db.database import engine, Base
 import src.models  # This loads all models
@@ -43,6 +45,8 @@ app.include_router(upload_router)
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(question_router)
+app.include_router(progress_router)
+app.include_router(sql_router)
 
 
 @app.get("/")

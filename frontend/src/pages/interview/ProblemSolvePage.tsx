@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchQuestionById } from "../../services/questionService";
+import apiClient from "../../services/apiClient";
 
 interface SQLProblem {
   id: number;
@@ -109,56 +110,75 @@ ORDER BY
 
   console.log('Problem ID:', id);
 
- const handleRunCode = () => {
+ const handleRunCode = async () => {
+  if (!sqlCode.trim()) return;
+
   setIsRunning(true);
   setTestResult(null);
 
-  setTimeout(() => {
-    if (!sqlCode.toLowerCase().includes("select")) {
-      setTestResult("Please write a valid SQL SELECT query.");
-      setIsRunning(false);
-      return;
+  try {
+    const response = await apiClient.post("/api/sql/execute", {
+      question_id: safeProblem.id,
+      sql: sqlCode
+    });
+
+    const data = response.data;
+
+    if (data.error) {
+      setTestResult("❌ Error:\n" + data.error);
+    } else {
+      setTestResult(
+        data.passed
+          ? "✅ All test cases passed!"
+          : `❌ Some test cases failed\n\nDetails:\n${data.details
+              .map((d: any) =>
+                `Test Case ${d.test_case}: ${d.passed ? "Passed" : "Failed"}`
+              )
+              .join("\n")}`
+      );
     }
 
-    if (!safeProblem.testCases.length) {
-      setTestResult("No test cases available.");
-      setIsRunning(false);
-      return;
-    }
+  } catch (err) {
+    setTestResult("Execution failed.");
+  }
 
-   const testCase = safeProblem.testCases[0];
-
-const rows = testCase.expectedOutput;
-
-if (!rows || rows.length === 0) {
-  setTestResult("No expected output defined.");
   setIsRunning(false);
-  return;
-}
-
-const columns = Object.keys(rows[0]);
-
-setTestResult(`
-Query executed successfully!
-
-Returned ${rows.length} rows
-
-Expected Output:
-${columns.join(" | ")}
-
-${rows.map((row: any) => 
-  columns.map(col => row[col]).join(" | ")
-).join("\n")}
-`);
-
-    setIsRunning(false);
-  }, 700);
 };
 
-  const handleSubmit = () => {
-    console.log('Submitting SQL:', sqlCode);
-    alert('SQL query submitted for evaluation!');
-  };
+ const handleSubmit = async () => {
+  try {
+    const executeResponse = await apiClient.post("/api/sql/execute", {
+      question_id: safeProblem.id,
+      sql: sqlCode
+    });
+
+    const executeData = executeResponse.data;
+
+    if (executeData.error) {
+      alert("❌ " + executeData.error);
+      return;
+    }
+
+    if (!executeData.passed) {
+      alert("❌ Some test cases failed.");
+      return;
+    }
+
+    const progressResponse = await apiClient.post("/api/progress/submit", {
+      question_id: safeProblem.id,
+      time_taken: 60,
+      is_correct: true
+    });
+
+    const progressData = progressResponse.data;
+
+    alert(progressData.message);
+  } catch (error) {
+    alert("Failed to submit solution");
+  }
+};
+
+  
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {

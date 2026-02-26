@@ -16,7 +16,7 @@ class QuestionResponse(BaseModel):
     difficulty: str
     topics: List[str]
     companies: Optional[List[str]] = []
-    schema: Optional[Any] = Field(None, alias="schema")
+    schema_data: Optional[Any] = Field(None, alias="schema")
     examples: Optional[Any] = None
     hints: Optional[List[str]] = []
     solution: Optional[str] = None

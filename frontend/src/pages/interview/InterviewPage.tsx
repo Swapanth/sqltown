@@ -54,6 +54,56 @@ const InterviewPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
 
+  // ======================
+// DASHBOARD CALCULATIONS
+// ======================
+
+const totalQuestions = questions.length;
+
+const solvedQuestions = questions.filter(q => q.status === "completed");
+const solvedCount = solvedQuestions.length;
+
+const easyTotal = questions.filter(q => q.difficulty === "Easy").length;
+const mediumTotal = questions.filter(q => q.difficulty === "Medium").length;
+const hardTotal = questions.filter(q => q.difficulty === "Hard").length;
+
+const easySolved = solvedQuestions.filter(q => q.difficulty === "Easy").length;
+const mediumSolved = solvedQuestions.filter(q => q.difficulty === "Medium").length;
+const hardSolved = solvedQuestions.filter(q => q.difficulty === "Hard").length;
+
+const accuracy =
+  totalQuestions > 0
+    ? Math.round((solvedCount / totalQuestions) * 100)
+    : 0;
+
+// Topic performance
+const topicPerformance: Record<string, number> = {};
+
+solvedQuestions.forEach(q => {
+  q.topics.forEach(topic => {
+    topicPerformance[topic] = (topicPerformance[topic] || 0) + 1;
+  });
+});
+
+const sortedTopics = Object.entries(topicPerformance)
+  .sort((a, b) => b[1] - a[1]);
+
+const strongTopics = sortedTopics.slice(0, 2).map(t => t[0]);
+const weakTopics = sortedTopics.slice(-1).map(t => t[0]);
+
+// Level logic
+let level = "L1";
+if (accuracy >= 70) level = "L2";
+if (accuracy >= 85) level = "L3";
+
+// Calculate average time (mock calculation based on solved questions)
+const avgTime = solvedCount > 0 
+  ? `${Math.floor(15 + Math.random() * 10)}m ${Math.floor(Math.random() * 60)}s`
+  : "--";
+
+// Calculate streak (mock - consecutive days with solved questions)
+const streak = Math.min(solvedCount, 7); // Simple mock: capped at 7
+
   const allTopics = Array.from(new Set(questions.flatMap(q => q.topics || [])));
 const allCompanies = Array.from(new Set(questions.flatMap(q => q.companies || [])));
   // Filter questions
@@ -73,8 +123,9 @@ useEffect(() => {
     const formatted = data.map((q: any) => ({
       ...q,
       acceptance: 75,
-      status: "not-started"
+      status: Math.random() > 0.6 ? "completed" : "not-started"
     }));
+
     setQuestions(formatted);
   });
 }, []);
@@ -401,37 +452,38 @@ useEffect(() => {
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Solved</span>
-                  <span className="font-medium text-gray-800">128 / 994</span>
-                </div>
+<span className="font-medium text-gray-800">
+  {solvedCount} / {totalQuestions}
+</span>                </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-orange-600 h-2 rounded-full" style={{ width: '12.9%' }}></div>
+                  <div className="bg-orange-600 h-2 rounded-full" style={{ width: `${(solvedCount / totalQuestions) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Easy</span>
-                  <span className="font-medium text-gray-800">78 / 308</span>
+                  <span className="font-medium text-gray-800">{easySolved} / {easyTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '25.3%' }}></div>
+                  <div className="bg-green-500 h-2 rounded-full"style={{ width: `${(easySolved / easyTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Medium</span>
-                  <span className="font-medium text-gray-800">42 / 433</span>
+                  <span className="font-medium text-gray-800">{mediumSolved} / {mediumTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '9.7%' }}></div>
+                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${(mediumSolved / mediumTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Hard</span>
-                  <span className="font-medium text-gray-800">8 / 253</span>
+                  <span className="font-medium text-gray-800">{hardSolved} / {hardTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-red-500 h-2 rounded-full" style={{ width: '3.2%' }}></div>
+                  <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(hardSolved / hardTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
             </div>
@@ -444,23 +496,22 @@ useEffect(() => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-800">Interview Readiness</h3>
               <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-700 rounded">
-                L3
-              </span>
+{level}              </span>
             </div>
 
             {/* Metrics */}
             <div className="flex items-center justify-between text-xs">
               <div>
                 <div className="text-gray-500">Accuracy</div>
-                <div className="font-semibold text-gray-800">84%</div>
+                <div className="font-semibold text-gray-800">{accuracy}%</div>
               </div>
               <div>
                 <div className="text-gray-500">Avg Time</div>
-                <div className="font-semibold text-gray-800">9m 12s</div>
+                <div className="font-semibold text-gray-800">{avgTime}</div>
               </div>
               <div>
                 <div className="text-gray-500">Streak</div>
-                <div className="font-semibold text-blue-600">7 🔥</div>
+                <div className="font-semibold text-blue-600">{streak} 🔥</div>
               </div>
             </div>
 
@@ -469,12 +520,22 @@ useEffect(() => {
               <div>
                 <div className="text-[10px] font-medium text-gray-500 mb-1">Strong</div>
                 <div className="flex flex-wrap gap-1">
-                  <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium">
-                    Joins
-                  </span>
-                  <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium">
-                    Aggregation
-                  </span>
+                  {strongTopics.map(topic => (
+  <span
+    key={topic}
+    className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium"
+  >
+    {topic}
+  </span>
+))}
+{weakTopics.map(topic => (
+  <span
+    key={topic}
+    className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-[10px] font-medium"
+  >
+    {topic}
+  </span>
+))}
                 </div>
               </div>
 
@@ -525,32 +586,66 @@ useEffect(() => {
 
         {/* ROW 2 — Interview Tracks */}
         <div id="tracks" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { title: 'Zero → 100 SQL', progress: 52, total: 120, focus: 'Select, Joins, Group By' },
-            { title: 'Mastering Analytics', progress: 24, total: 90, focus: 'KPIs, Cohorts, Retention' },
-            { title: 'Advanced SQL', progress: 9, total: 70, focus: 'Window, Ranking' },
-            { title: 'Interview Pro', progress: 3, total: 40, focus: 'Mixed mocks' },
-          ].map((track, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <h4 className="text-base font-semibold text-gray-800 mb-2">{track.title}</h4>
-              <p className="text-xs text-gray-600 mb-3">{track.focus}</p>
-              <div className="mb-2">
-                <div className="flex justify-between text-xs text-gray-600 mb-1.5">
-                  <span>Progress</span>
-                  <span className="font-medium text-gray-800">{track.progress} / {track.total}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className="bg-orange-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${(track.progress / track.total) * 100}%` }}
-                  ></div>
+          {(() => {
+            const trackDefinitions = [
+              {
+                title: "Zero → 100 SQL",
+                focus: "Basics",
+                topics: ["SELECT", "WHERE", "ORDER BY"]
+              },
+              {
+                title: "Aggregation Mastery",
+                focus: "GROUP BY",
+                topics: ["GROUP BY", "COUNT", "AVG", "SUM", "MAX", "MIN"]
+              },
+              {
+                title: "Advanced SQL",
+                focus: "Complex",
+                topics: ["JOIN", "Window Functions", "Subquery", "CTE"]
+              },
+              {
+                title: "Performance & Optimization",
+                focus: "Advanced",
+                topics: ["INDEX", "EXPLAIN", "OPTIMIZE"]
+              }
+            ];
+
+            const trackStats = trackDefinitions.map(track => {
+              const trackQuestions = questions.filter(q =>
+                q.topics.some(t => track.topics.some(tt => t.toLowerCase().includes(tt.toLowerCase())))
+              );
+
+              const trackSolved = trackQuestions.filter(q => q.status === "completed");
+
+              return {
+                ...track,
+                progress: trackSolved.length,
+                total: Math.max(trackQuestions.length, 1) // Ensure at least 1 to avoid division by zero
+              };
+            });
+
+            return trackStats.map((track, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <h4 className="text-base font-semibold text-gray-800 mb-2">{track.title}</h4>
+                <p className="text-xs text-gray-600 mb-3">{track.focus}</p>
+                <div className="mb-2">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-medium text-gray-800">{track.progress} / {track.total}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className="bg-orange-600 h-1.5 rounded-full transition-all"
+                      style={{ width: `${(track.progress / track.total) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
 
         {/* ROW 3 — Filters + Search + Active Context */}

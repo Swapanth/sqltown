@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List, Optional
 
 
@@ -6,6 +6,12 @@ class Settings(BaseSettings):
     """
     Application settings loaded from environment variables
     """
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore"
+    )
+    
     # Server Configuration
     APP_NAME: str = "SQLTown API"
     PORT: int = 3000
@@ -24,7 +30,6 @@ class Settings(BaseSettings):
     COGNITO_ISSUER: str = ""
     
     # Database Configuration
-    # DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/sqltown"
     DATABASE_URL: str
     
     # CORS Configuration
@@ -36,10 +41,6 @@ class Settings(BaseSettings):
     # S3 Upload Configuration
     S3_PRESIGNED_URL_EXPIRATION: int = 300  # 5 minutes in seconds
     S3_UPLOAD_PREFIX: str = "resumes"
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 
 settings = Settings()
