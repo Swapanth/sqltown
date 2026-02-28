@@ -117,6 +117,7 @@ export interface City {
     dialect_id: number;
     dialect: SQLDialect;
     city_name: string;
+    user_name:string;
     city_description?: string;
     city_level: number;
     total_xp: number;
@@ -126,7 +127,7 @@ export interface City {
     is_public: boolean;
     created_at: string;
     last_updated_at: string;
-    buildings: CityBuilding[];
+        buildings: CityBuilding[];
 }
 
 export interface BuildingType {

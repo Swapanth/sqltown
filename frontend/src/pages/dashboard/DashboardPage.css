@@ -1,0 +1,171 @@
+/* Game-style Card Components */
+
+/* Main Game Card - Brown border with green background */
+.game-card {
+    background: linear-gradient(to bottom, #5a7a4a 0%, #4a6a3a 100%);
+    border: 5px solid #8B4513;
+    border-radius: 20px;
+    box-shadow: 
+        0 8px 0 #6B3410,
+        0 12px 20px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.game-card::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 16px;
+    background: linear-gradient(to bottom, #D2691E 0%, #8B4513 100%);
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Small Game Card */
+.game-card-small {
+    background: linear-gradient(to bottom, #5a7a4a 0%, #4a6a3a 100%);
+    border: 4px solid #8B4513;
+    border-radius: 16px;
+    box-shadow: 
+        0 6px 0 #6B3410,
+        0 8px 15px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Icon Card */
+.game-card-icon {
+    background: linear-gradient(to bottom, #5a7a4a 0%, #4a6a3a 100%);
+    border: 4px solid #8B4513;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 6px 0 #6B3410,
+        0 8px 15px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+.game-card-icon-small {
+    background: linear-gradient(to bottom, #5a7a4a 0%, #4a6a3a 100%);
+    border: 3px solid #8B4513;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 4px 0 #6B3410,
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Text Shadow for Game Style */
+.text-shadow-game {
+    text-shadow: 
+        2px 2px 0 rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation Button */
+.nav-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s ease;
+}
+
+.nav-button:hover {
+    transform: scale(1.1) translateY(-4px);
+}
+
+.nav-button-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(to bottom, #6a8a5a 0%, #5a7a4a 100%);
+    border: 4px solid #D2691E;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 6px 0 #8B4513,
+        0 8px 15px rgba(0, 0, 0, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.nav-button:hover .nav-button-icon {
+    box-shadow: 
+        0 8px 0 #8B4513,
+        0 12px 20px rgba(0, 0, 0, 0.5),
+        inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.nav-button-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 
+        1px 1px 0 rgba(0, 0, 0, 0.5),
+        0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    height: 12px;
+    background: linear-gradient(to bottom, #3a4a2a 0%, #2a3a1a 100%);
+    border: 2px solid #6B3410;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%);
+    border-radius: 6px;
+    box-shadow: 
+        0 0 10px rgba(76, 175, 80, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: width 0.3s ease;
+    animation: progressGlow 2s ease-in-out infinite;
+}
+
+@keyframes progressGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 10px rgba(76, 175, 80, 0.6),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        box-shadow: 
+            0 0 20px rgba(76, 175, 80, 0.9),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .game-card {
+        border-width: 4px;
+        border-radius: 16px;
+    }
+    
+    .nav-button-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .nav-button-label {
+        font-size: 0.75rem;
+    }
+}
