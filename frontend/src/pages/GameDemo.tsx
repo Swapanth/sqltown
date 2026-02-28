@@ -1,114 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GAME_LEVELS, GameLevel } from '../data/levels';
+import { GameLevelDatabase, QueryResult } from '../services/gameDatabase';
+import { initializeSqlJs } from '../services/sqlEngine';
 
-interface Level {
-  id: number;
-  title: string;
-  description: string;
-  sqlCommand: string;
-  expectedResult: string;
-  cityChange: string;
-  difficulty: 'green' | 'yellow' | 'orange' | 'blue';
-  isNew?: boolean;
+interface LevelState {
+  database: GameLevelDatabase | null;
+  isInitialized: boolean;
+  error: string | null;
 }
 
-const levels: Level[] = [
-  {
-    id: 1,
-    title: "Create City",
-    description: "CREATE DATABASE → land",
-    sqlCommand: "CREATE DATABASE vrindavan;",
-    expectedResult: "Database 'vrindavan' created successfully",
-    cityChange: "Empty land appears",
-    difficulty: 'green'
-  },
-  {
-    id: 2,
-    title: "Create Dharamshala",
-    description: "CREATE TABLE → building foundation",
-    sqlCommand: "CREATE TABLE dharamshala (\n  id INT PRIMARY KEY,\n  name TEXT,\n  capacity INT\n);",
-    expectedResult: "Table 'dharamshala' created",
-    cityChange: "Foundation appears",
-    difficulty: 'green'
-  },
-  {
-    id: 3,
-    title: "Build Dharamshala",
-    description: "INSERT → building appears",
-    sqlCommand: "INSERT INTO dharamshala (id, name, capacity)\nVALUES (1, 'Sacred Rest House', 50);",
-    expectedResult: "1 row inserted",
-    cityChange: "Dharamshala building rises",
-    difficulty: 'green'
-  },
-  {
-    id: 4,
-    title: "Add Pilgrims Table ⭐ NEW",
-    description: "CREATE TABLE pilgrims → population layer unlocked",
-    sqlCommand: "CREATE TABLE pilgrims (\n  id INT PRIMARY KEY,\n  name TEXT\n);",
-    expectedResult: "Table 'pilgrims' created",
-    cityChange: "Population layer unlocked",
-    difficulty: 'green',
-    isNew: true
-  },
-  {
-    id: 5,
-    title: "Populate Dharamshala ⭐ NEW",
-    description: "INSERT pilgrims → people appear near dharamshala",
-    sqlCommand: "INSERT INTO pilgrims (id, name)\nVALUES \n  (1, 'Radha'),\n  (2, 'Krishna');",
-    expectedResult: "2 rows inserted",
-    cityChange: "👉 City becomes alive - people appear!",
-    difficulty: 'yellow',
-    isNew: true
-  },
-  {
-    id: 6,
-    title: "Count Pilgrims ⭐ NEW",
-    description: "SELECT COUNT(*) → occupancy indicator appears",
-    sqlCommand: "SELECT COUNT(*) as total_pilgrims\nFROM pilgrims;",
-    expectedResult: "total_pilgrims: 2",
-    cityChange: "Occupancy indicator appears above dharamshala",
-    difficulty: 'yellow',
-    isNew: true
-  },
-  {
-    id: 7,
-    title: "Upgrade Dharamshala",
-    description: "UPDATE floors → taller building",
-    sqlCommand: "UPDATE dharamshala \nSET capacity = 100 \nWHERE id = 1;",
-    expectedResult: "1 row updated",
-    cityChange: "Dharamshala grows taller",
-    difficulty: 'yellow'
-  },
-  {
-    id: 8,
-    title: "Create Temple",
-    description: "CREATE TABLE temple → foundation",
-    sqlCommand: "CREATE TABLE temple (\n  id INT PRIMARY KEY,\n  name TEXT,\n  deity TEXT\n);",
-    expectedResult: "Table 'temple' created",
-    cityChange: "Temple foundation appears",
-    difficulty: 'orange'
-  },
-  {
-    id: 9,
-    title: "Connect Pilgrims to Temple ⭐ NEW RELATION",
-    description: "ALTER TABLE → path logic unlocked",
-    sqlCommand: "ALTER TABLE pilgrims \nADD COLUMN temple_id INT;",
-    expectedResult: "Column 'temple_id' added",
-    cityChange: "Path logic unlocked - connections visible",
-    difficulty: 'orange',
-    isNew: true
-  },
-  {
-    id: 10,
-    title: "Pilgrims Visit Temple ⭐ LIFE FLOW",
-    description: "UPDATE pilgrims → pilgrims move dharamshala → temple",
-    sqlCommand: "UPDATE pilgrims \nSET temple_id = 1 \nWHERE id IN (1, 2);",
-    expectedResult: "2 rows updated",
-    cityChange: "🎉 First active city - pilgrims move between buildings!",
-    difficulty: 'blue',
-    isNew: true
-  }
-];
+const levels: GameLevel[] = GAME_LEVELS;
+
+// Removed hardcoded levels array - now using imported GAME_LEVELS
 
 export const GameDemo: React.FC = () => {
   const [currentLevel, setCurrentLevel] = useState(1);
@@ -117,41 +21,134 @@ export const GameDemo: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [completedLevels, setCompletedLevels] = useState<number[]>([]);
   const [cityElements, setCityElements] = useState<string[]>([]);
+  const [levelState, setLevelState] = useState<LevelState>({
+    database: null,
+    isInitialized: false,
+    error: null,
+  });
+  const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
 
   const level = levels[currentLevel - 1];
 
-  const checkAnswer = () => {
-    const normalizedInput = userInput.trim().toLowerCase().replace(/\s+/g, ' ');
-    const normalizedExpected = level.sqlCommand.toLowerCase().replace(/\s+/g, ' ');
-    
-    const isMatch = normalizedInput === normalizedExpected;
-    setIsCorrect(isMatch);
-    setShowResult(true);
+  // Initialize SQL.js and current level database on mount and level change
+  useEffect(() => {
+    const initializeLevel = async () => {
+      try {
+        // Initialize sql.js library
+        await initializeSqlJs();
 
-    if (isMatch && !completedLevels.includes(currentLevel)) {
-      setCompletedLevels([...completedLevels, currentLevel]);
-      
-      // Add city elements based on level
-      setTimeout(() => {
-        setCityElements(prev => {
-          const newElements = [...prev];
-          switch (currentLevel) {
-            case 1: return ['land'];
-            case 2: return [...prev, 'foundation'];
-            case 3: return [...prev, 'dharamshala'];
-            case 4: return [...prev, 'population-layer'];
-            case 5: return [...prev, 'pilgrims'];
-            case 6: return [...prev, 'occupancy-indicator'];
-            case 7: return prev.map(el => el === 'dharamshala' ? 'dharamshala-upgraded' : el);
-            case 8: return [...prev, 'temple-foundation'];
-            case 9: return [...prev, 'paths'];
-            case 10: return [...prev, 'temple', 'active-movement'];
-            default: return prev;
-          }
+        // Create database for current level
+        const db = new GameLevelDatabase(currentLevel);
+        await db.initialize(level.schema);
+
+        // Close previous database if exists
+        if (levelState.database) {
+          await levelState.database.close();
+        }
+
+        setLevelState({
+          database: db,
+          isInitialized: true,
+          error: null,
         });
-      }, 1000);
+
+        // Clear previous inputs
+        setUserInput('');
+        setIsCorrect(null);
+        setShowResult(false);
+        setQueryResult(null);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('Failed to initialize level:', errorMessage);
+        setLevelState({
+          database: null,
+          isInitialized: false,
+          error: errorMessage,
+        });
+      }
+    };
+
+    initializeLevel();
+  }, [currentLevel, level.schema]);
+
+  const checkAnswer = useCallback(async () => {
+    if (!levelState.database || !levelState.isInitialized) {
+      setIsCorrect(false);
+      setShowResult(true);
+      setQueryResult({
+        success: false,
+        error: 'Database not initialized. Please refresh the page.',
+      });
+      return;
     }
-  };
+
+    setIsExecuting(true);
+
+    try {
+      // Execute the query
+      const result = await levelState.database.executeQuery(userInput);
+      setQueryResult(result);
+
+      // Validate the query against expected command
+      const validation = levelState.database.validateQueryExecution(
+        userInput,
+        level.sqlCommand
+      );
+
+      const isValid = validation.isValid && result.success;
+      setIsCorrect(isValid);
+      setShowResult(true);
+
+      // If correct, add city elements and reward
+      if (isValid && !completedLevels.includes(currentLevel)) {
+        setCompletedLevels([...completedLevels, currentLevel]);
+
+        // Add city elements based on level
+        setTimeout(() => {
+          setCityElements(prev => {
+            switch (currentLevel) {
+              case 1:
+                return ['land'];
+              case 2:
+                return [...prev, 'foundation'];
+              case 3:
+                return [...prev, 'dharamshala'];
+              case 4:
+                return [...prev, 'population-layer'];
+              case 5:
+                return [...prev, 'pilgrims'];
+              case 6:
+                return [...prev, 'occupancy-indicator'];
+              case 7:
+                return prev.map(el =>
+                  el === 'dharamshala' ? 'dharamshala-upgraded' : el
+                );
+              case 8:
+                return [...prev, 'temple-foundation'];
+              case 9:
+                return [...prev, 'paths'];
+              case 10:
+                return [...prev, 'temple', 'active-movement'];
+              default:
+                return prev;
+            }
+          });
+        }, 1000);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('Error executing query:', errorMessage);
+      setIsCorrect(false);
+      setShowResult(true);
+      setQueryResult({
+        success: false,
+        error: `Execution error: ${errorMessage}`,
+      });
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [levelState, userInput, level.sqlCommand, currentLevel, completedLevels]);
 
   const nextLevel = () => {
     if (currentLevel < levels.length) {
@@ -244,9 +241,10 @@ export const GameDemo: React.FC = () => {
               <div className="flex gap-3">
                 <button
                   onClick={checkAnswer}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={isExecuting || !levelState.isInitialized}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  Execute SQL
+                  {isExecuting ? 'Executing...' : 'Execute SQL'}
                 </button>
                 {isCorrect && (
                   <button
@@ -261,14 +259,14 @@ export const GameDemo: React.FC = () => {
 
               {/* Result */}
               <AnimatePresence>
-                {showResult && (
+                {showResult && queryResult && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     className={`mt-4 p-4 rounded-lg ${
-                      isCorrect 
-                        ? 'bg-green-50 border border-green-200' 
+                      isCorrect
+                        ? 'bg-green-50 border border-green-200'
                         : 'bg-red-50 border border-red-200'
                     }`}
                   >
@@ -279,15 +277,36 @@ export const GameDemo: React.FC = () => {
                         <span className="text-red-600">❌ Try again</span>
                       )}
                     </div>
-                    {isCorrect && (
+
+                    {queryResult.success ? (
                       <>
                         <p className="text-sm text-gray-700 mb-2">
-                          <strong>Result:</strong> {level.expectedResult}
+                          <strong>Result:</strong> {queryResult.message}
                         </p>
-                        <p className="text-sm text-blue-700 font-medium">
-                          🏙️ {level.cityChange}
-                        </p>
+                        {queryResult.selectResult && (
+                          <div className="text-xs text-gray-600 mb-2">
+                            <div className="font-mono">
+                              {queryResult.selectResult.columns.join(' | ')}
+                            </div>
+                            {queryResult.selectResult.rows.map(
+                              (row, idx) => (
+                                <div key={idx} className="font-mono">
+                                  {row.join(' | ')}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        )}
+                        {isCorrect && (
+                          <p className="text-sm text-blue-700 font-medium">
+                            🏙️ {level.cityChange}
+                          </p>
+                        )}
                       </>
+                    ) : (
+                      <p className="text-sm text-red-700">
+                        <strong>Error:</strong> {queryResult.error}
+                      </p>
                     )}
                   </motion.div>
                 )}

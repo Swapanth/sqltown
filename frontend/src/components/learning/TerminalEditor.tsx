@@ -3,21 +3,30 @@ import Editor from '@monaco-editor/react';
 import type { SQLDialect } from '../../models/types';
 import { Button } from '../common';
 
+export interface SQLRunEvent {
+    query: string;
+    timestamp: number;
+}
+
 interface TerminalEditorProps {
     value: string;
     onChange: (value: string) => void;
     dialect: SQLDialect;
     onRun: () => void;
+    onRunSQL?: (event: SQLRunEvent) => void;
     readOnly?: boolean;
     height?: string;
     isRunning?: boolean;
 }
+
+export type { TerminalEditorProps };
 
 export const TerminalEditor: React.FC<TerminalEditorProps> = ({
     value,
     onChange,
     dialect,
     onRun,
+    onRunSQL,
     readOnly = false,
     height = '300px',
     isRunning = false,
@@ -54,7 +63,15 @@ export const TerminalEditor: React.FC<TerminalEditorProps> = ({
                 </div>
                 <Button
                     size="sm"
-                    onClick={onRun}
+                    onClick={() => {
+                        onRun();
+                        if (onRunSQL) {
+                            onRunSQL({
+                                query: value,
+                                timestamp: Date.now(),
+                            });
+                        }
+                    }}
                     disabled={readOnly || isRunning}
                     isLoading={isRunning}
                     className="!bg-success hover:!bg-green-600"
