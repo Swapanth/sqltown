@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, Input } from '../../components/common';
+import { fetchQuestions } from "../../services/questionService";
 
 interface Question {
   id: number;
@@ -29,128 +30,6 @@ interface NavItem {
   children: NavChild[];
 }
 
-export const mockQuestions: Question[] = [
-  { id: 1, title: 'Find the top 3 customers by total order value', difficulty: 'Easy', topics: ['JOIN', 'GROUP BY', 'ORDER BY'], companies: ['Google', 'Amazon'], acceptance: 78.5, status: 'completed' },
-  { id: 2, title: 'Calculate running total of sales by month', difficulty: 'Medium', topics: ['Window Functions', 'Aggregation'], companies: ['Microsoft', 'Meta'], acceptance: 65.2, status: 'in-progress' },
-  { id: 3, title: 'Find employees who earn more than their managers', difficulty: 'Medium', topics: ['Self JOIN', 'Subquery'], companies: ['Apple', 'Netflix'], acceptance: 58.9, status: 'not-started' },
-  { id: 4, title: 'Rank products by sales within each category', difficulty: 'Hard', topics: ['Window Functions', 'RANK', 'PARTITION BY'], companies: ['Google', 'Amazon', 'Microsoft'], acceptance: 42.3, status: 'not-started' },
-  { id: 5, title: 'Find duplicate email addresses', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Meta'], acceptance: 82.1, status: 'completed' },
-  { id: 6, title: 'Calculate percentage of total sales per region', difficulty: 'Medium', topics: ['Window Functions', 'Aggregation'], companies: ['Amazon', 'Apple'], acceptance: 71.4, status: 'not-started' },
-
-  { id: 7, title: 'Find customers who never placed an order', difficulty: 'Easy', topics: ['LEFT JOIN', 'NULL'], companies: ['Google'], acceptance: 79.2, status: 'not-started' },
-  { id: 8, title: 'Get the second highest salary', difficulty: 'Easy', topics: ['ORDER BY', 'LIMIT'], companies: ['Amazon'], acceptance: 84.6, status: 'completed' },
-  { id: 9, title: 'Find the highest paid employee in each department', difficulty: 'Medium', topics: ['GROUP BY', 'MAX', 'JOIN'], companies: ['Microsoft'], acceptance: 69.1, status: 'not-started' },
-  { id: 10, title: 'Count orders per customer per year', difficulty: 'Easy', topics: ['GROUP BY', 'YEAR'], companies: ['Meta'], acceptance: 80.4, status: 'completed' },
-
-  { id: 11, title: 'Find products never sold', difficulty: 'Easy', topics: ['LEFT JOIN', 'NULL'], companies: ['Amazon'], acceptance: 77.5, status: 'not-started' },
-  { id: 12, title: 'Average salary by department', difficulty: 'Easy', topics: ['GROUP BY', 'AVG'], companies: ['Google'], acceptance: 88.2, status: 'completed' },
-  { id: 13, title: 'Top selling product per category', difficulty: 'Medium', topics: ['GROUP BY', 'MAX', 'JOIN'], companies: ['Amazon'], acceptance: 64.3, status: 'not-started' },
-  { id: 14, title: 'Employees hired in last 6 months', difficulty: 'Easy', topics: ['DATE', 'WHERE'], companies: ['Meta'], acceptance: 85.1, status: 'completed' },
-  { id: 15, title: 'Find customers with more than 5 orders', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Google'], acceptance: 83.7, status: 'completed' },
-
-  { id: 16, title: 'Running total per customer', difficulty: 'Medium', topics: ['Window Functions', 'PARTITION'], companies: ['Microsoft'], acceptance: 60.2, status: 'not-started' },
-  { id: 17, title: 'Dense rank employees by salary', difficulty: 'Medium', topics: ['DENSE_RANK', 'Window'], companies: ['Amazon'], acceptance: 62.8, status: 'not-started' },
-  { id: 18, title: 'Monthly revenue growth rate', difficulty: 'Hard', topics: ['LAG', 'Window'], companies: ['Netflix'], acceptance: 45.3, status: 'not-started' },
-  { id: 19, title: 'Customers with consecutive orders', difficulty: 'Hard', topics: ['Window', 'LAG'], companies: ['Meta'], acceptance: 40.7, status: 'not-started' },
-  { id: 20, title: 'Find gaps in order dates', difficulty: 'Hard', topics: ['LEAD', 'Window'], companies: ['Amazon'], acceptance: 39.9, status: 'not-started' },
-
-  { id: 21, title: 'Total sales per day', difficulty: 'Easy', topics: ['GROUP BY'], companies: ['Google'], acceptance: 90.2, status: 'completed' },
-  { id: 22, title: 'Top 5 products by revenue', difficulty: 'Easy', topics: ['ORDER BY', 'LIMIT'], companies: ['Amazon'], acceptance: 86.9, status: 'completed' },
-  { id: 23, title: 'Customers with highest single order', difficulty: 'Medium', topics: ['MAX', 'JOIN'], companies: ['Meta'], acceptance: 66.2, status: 'not-started' },
-  { id: 24, title: 'Department with highest avg salary', difficulty: 'Medium', topics: ['GROUP BY', 'AVG'], companies: ['Microsoft'], acceptance: 63.5, status: 'not-started' },
-  { id: 25, title: 'Find duplicate phone numbers', difficulty: 'Easy', topics: ['GROUP BY', 'HAVING'], companies: ['Google'], acceptance: 82.9, status: 'completed' },
-
-  { id: 26, title: 'Find customers with orders in every month', difficulty: 'Hard', topics: ['GROUP BY', 'COUNT DISTINCT'], companies: ['Amazon'], acceptance: 41.5, status: 'not-started' },
-  { id: 27, title: 'Employees with same salary', difficulty: 'Easy', topics: ['SELF JOIN'], companies: ['Meta'], acceptance: 79.6, status: 'completed' },
-  { id: 28, title: 'Median salary', difficulty: 'Hard', topics: ['Window', 'Percentile'], companies: ['Netflix'], acceptance: 37.4, status: 'not-started' },
-  { id: 29, title: 'Nth highest salary', difficulty: 'Medium', topics: ['ORDER', 'LIMIT'], companies: ['Amazon'], acceptance: 70.3, status: 'not-started' },
-  { id: 30, title: 'Sales per quarter', difficulty: 'Easy', topics: ['DATE', 'GROUP'], companies: ['Google'], acceptance: 87.1, status: 'completed' },
-
-  { id: 31, title: 'Top customer per region', difficulty: 'Medium', topics: ['GROUP', 'JOIN'], companies: ['Amazon'], acceptance: 67.8, status: 'not-started' },
-  { id: 32, title: 'Lowest salary per department', difficulty: 'Easy', topics: ['MIN', 'GROUP'], companies: ['Meta'], acceptance: 84.5, status: 'completed' },
-  { id: 33, title: 'Customers with no activity 1 year', difficulty: 'Medium', topics: ['DATE', 'JOIN'], companies: ['Netflix'], acceptance: 61.9, status: 'not-started' },
-  { id: 34, title: 'Average order value per customer', difficulty: 'Easy', topics: ['AVG', 'GROUP'], companies: ['Amazon'], acceptance: 88.8, status: 'completed' },
-  { id: 35, title: 'Employees older than manager', difficulty: 'Medium', topics: ['SELF JOIN'], companies: ['Google'], acceptance: 65.9, status: 'not-started' },
-
-  { id: 36, title: 'Top 3 salaries per department', difficulty: 'Hard', topics: ['RANK', 'Window'], companies: ['Microsoft'], acceptance: 43.6, status: 'not-started' },
-  { id: 37, title: 'Rolling 7 day revenue', difficulty: 'Hard', topics: ['Window'], companies: ['Amazon'], acceptance: 39.2, status: 'not-started' },
-  { id: 38, title: 'Customers with increasing purchases', difficulty: 'Hard', topics: ['LAG'], companies: ['Meta'], acceptance: 36.8, status: 'not-started' },
-  { id: 39, title: 'Daily active users', difficulty: 'Easy', topics: ['COUNT', 'DATE'], companies: ['Google'], acceptance: 91.3, status: 'completed' },
-  { id: 40, title: 'Monthly active users', difficulty: 'Easy', topics: ['COUNT', 'DATE'], companies: ['Meta'], acceptance: 90.4, status: 'completed' },
-
-  { id: 41, title: 'Churned customers', difficulty: 'Medium', topics: ['DATE', 'JOIN'], companies: ['Netflix'], acceptance: 62.7, status: 'not-started' },
-  { id: 42, title: 'First order date per customer', difficulty: 'Easy', topics: ['MIN', 'GROUP'], companies: ['Amazon'], acceptance: 89.5, status: 'completed' },
-  { id: 43, title: 'Last login per user', difficulty: 'Easy', topics: ['MAX', 'GROUP'], companies: ['Google'], acceptance: 92.2, status: 'completed' },
-  { id: 44, title: 'Users with multiple devices', difficulty: 'Medium', topics: ['COUNT', 'GROUP'], companies: ['Meta'], acceptance: 68.4, status: 'not-started' },
-  { id: 45, title: 'Revenue by country', difficulty: 'Easy', topics: ['GROUP'], companies: ['Amazon'], acceptance: 87.9, status: 'completed' },
-
-  { id: 46, title: 'Top category per region', difficulty: 'Medium', topics: ['GROUP', 'JOIN'], companies: ['Google'], acceptance: 64.1, status: 'not-started' },
-  { id: 47, title: 'User retention cohorts', difficulty: 'Hard', topics: ['Window', 'DATE'], companies: ['Meta'], acceptance: 35.9, status: 'not-started' },
-  { id: 48, title: 'Average session duration', difficulty: 'Easy', topics: ['AVG'], companies: ['Netflix'], acceptance: 88.6, status: 'completed' },
-  { id: 49, title: 'Peak traffic hour', difficulty: 'Medium', topics: ['GROUP', 'DATE'], companies: ['Google'], acceptance: 69.3, status: 'not-started' },
-  { id: 50, title: 'Orders above avg value', difficulty: 'Medium', topics: ['Subquery'], companies: ['Amazon'], acceptance: 72.6, status: 'not-started' },
-
-  { id: 51, title: 'Employees hired per year', difficulty: 'Easy', topics: ['GROUP', 'DATE'], companies: ['Microsoft'], acceptance: 89.1, status: 'completed' },
-  { id: 52, title: 'Most common salary', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 63.2, status: 'not-started' },
-  { id: 53, title: 'Revenue cumulative sum', difficulty: 'Medium', topics: ['Window'], companies: ['Amazon'], acceptance: 67.5, status: 'not-started' },
-  { id: 54, title: 'Sales rank by month', difficulty: 'Medium', topics: ['RANK'], companies: ['Google'], acceptance: 66.8, status: 'not-started' },
-  { id: 55, title: 'Top referrer per user', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 41.2, status: 'not-started' },
-
-  { id: 56, title: 'Orders per weekday', difficulty: 'Easy', topics: ['GROUP', 'DATE'], companies: ['Amazon'], acceptance: 90.8, status: 'completed' },
-  { id: 57, title: 'Revenue per device type', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 88.4, status: 'completed' },
-  { id: 58, title: 'Most popular product per month', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 65.7, status: 'not-started' },
-  { id: 59, title: 'Users with no purchases', difficulty: 'Easy', topics: ['LEFT JOIN'], companies: ['Amazon'], acceptance: 85.9, status: 'completed' },
-  { id: 60, title: 'Revenue change MoM', difficulty: 'Medium', topics: ['LAG'], companies: ['Netflix'], acceptance: 61.3, status: 'not-started' },
-
-  { id: 61, title: 'Top city per country', difficulty: 'Medium', topics: ['GROUP'], companies: ['Google'], acceptance: 63.9, status: 'not-started' },
-  { id: 62, title: 'Customers with refunds', difficulty: 'Easy', topics: ['JOIN'], companies: ['Amazon'], acceptance: 87.6, status: 'completed' },
-  { id: 63, title: 'Refund rate per product', difficulty: 'Medium', topics: ['GROUP'], companies: ['Meta'], acceptance: 64.7, status: 'not-started' },
-  { id: 64, title: 'Longest active user streak', difficulty: 'Hard', topics: ['Window'], companies: ['Netflix'], acceptance: 38.6, status: 'not-started' },
-  { id: 65, title: 'Average basket size', difficulty: 'Easy', topics: ['AVG'], companies: ['Amazon'], acceptance: 89.7, status: 'completed' },
-
-  { id: 66, title: 'Products bought together', difficulty: 'Hard', topics: ['SELF JOIN'], companies: ['Google'], acceptance: 44.9, status: 'not-started' },
-  { id: 67, title: 'User lifetime value', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 40.2, status: 'not-started' },
-  { id: 68, title: 'Repeat purchase rate', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 69.8, status: 'not-started' },
-  { id: 69, title: 'Top search keyword', difficulty: 'Easy', topics: ['COUNT'], companies: ['Google'], acceptance: 92.7, status: 'completed' },
-  { id: 70, title: 'Click through rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Meta'], acceptance: 66.1, status: 'not-started' },
-
-  { id: 71, title: 'Ad impressions per campaign', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 91.5, status: 'completed' },
-  { id: 72, title: 'Top campaign by ROI', difficulty: 'Hard', topics: ['Window'], companies: ['Meta'], acceptance: 42.7, status: 'not-started' },
-  { id: 73, title: 'Avg delivery time', difficulty: 'Easy', topics: ['AVG'], companies: ['Amazon'], acceptance: 88.3, status: 'completed' },
-  { id: 74, title: 'Delayed orders rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Amazon'], acceptance: 67.2, status: 'not-started' },
-  { id: 75, title: 'Top warehouse by volume', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 65.4, status: 'not-started' },
-
-  { id: 76, title: 'Stockout frequency', difficulty: 'Medium', topics: ['GROUP'], companies: ['Amazon'], acceptance: 63.7, status: 'not-started' },
-  { id: 77, title: 'Supplier lead time', difficulty: 'Medium', topics: ['AVG'], companies: ['Amazon'], acceptance: 64.5, status: 'not-started' },
-  { id: 78, title: 'Top supplier per category', difficulty: 'Hard', topics: ['RANK'], companies: ['Amazon'], acceptance: 41.8, status: 'not-started' },
-  { id: 79, title: 'Customer acquisition cost', difficulty: 'Hard', topics: ['JOIN'], companies: ['Meta'], acceptance: 39.1, status: 'not-started' },
-  { id: 80, title: 'Marketing spend per channel', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 90.9, status: 'completed' },
-
-  { id: 81, title: 'Revenue per employee', difficulty: 'Medium', topics: ['JOIN'], companies: ['Microsoft'], acceptance: 68.6, status: 'not-started' },
-  { id: 82, title: 'Top office by headcount', difficulty: 'Easy', topics: ['GROUP'], companies: ['Microsoft'], acceptance: 87.4, status: 'completed' },
-  { id: 83, title: 'Attrition rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Microsoft'], acceptance: 66.9, status: 'not-started' },
-  { id: 84, title: 'Promotion rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Meta'], acceptance: 65.3, status: 'not-started' },
-  { id: 85, title: 'Gender pay gap', difficulty: 'Hard', topics: ['AVG'], companies: ['Google'], acceptance: 43.1, status: 'not-started' },
-
-  { id: 86, title: 'Overtime hours per dept', difficulty: 'Easy', topics: ['SUM'], companies: ['Microsoft'], acceptance: 88.9, status: 'completed' },
-  { id: 87, title: 'Project cost overrun', difficulty: 'Medium', topics: ['CASE'], companies: ['Amazon'], acceptance: 67.6, status: 'not-started' },
-  { id: 88, title: 'Top project by margin', difficulty: 'Hard', topics: ['RANK'], companies: ['Microsoft'], acceptance: 41.9, status: 'not-started' },
-  { id: 89, title: 'Budget utilization', difficulty: 'Medium', topics: ['SUM'], companies: ['Meta'], acceptance: 69.2, status: 'not-started' },
-  { id: 90, title: 'Expense per category', difficulty: 'Easy', topics: ['GROUP'], companies: ['Google'], acceptance: 91.1, status: 'completed' },
-
-  { id: 91, title: 'Fraudulent transactions', difficulty: 'Hard', topics: ['CASE'], companies: ['PayPal'], acceptance: 38.2, status: 'not-started' },
-  { id: 92, title: 'Chargeback rate', difficulty: 'Medium', topics: ['CASE'], companies: ['Stripe'], acceptance: 64.8, status: 'not-started' },
-  { id: 93, title: 'Top merchant by volume', difficulty: 'Medium', topics: ['GROUP'], companies: ['PayPal'], acceptance: 66.5, status: 'not-started' },
-  { id: 94, title: 'Avg transaction value', difficulty: 'Easy', topics: ['AVG'], companies: ['Stripe'], acceptance: 89.3, status: 'completed' },
-  { id: 95, title: 'Daily transaction count', difficulty: 'Easy', topics: ['COUNT'], companies: ['PayPal'], acceptance: 92.4, status: 'completed' },
-
-  { id: 96, title: 'Active merchants', difficulty: 'Easy', topics: ['COUNT'], companies: ['Stripe'], acceptance: 90.6, status: 'completed' },
-  { id: 97, title: 'Dormant accounts', difficulty: 'Medium', topics: ['DATE'], companies: ['PayPal'], acceptance: 65.7, status: 'not-started' },
-  { id: 98, title: 'Top region by revenue', difficulty: 'Easy', topics: ['GROUP'], companies: ['Stripe'], acceptance: 88.7, status: 'completed' },
-  { id: 99, title: 'Cross border transactions', difficulty: 'Medium', topics: ['CASE'], companies: ['PayPal'], acceptance: 67.1, status: 'not-started' },
-  { id: 100, title: 'Currency conversion impact', difficulty: 'Hard', topics: ['JOIN'], companies: ['Stripe'], acceptance: 40.5, status: 'not-started' }
-];
-
 const InterviewPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,7 +40,7 @@ const InterviewPage: React.FC = () => {
   const [isSideNavCollapsed, setIsSideNavCollapsed] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState<ActiveNavItemId>('overview');
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -175,20 +54,81 @@ const InterviewPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
 
-  const allTopics = Array.from(new Set(mockQuestions.flatMap(q => q.topics)));
-  const allCompanies = Array.from(new Set(mockQuestions.flatMap(q => q.companies || [])));
+  // ======================
+// DASHBOARD CALCULATIONS
+// ======================
 
-  // Filter questions
-  let filteredQuestions = mockQuestions.filter(q => {
-    const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTopic = !selectedTopic || q.topics.includes(selectedTopic);
-    const matchesCompany = !selectedCompany || (q.companies && q.companies.includes(selectedCompany));
-    const matchesDifficulty = !selectedDifficulty || q.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
-    const matchesStatus = statusFilter === 'all' || q.status === statusFilter;
-    const matchesDifficultyFilter = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
+const totalQuestions = questions.length;
 
-    return matchesSearch && matchesTopic && matchesCompany && matchesDifficulty && matchesStatus && matchesDifficultyFilter;
+const solvedQuestions = questions.filter(q => q.status === "completed");
+const solvedCount = solvedQuestions.length;
+
+const easyTotal = questions.filter(q => q.difficulty === "Easy").length;
+const mediumTotal = questions.filter(q => q.difficulty === "Medium").length;
+const hardTotal = questions.filter(q => q.difficulty === "Hard").length;
+
+const easySolved = solvedQuestions.filter(q => q.difficulty === "Easy").length;
+const mediumSolved = solvedQuestions.filter(q => q.difficulty === "Medium").length;
+const hardSolved = solvedQuestions.filter(q => q.difficulty === "Hard").length;
+
+const accuracy =
+  totalQuestions > 0
+    ? Math.round((solvedCount / totalQuestions) * 100)
+    : 0;
+
+// Topic performance
+const topicPerformance: Record<string, number> = {};
+
+solvedQuestions.forEach(q => {
+  q.topics.forEach(topic => {
+    topicPerformance[topic] = (topicPerformance[topic] || 0) + 1;
   });
+});
+
+const sortedTopics = Object.entries(topicPerformance)
+  .sort((a, b) => b[1] - a[1]);
+
+const strongTopics = sortedTopics.slice(0, 2).map(t => t[0]);
+const weakTopics = sortedTopics.slice(-1).map(t => t[0]);
+
+// Level logic
+let level = "L1";
+if (accuracy >= 70) level = "L2";
+if (accuracy >= 85) level = "L3";
+
+// Calculate average time (mock calculation based on solved questions)
+const avgTime = solvedCount > 0 
+  ? `${Math.floor(15 + Math.random() * 10)}m ${Math.floor(Math.random() * 60)}s`
+  : "--";
+
+// Calculate streak (mock - consecutive days with solved questions)
+const streak = Math.min(solvedCount, 7); // Simple mock: capped at 7
+
+  const allTopics = Array.from(new Set(questions.flatMap(q => q.topics || [])));
+const allCompanies = Array.from(new Set(questions.flatMap(q => q.companies || [])));
+  // Filter questions
+  let filteredQuestions = questions.filter(q => {
+  const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesTopic = !selectedTopic || q.topics.includes(selectedTopic);
+  const matchesCompany = !selectedCompany || (q.companies && q.companies.includes(selectedCompany));
+  const matchesDifficulty = !selectedDifficulty || q.difficulty === selectedDifficulty;
+  const matchesStatus = statusFilter === 'all' || q.status === statusFilter;
+  const matchesDifficultyFilter = difficultyFilter === 'all' || q.difficulty === difficultyFilter;
+
+  return matchesSearch && matchesTopic && matchesCompany && matchesDifficulty && matchesStatus && matchesDifficultyFilter;
+});
+
+useEffect(() => {
+  fetchQuestions().then((data) => {
+    const formatted = data.map((q: any) => ({
+      ...q,
+      acceptance: 75,
+      status: Math.random() > 0.6 ? "completed" : "not-started"
+    }));
+
+    setQuestions(formatted);
+  });
+}, []);
 
   // Sort questions
   if (sortColumn) {
@@ -512,37 +452,38 @@ const InterviewPage: React.FC = () => {
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Solved</span>
-                  <span className="font-medium text-gray-800">128 / 994</span>
-                </div>
+<span className="font-medium text-gray-800">
+  {solvedCount} / {totalQuestions}
+</span>                </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-orange-600 h-2 rounded-full" style={{ width: '12.9%' }}></div>
+                  <div className="bg-orange-600 h-2 rounded-full" style={{ width: `${(solvedCount / totalQuestions) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Easy</span>
-                  <span className="font-medium text-gray-800">78 / 308</span>
+                  <span className="font-medium text-gray-800">{easySolved} / {easyTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '25.3%' }}></div>
+                  <div className="bg-green-500 h-2 rounded-full"style={{ width: `${(easySolved / easyTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Medium</span>
-                  <span className="font-medium text-gray-800">42 / 433</span>
+                  <span className="font-medium text-gray-800">{mediumSolved} / {mediumTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '9.7%' }}></div>
+                  <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${(mediumSolved / mediumTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-sm text-gray-600 mb-1.5">
                   <span>Hard</span>
-                  <span className="font-medium text-gray-800">8 / 253</span>
+                  <span className="font-medium text-gray-800">{hardSolved} / {hardTotal}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-red-500 h-2 rounded-full" style={{ width: '3.2%' }}></div>
+                  <div className="bg-red-500 h-2 rounded-full" style={{ width: `${(hardSolved / hardTotal) * 100 || 0}%` }}></div>
                 </div>
               </div>
             </div>
@@ -555,23 +496,22 @@ const InterviewPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-800">Interview Readiness</h3>
               <span className="px-2 py-0.5 text-xs font-semibold bg-orange-100 text-orange-700 rounded">
-                L3
-              </span>
+{level}              </span>
             </div>
 
             {/* Metrics */}
             <div className="flex items-center justify-between text-xs">
               <div>
                 <div className="text-gray-500">Accuracy</div>
-                <div className="font-semibold text-gray-800">84%</div>
+                <div className="font-semibold text-gray-800">{accuracy}%</div>
               </div>
               <div>
                 <div className="text-gray-500">Avg Time</div>
-                <div className="font-semibold text-gray-800">9m 12s</div>
+                <div className="font-semibold text-gray-800">{avgTime}</div>
               </div>
               <div>
                 <div className="text-gray-500">Streak</div>
-                <div className="font-semibold text-blue-600">7 🔥</div>
+                <div className="font-semibold text-blue-600">{streak} 🔥</div>
               </div>
             </div>
 
@@ -580,12 +520,22 @@ const InterviewPage: React.FC = () => {
               <div>
                 <div className="text-[10px] font-medium text-gray-500 mb-1">Strong</div>
                 <div className="flex flex-wrap gap-1">
-                  <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium">
-                    Joins
-                  </span>
-                  <span className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium">
-                    Aggregation
-                  </span>
+                  {strongTopics.map(topic => (
+  <span
+    key={topic}
+    className="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-medium"
+  >
+    {topic}
+  </span>
+))}
+{weakTopics.map(topic => (
+  <span
+    key={topic}
+    className="px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded text-[10px] font-medium"
+  >
+    {topic}
+  </span>
+))}
                 </div>
               </div>
 
@@ -636,32 +586,66 @@ const InterviewPage: React.FC = () => {
 
         {/* ROW 2 — Interview Tracks */}
         <div id="tracks" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { title: 'Zero → 100 SQL', progress: 52, total: 120, focus: 'Select, Joins, Group By' },
-            { title: 'Mastering Analytics', progress: 24, total: 90, focus: 'KPIs, Cohorts, Retention' },
-            { title: 'Advanced SQL', progress: 9, total: 70, focus: 'Window, Ranking' },
-            { title: 'Interview Pro', progress: 3, total: 40, focus: 'Mixed mocks' },
-          ].map((track, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <h4 className="text-base font-semibold text-gray-800 mb-2">{track.title}</h4>
-              <p className="text-xs text-gray-600 mb-3">{track.focus}</p>
-              <div className="mb-2">
-                <div className="flex justify-between text-xs text-gray-600 mb-1.5">
-                  <span>Progress</span>
-                  <span className="font-medium text-gray-800">{track.progress} / {track.total}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    className="bg-orange-600 h-1.5 rounded-full transition-all"
-                    style={{ width: `${(track.progress / track.total) * 100}%` }}
-                  ></div>
+          {(() => {
+            const trackDefinitions = [
+              {
+                title: "Zero → 100 SQL",
+                focus: "Basics",
+                topics: ["SELECT", "WHERE", "ORDER BY"]
+              },
+              {
+                title: "Aggregation Mastery",
+                focus: "GROUP BY",
+                topics: ["GROUP BY", "COUNT", "AVG", "SUM", "MAX", "MIN"]
+              },
+              {
+                title: "Advanced SQL",
+                focus: "Complex",
+                topics: ["JOIN", "Window Functions", "Subquery", "CTE"]
+              },
+              {
+                title: "Performance & Optimization",
+                focus: "Advanced",
+                topics: ["INDEX", "EXPLAIN", "OPTIMIZE"]
+              }
+            ];
+
+            const trackStats = trackDefinitions.map(track => {
+              const trackQuestions = questions.filter(q =>
+                q.topics.some(t => track.topics.some(tt => t.toLowerCase().includes(tt.toLowerCase())))
+              );
+
+              const trackSolved = trackQuestions.filter(q => q.status === "completed");
+
+              return {
+                ...track,
+                progress: trackSolved.length,
+                total: Math.max(trackQuestions.length, 1) // Ensure at least 1 to avoid division by zero
+              };
+            });
+
+            return trackStats.map((track, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <h4 className="text-base font-semibold text-gray-800 mb-2">{track.title}</h4>
+                <p className="text-xs text-gray-600 mb-3">{track.focus}</p>
+                <div className="mb-2">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1.5">
+                    <span>Progress</span>
+                    <span className="font-medium text-gray-800">{track.progress} / {track.total}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5">
+                    <div
+                      className="bg-orange-600 h-1.5 rounded-full transition-all"
+                      style={{ width: `${(track.progress / track.total) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
 
         {/* ROW 3 — Filters + Search + Active Context */}

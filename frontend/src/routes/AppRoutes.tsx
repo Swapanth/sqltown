@@ -114,9 +114,9 @@ export const AppRoutes: React.FC = () => {
           }
         />
         <Route
-          path="/practice/:dbId"
-          element={<PracticePage />}
-        />
+  path="/interview/problem/:id"
+  element={<ProblemSolvePage key={window.location.pathname} />}
+/>
         <Route
         path="/practice"
           element={<PracticeListPage />}
