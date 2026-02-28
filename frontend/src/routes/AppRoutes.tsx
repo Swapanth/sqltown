@@ -4,6 +4,7 @@ import { LearningPathsPage } from '../pages/learning/LearningPathsPage';
 import { InteractiveLessonPage } from '../pages/learning/InteractiveLessonPage';
 import { QuestsPage } from '../pages/quests/QuestsPage';
 import { LeaderboardPage } from '../pages/community/LeaderboardPage';
+import MarketPage from '../pages/market/MarketPage';
 import { getLessonById } from '../data/mockLearningPaths';
 import { Documentation } from '../pages/documentation/documentation';
 import { LoginPage } from '../pages/auth/LoginPage';
@@ -73,6 +74,14 @@ export const AppRoutes: React.FC = () => {
           element={
             
               <LeaderboardPage />
+            
+          }
+        />
+        <Route
+          path="/market"
+          element={
+            
+              <MarketPage />
             
           }
         />
