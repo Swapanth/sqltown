@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GAME_LEVELS, GameLevel } from '../data/levels';
-import { GameLevelDatabase, QueryResult } from '../services/gameDatabase';
+import { GAME_LEVELS, type GameLevel } from '../data/levels';
+import { GameLevelDatabase, type QueryResult } from '../services/gameDatabase';
 import { initializeSqlJs } from '../services/sqlEngine';
 
 interface LevelState {

@@ -1,4 +1,4 @@
-import { GameLevelSchema } from '../services/gameDatabase';
+import type { GameLevelSchema } from '../services/gameDatabase';
 
 export interface GameLevel {
   id: number;
