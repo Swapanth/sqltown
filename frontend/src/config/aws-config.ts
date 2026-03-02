@@ -1,23 +1,37 @@
-import { Amplify } from 'aws-amplify';
+// import { Amplify } from 'aws-amplify';
 
-const awsConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
-      userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
-      loginWith: {
-        oauth: {
-          domain: import.meta.env.VITE_COGNITO_DOMAIN || '',
-          scopes: ['openid', 'email', 'profile'],
-          redirectSignIn: [import.meta.env.VITE_REDIRECT_URI || window.location.origin + '/callback'],
-          redirectSignOut: [window.location.origin],
-          responseType: 'code',
-        },
-      },
-    },
-  },
-};
+// // Check if Cognito is configured
+// const userPoolId = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
+// const userPoolClientId = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
+// const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN || '';
 
-Amplify.configure(awsConfig);
+// const isCognitoConfigured = userPoolId && userPoolClientId && cognitoDomain;
 
-export default awsConfig;
+// const awsConfig: any = {};
+
+// // Only configure Cognito if credentials are provided
+// if (isCognitoConfigured) {
+//   awsConfig.Auth = {
+//     Cognito: {
+//       userPoolId: userPoolId,
+//       userPoolClientId: userPoolClientId,
+//       loginWith: {
+//         oauth: {
+//           domain: cognitoDomain,
+//           scopes: ['openid', 'email', 'profile'],
+//           redirectSignIn: [import.meta.env.VITE_REDIRECT_URI || window.location.origin + '/callback'],
+//           redirectSignOut: [window.location.origin],
+//           responseType: 'code',
+//         },
+//       },
+//     },
+//   };
+  
+//   Amplify.configure(awsConfig);
+//   console.log('✅ AWS Cognito configured');
+// } else {
+//   console.warn('⚠️ AWS Cognito not configured - authentication disabled');
+// }
+
+// export default awsConfig;
+// export { isCognitoConfigured };

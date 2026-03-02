@@ -1,18 +1,130 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Dict
+from datetime import datetime, timedelta
+import uuid
+import bcrypt
+from jose import jwt
 from src.auth.dependencies import get_current_user, get_current_user_with_db
 from src.auth.user_service import UserService
 from src.db.database import get_db
 from src.models.user import User
-from pydantic import BaseModel
+from src.config.settings import settings
+from pydantic import BaseModel, EmailStr
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+
+# JWT Settings
+SECRET_KEY = settings.DATABASE_URL  # Use a proper secret in production
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+
+class SignupRequest(BaseModel):
+    email: EmailStr
+    password: str
+    name: str | None = None
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: Dict
 
 class ProfileUpdate(BaseModel):
     name: str | None = None
     bio: str | None = None
     phone_number: str | None = None
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against a hashed password"""
+    # Truncate password to 72 bytes if necessary (bcrypt limit)
+    password_bytes = plain_password.encode('utf-8')[:72]
+    return bcrypt.checkpw(password_bytes, hashed_password.encode('utf-8'))
+
+def get_password_hash(password: str) -> str:
+    """Hash a password using bcrypt"""
+    # Truncate password to 72 bytes if necessary (bcrypt limit)
+    password_bytes = password.encode('utf-8')[:72]
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
+
+def create_access_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+@router.post("/signup", response_model=TokenResponse)
+async def signup(signup_data: SignupRequest, db: Session = Depends(get_db)):
+    """Register a new user with email and password"""
+    # Check if user already exists
+    existing_user = db.query(User).filter(User.email == signup_data.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
+    # Create new user
+    hashed_password = get_password_hash(signup_data.password)
+    new_user = User(
+        id=str(uuid.uuid4()),  # Generate UUID for local users
+        email=signup_data.email,
+        name=signup_data.name or signup_data.email.split('@')[0],
+        auth_provider="local",
+        email_verified=False,
+        preferences={"password_hash": hashed_password}
+    )
+    
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": str(new_user.id), "email": new_user.email, "name": new_user.name}
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": new_user.to_dict()
+    }
+
+@router.post("/login", response_model=TokenResponse)
+async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    """Login with email and password"""
+    # Find user by email
+    user = db.query(User).filter(User.email == login_data.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    
+    # Verify password
+    stored_password_hash = user.preferences.get("password_hash") if user.preferences else None
+    if not stored_password_hash or not verify_password(login_data.password, stored_password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+    
+    # Create access token
+    access_token = create_access_token(
+        data={"sub": str(user.id), "email": user.email, "name": user.name}
+    )
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user.to_dict()
+    }
 
 @router.get("/health")
 async def health_check():

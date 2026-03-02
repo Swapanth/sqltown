@@ -3,20 +3,18 @@ import { authService } from '../services/authService';
 import { tokenStorage } from '../utils/tokenStorage';
 
 interface User {
-    sub: string;
-    email?: string;
-    name?: string;
-    emailVerified?: boolean | string;
-    provider?: string;
+    id: string;
+    email: string;
+    name: string;
+    auth_provider: string;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     loading: boolean;
-    login: () => Promise<void>;
-    loginWithGoogle: () => Promise<void>;
-    signup: () => Promise<void>;
+    login: (email: string, password: string) => Promise<void>;
+    signup: (email: string, password: string, name: string) => Promise<void>;
     logout: () => Promise<void>;
     getToken: () => string | null;
 }
@@ -47,16 +45,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
-    const login = async () => {
-        await authService.signInWithHostedUI();
+    const login = async (email: string, password: string) => {
+        try {
+            const result = await authService.login(email, password);
+            if (result.success && result.user) {
+                setUser(result.user);
+                setIsAuthenticated(true);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
     };
 
-    const loginWithGoogle = async () => {
-        await authService.signInWithGoogle();
-    };
-
-    const signup = async () => {
-        await authService.signUpWithHostedUI();
+    const signup = async (email: string, password: string, name: string) => {
+        try {
+            const result = await authService.signup(email, password, name);
+            if (result.success && result.user) {
+                setUser(result.user);
+                setIsAuthenticated(true);
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            throw error;
+        }
     };
 
     const logout = async () => {
@@ -74,7 +86,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated,
         loading,
         login,
-        loginWithGoogle,
         signup,
         logout,
         getToken,

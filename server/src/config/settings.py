@@ -33,12 +33,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     
     # CORS Configuration
-    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5173"]
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: List[str] = ["*"]
-    CORS_ALLOW_HEADERS: List[str] = ["*"]
-    
-    # S3 Upload Configuration
+    CORS_ALLOW_HEADERS: List[str] = ["*"]    # S3 Upload Configuration
     S3_PRESIGNED_URL_EXPIRATION: int = 300  # 5 minutes in seconds
     S3_UPLOAD_PREFIX: str = "resumes"
 

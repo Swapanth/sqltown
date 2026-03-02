@@ -1,11 +1,15 @@
 import requests
-from jose import jwt, jwk
+from jose import jwt, jwk, JWTError
 from jose.utils import base64url_decode
 from typing import Dict, Optional
 from functools import lru_cache
 from fastapi import HTTPException, status
 from src.config import settings
 import time
+
+# JWT settings for local tokens (matches auth_router.py)
+SECRET_KEY = settings.DATABASE_URL  # Temporary, should use a proper secret
+ALGORITHM = "HS256"
 
 class CognitoJWTVerifier:
     def __init__(self):
@@ -70,7 +74,7 @@ class CognitoJWTVerifier:
     
     def verify_token(self, token: str) -> Dict:
         """
-        Verify Cognito JWT token
+        Verify JWT token - supports both Cognito and local JWT tokens
         
         Returns:
             Dict: Decoded token claims
@@ -79,6 +83,21 @@ class CognitoJWTVerifier:
             HTTPException: If token is invalid
         """
         try:
+            # First, try to decode as a local JWT token (HS256)
+            try:
+                claims = jwt.decode(
+                    token,
+                    SECRET_KEY,
+                    algorithms=[ALGORITHM],
+                    options={'verify_exp': True}
+                )
+                # If successful, it's a local token
+                return claims
+            except JWTError:
+                # If it fails, try Cognito verification (RS256)
+                pass
+            
+            # Cognito JWT verification
             # Get signing key
             signing_key = self._get_signing_key(token)
             

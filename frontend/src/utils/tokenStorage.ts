@@ -1,24 +1,15 @@
-const TOKEN_KEY = 'cognito_id_token';
-const REFRESH_TOKEN_KEY = 'cognito_refresh_token';
+const TOKEN_KEY = 'jwt_access_token';
 const USER_KEY = 'user_data';
 
 export const tokenStorage = {
-    // Store tokens securely
-    setTokens: (idToken: string, refreshToken?: string) => {
-        localStorage.setItem(TOKEN_KEY, idToken);
-        if (refreshToken) {
-            localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-        }
+    // Store JWT token
+    setToken: (token: string) => {
+        localStorage.setItem(TOKEN_KEY, token);
     },
 
-    // Get ID token
+    // Get JWT token
     getToken: (): string | null => {
         return localStorage.getItem(TOKEN_KEY);
-    },
-
-    // Get refresh token
-    getRefreshToken: (): string | null => {
-        return localStorage.getItem(REFRESH_TOKEN_KEY);
     },
 
     // Store user data
@@ -35,7 +26,6 @@ export const tokenStorage = {
     // Clear all auth data
     clearAll: () => {
         localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
         localStorage.removeItem(USER_KEY);
     },
 

@@ -1,79 +1,74 @@
-import { signOut, fetchAuthSession, fetchUserAttributes, signInWithRedirect } from 'aws-amplify/auth';
 import { tokenStorage } from '../utils/tokenStorage';
 import { jwtDecode } from 'jwt-decode';
+import apiClient from './apiClient';
+
+interface LoginResponse {
+    access_token: string;
+    token_type: string;
+    user: {
+        id: string;
+        email: string;
+        name: string;
+        auth_provider: string;
+    };
+}
 
 export const authService = {
-    // Login with Cognito Hosted UI (OAuth2 + PKCE)
-    signInWithHostedUI: async () => {
+    // Login with email and password
+    login: async (email: string, password: string) => {
         try {
-            await signInWithRedirect();
-        } catch (error: any) {
-            console.error('Hosted UI sign in error:', error);
-            throw error;
-        }
-    },
-
-    // Signup with Cognito Hosted UI (redirects to signup page)
-    signUpWithHostedUI: async () => {
-        try {
-            // Redirect to Hosted UI with signup parameter
-            await signInWithRedirect({
-                provider: {
-                    custom: 'COGNITO'
-                }
+            const response = await apiClient.post<LoginResponse>('/api/auth/login', {
+                email,
+                password,
             });
+
+            const { access_token, user } = response.data;
+
+            // Store token and user data
+            tokenStorage.setToken(access_token);
+            tokenStorage.setUser(user);
+
+            return { success: true, user, token: access_token };
         } catch (error: any) {
-            console.error('Hosted UI signup error:', error);
-            throw error;
+            console.error('Login error:', error);
+            throw new Error(error.response?.data?.detail || 'Login failed');
         }
     },
 
-    // Google OAuth Login
-    signInWithGoogle: async () => {
+    // Signup with email, password, and name
+    signup: async (email: string, password: string, name: string) => {
         try {
-            await signInWithRedirect({ provider: 'Google' });
+            const response = await apiClient.post<LoginResponse>('/api/auth/signup', {
+                email,
+                password,
+                name,
+            });
+
+            const { access_token, user } = response.data;
+
+            // Store token and user data
+            tokenStorage.setToken(access_token);
+            tokenStorage.setUser(user);
+
+            return { success: true, user, token: access_token };
         } catch (error: any) {
-            console.error('Google sign in error:', error);
-            throw error;
-        }
-    },
-
-    // Handle OAuth callback
-    handleOAuthCallback: async () => {
-        try {
-            const session = await fetchAuthSession();
-
-            if (session.tokens) {
-                const idToken = session.tokens.idToken?.toString() || '';
-                const refreshToken = undefined;
-
-                const decoded: any = jwtDecode(idToken);
-                const userAttributes = await fetchUserAttributes();
-
-                const userData = {
-                    sub: decoded.sub,
-                    email: userAttributes.email || decoded.email,
-                    name: userAttributes.name || decoded.name,
-                    emailVerified: decoded.email_verified,
-                    provider: decoded.identities?.[0]?.providerName || 'Cognito',
-                };
-
-                tokenStorage.setTokens(idToken, refreshToken);
-                tokenStorage.setUser(userData);
-
-                return { success: true, user: userData, token: idToken };
-            }
-            return { success: false };
-        } catch (error: any) {
-            console.error('OAuth callback error:', error);
-            throw error;
+            console.error('Signup error:', error);
+            throw new Error(error.response?.data?.detail || 'Signup failed');
         }
     },
 
     // Sign out
     signOut: async () => {
         try {
-            await signOut();
+            // Call backend logout endpoint (optional)
+            try {
+                await apiClient.post('/api/auth/logout');
+            } catch (error) {
+                // Ignore logout endpoint errors
+                console.warn('Logout endpoint error (ignored):', error);
+            }
+
+            // Clear local storage
             tokenStorage.clearAll();
             return { success: true };
         } catch (error: any) {
@@ -85,33 +80,47 @@ export const authService = {
     // Get current session
     getCurrentSession: async () => {
         try {
-            const session = await fetchAuthSession();
-            if (session.tokens) {
+            const token = tokenStorage.getToken();
+            const user = tokenStorage.getUser();
+
+            if (!token || !user) {
+                return { isAuthenticated: false };
+            }
+
+            // Verify token is not expired
+            try {
+                const decoded: any = jwtDecode(token);
+                const currentTime = Date.now() / 1000;
+
+                if (decoded.exp && decoded.exp < currentTime) {
+                    // Token expired
+                    tokenStorage.clearAll();
+                    return { isAuthenticated: false };
+                }
+
                 return {
                     isAuthenticated: true,
-                    token: session.tokens.idToken?.toString() || '',
-                    user: tokenStorage.getUser(),
+                    token,
+                    user,
                 };
+            } catch (error) {
+                // Invalid token format
+                tokenStorage.clearAll();
+                return { isAuthenticated: false };
             }
-            return { isAuthenticated: false };
         } catch (error) {
             return { isAuthenticated: false };
         }
     },
 
-    // Refresh token
+    // Refresh token (placeholder - implement if using refresh tokens)
     refreshSession: async () => {
-        try {
-            const session = await fetchAuthSession({ forceRefresh: true });
-            if (session.tokens) {
-                const idToken = session.tokens.idToken?.toString() || '';
-                const refreshToken = undefined;
-                tokenStorage.setTokens(idToken, refreshToken);
-                return idToken;
-            }
-        } catch (error: any) {
-            console.error('Token refresh error:', error);
-            throw error;
+        // For now, just return the current token
+        // In future, implement refresh token flow
+        const token = tokenStorage.getToken();
+        if (!token) {
+            throw new Error('No token to refresh');
         }
+        return token;
     },
 };

@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from src.config import settings
@@ -9,12 +10,12 @@ from src.auth.auth_router import router as auth_router
 from src.controllers.question_router import router as question_router
 from src.routes.progress import router as progress_router
 from src.routes.sql_executor import router as sql_router
-# 👇 ADD THESE IMPORTS PROPERLY
 from src.db.database import engine, Base
-import src.models  # This loads all models
 
 # Load environment variables
 load_dotenv()
+
+import src.models  # This loads all models
 
 
 @asynccontextmanager
