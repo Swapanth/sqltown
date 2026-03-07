@@ -10,12 +10,20 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
   const [totalRowCount, setTotalRowCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize] = useState<number>(20);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isPaginationLoading, setIsPaginationLoading] = useState<boolean>(false);
   const isFullscreen = !onView;
 
   useEffect(() => {
+    let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 10;
+    
     const loadTables = async () => {
       try {
+        console.log('📋 DataPreview: Starting to load tables for dbId:', dbId);
+        if (isMounted) setIsLoading(true);
+        
         // Reset state when switching databases
         setTables([]);
         setSelectedTable("");
@@ -26,17 +34,56 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
         setCurrentPage(1);
         
         // Initialize database with dbId first
+        console.log('⏳ DataPreview: Waiting for database initialization...');
         await initializeDatabase(dbId);
-        const tableList = await getTables(dbId);
-        setTables(tableList);
-        if (tableList.length > 0) {
+        
+        // Retry logic to wait for tables to be available
+        let tableList = null;
+        while (isMounted && retryCount < maxRetries) {
+          console.log(`✓ DataPreview: Attempt ${retryCount + 1} - Fetching tables...`);
+          tableList = await getTables(dbId);
+          
+          if (tableList && tableList.length > 0) {
+            console.log('✅ DataPreview: Loaded tables:', tableList);
+            break;
+          }
+          
+          retryCount++;
+          if (retryCount < maxRetries) {
+            console.log(`⏳ DataPreview: No tables found, retrying in 500ms... (${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+        
+        if (!isMounted) return;
+        
+        if (!tableList || tableList.length === 0) {
+          console.log('⚠️ DataPreview: No tables found after retries');
+          if (isMounted) {
+            setTables([]);
+            setIsLoading(false);
+          }
+          return;
+        }
+        
+        if (isMounted) {
+          setTables(tableList);
           setSelectedTable(tableList[0]);
+          // Don't set isLoading to false yet - wait for data to load
         }
       } catch (err) {
-        console.error("Failed to load tables:", err);
+        console.error("❌ DataPreview: Failed to load tables:", err);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
+    
     loadTables();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [dbId]);
 
   useEffect(() => {
@@ -49,7 +96,14 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
 
     const loadData = async () => {
       try {
-        setIsLoading(true);
+        // Use isPaginationLoading for page changes, isLoading for initial load
+        if (currentPage === 1 && !data) {
+          // Initial load - keep using isLoading
+          console.log('📊 DataPreview: Loading initial data...');
+        } else {
+          // Pagination - use separate loading state
+          setIsPaginationLoading(true);
+        }
         
         // Load table data with pagination
         const tableData = await getTableData(selectedTable, dbId, currentPage, pageSize);
@@ -77,13 +131,18 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
           // Load schema info
           const schemaData = getTableSchema(selectedTable, dbId);
           setSchema(schemaData);
+          
+          // Initial data loaded successfully
+          console.log('✅ DataPreview: Initial data loaded');
+          setIsLoading(false);
         }
         
         console.log(`Pagination check: isFullscreen=${isFullscreen}, totalRowCount=${totalRowCount}, pageSize=${pageSize}, condition=${isFullscreen && totalRowCount > pageSize}`);
       } catch (err) {
         console.error("Failed to load data:", err);
-      } finally {
         setIsLoading(false);
+      } finally {
+        setIsPaginationLoading(false);
       }
     };
     loadData();
@@ -91,6 +150,22 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
 
   return (
     <div className={`${!isFullscreen ? 'p-3' : 'h-full flex flex-col'}`}>
+      {/* Initial Loading State */}
+      {isLoading ? (
+        <div className={`flex flex-col items-center justify-center space-y-4 ${!isFullscreen ? 'py-16 min-h-[300px]' : 'py-12'}`}>
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 w-12 h-12 border-4 border-transparent border-b-orange-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <p className="text-sm text-gray-600 font-medium">Loading data preview...</p>
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
+        </div>
+      ) : (
+        <>
       <div className="flex justify-between items-center mb-3">
         <h3 className={`font-semibold text-gray-800 ${isFullscreen ? 'text-xl' : 'text-sm'}`}>
           Data Set's Preview
@@ -189,10 +264,13 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isPaginationLoading ? (
                   <tr>
                     <td colSpan={data.columns.length} className="p-8 text-center text-gray-500">
-                      Loading...
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <div className="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+                        <p className="text-xs font-medium">Loading data...</p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -211,7 +289,7 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
           </div>
         ) : (
           <div className="text-sm text-gray-400 p-8 text-center bg-gray-50 rounded-xl">
-            {isLoading ? "Loading..." : "No data available"}
+            No data available
           </div>
         )}
         
@@ -256,6 +334,8 @@ const DataPreview: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView,
             "Click View Full to see complete schema and pagination"
           )}
         </p>
+      )}
+        </>
       )}
     </div>
   );

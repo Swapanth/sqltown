@@ -53,18 +53,46 @@ const AnalystBlock: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
   const [avgCompleteness, setAvgCompleteness] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 10;
+    
     const analyzeDatabase = async () => {
       try {
-        setIsLoading(true);
+        console.log('📊 AnalystBlock: Starting analysis for dbId:', dbId);
+        if (isMounted) setIsLoading(true);
+        
+        // Wait for database initialization to complete
+        console.log('⏳ AnalystBlock: Waiting for database initialization...');
         await initializeDatabase(dbId);
-        const tables = await getTables(dbId);
+        
+        // Retry logic to wait for tables to be available
+        let tables = null;
+        while (isMounted && retryCount < maxRetries) {
+          console.log(`✓ AnalystBlock: Attempt ${retryCount + 1} - Fetching tables...`);
+          tables = await getTables(dbId);
+          
+          if (tables && tables.length > 0) {
+            console.log('📊 AnalystBlock: Retrieved tables:', tables);
+            break;
+          }
+          
+          retryCount++;
+          if (retryCount < maxRetries) {
+            console.log(`⏳ AnalystBlock: No tables found, retrying in 500ms... (${retryCount}/${maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+        }
+        
+        if (!isMounted) return;
         
         if (!tables || tables.length === 0) {
-          setIsLoading(false);
+          console.log('⚠️ AnalystBlock: No tables found after retries');
+          if (isMounted) setIsLoading(false);
           return;
         }
 
-        setTotalTables(tables.length);
+        if (isMounted) setTotalTables(tables.length);
 
         // Analyze each table
         const stats: TableStats[] = [];
@@ -175,6 +203,8 @@ const AnalystBlock: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
 
         console.log('💾 Quality Data Summary:', qualityData);
 
+        if (!isMounted) return;
+
         setTotalRows(totalRowCount);
         setTableStats(stats);
         
@@ -200,16 +230,28 @@ const AnalystBlock: React.FC<{ onView?: () => void; dbId?: string }> = ({ onView
         }));
         setRelationshipStats(relStats);
 
-        setIsLoading(false);
+        console.log('✅ AnalystBlock: Analysis complete -', {
+          tables: tables.length,
+          totalRows: totalRowCount,
+          avgCompleteness: Math.round(avgComp) + '%',
+          columnTypes: typeStats.length,
+          relationships: relStats.length
+        });
+        
+        if (isMounted) setIsLoading(false);
       } catch (error) {
-        console.error('Error analyzing database:', error);
-        setIsLoading(false);
+        console.error('❌ AnalystBlock: Error analyzing database:', error);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     if (dbId) {
       analyzeDatabase();
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [dbId]);
 
   if (!isFullscreen) {

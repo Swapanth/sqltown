@@ -721,7 +721,11 @@ const ERDiagramGenerator: React.FC<{ dbId?: string }> = ({ dbId }) => {
               ? (isPanning ? 'cursor-grabbing' : 'cursor-grab')
               : 'cursor-pointer'
             }`}
-          style={{ minHeight: '400px' }}
+          style={{ 
+            minHeight: '400px',
+            backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)',
+            backgroundSize: '20px 20px'
+          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}

@@ -6,6 +6,7 @@ import PracticePlayground from "../../components/practice/PracticePlayground";
 import DataPreview from "../../components/practice/DataPreview";
 import ERBlock from "../../components/practice/ERBlock";
 import ERDiagramGenerator from "../../components/practice/ERDiagramGenerator";
+import RelateDBView from "../../components/practice/RelateDBView";
 import JoinPathFinder from "../../components/practice/JoinPathFinder";
 import QueryLibrary from "../../components/practice/QueryLibrary";
 import AnalystBlock from "../../components/practice/AnalystBlock";
@@ -53,6 +54,19 @@ const PracticePage: React.FC = () => {
     }, 300);
   };
 
+  const getViewTitle = (view: string | null) => {
+    switch (view) {
+      case "data": return "Data Preview";
+      case "terminal": return "SQL Playground";
+      case "er": return "ER Diagram";
+      case "relatedb": return "Interactive Database Designer";
+      case "joins": return "Join Path Finder";
+      case "library": return "Query Library";
+      case "analyst": return "Data Analyst";
+      default: return "";
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -79,12 +93,12 @@ const PracticePage: React.FC = () => {
               {/* TOP ROW - Data Preview & Terminal */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Data Preview */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow min-h-[350px]">
                   <DataPreview dbId={dbId} onView={() => handleExpand("data")} />
                 </div>
 
                 {/* Terminal */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow">
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transform transition-all duration-300  hover:shadow min-h-[350px]">
                   <PracticeTerminal dbId={dbId} onView={() => handleExpand("terminal")} />
                 </div>
               </div>
@@ -100,7 +114,11 @@ const PracticePage: React.FC = () => {
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
-                  <ERBlock dbId={dbId} onView={() => handleExpand("er")} />
+                  <ERBlock 
+                    dbId={dbId} 
+                    onView={() => handleExpand("er")} 
+                    onInteractiveView={() => handleExpand("relatedb")} 
+                  />
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-55 transform transition-all duration-300  hover:shadow">
@@ -115,19 +133,20 @@ const PracticePage: React.FC = () => {
             <div className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 overflow-hidden transition-all duration-500 transform ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
               <div className="flex items-center justify-between px-6 py-4">
                 <h3 className="font-semibold text-lg text-gray-800">
-                
+                  {getViewTitle(activeView)}
                 </h3>
                 <button
                   onClick={handleCollapse}
                   className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                 X
+                  X
                 </button>
               </div>
               <div className="min-h-[70vh] overflow-auto">
                 {activeView === "data" && <DataPreview dbId={dbId} />}
                 {activeView === "terminal" && <PracticePlayground dbId={dbId} />}
                 {activeView === "er" && <ERDiagramGenerator dbId={dbId} />}
+                {activeView === "relatedb" && <RelateDBView dbId={dbId} />}
                 {activeView === "joins" && <JoinPathFinder dbId={dbId} />}
                 {activeView === "library" && <QueryLibrary dbId={dbId} />}
                 {activeView === "analyst" && <AnalystBlock dbId={dbId} />}
