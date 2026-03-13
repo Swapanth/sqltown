@@ -6,7 +6,8 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from sqlalchemy.orm import Session
-from src.db.database import SessionLocal, engine, Base
+from sqlalchemy import text
+from src.db.database import SessionLocal, engine, Base, ensure_database_schema
 from src.models.question import Question
 from src.models.test_case import TestCase
 
@@ -20,6 +21,7 @@ def seed_questions():
     """Seed questions and test cases into the database"""
     # Create tables if they don't exist
     Base.metadata.create_all(bind=engine)
+    ensure_database_schema()
     
     # Create database session
     db: Session = SessionLocal()
@@ -28,6 +30,11 @@ def seed_questions():
          # 🔥 Clear old data
         db.query(TestCase).delete()
         db.query(Question).delete()
+        db.commit()
+        
+        # Reset ID sequences to start from 1
+        db.execute(text("ALTER SEQUENCE questions_id_seq RESTART WITH 1"))
+        db.execute(text("ALTER SEQUENCE test_cases_id_seq RESTART WITH 1"))
         db.commit()
 
         # Load questions data
@@ -63,16 +70,29 @@ def seed_questions():
             
             print(f"✅ Added question: {q['title']}")
             
-            # Create test cases
-            for tc in q["test_cases"]:
+            # Create visible test cases
+            visible_test_cases = q.get("test_cases", [])
+            for tc in visible_test_cases:
                 test_case = TestCase(
                     question_id=question.id,
                     setup_sql=tc["setup_sql"],
-                    expected_output=tc["expected_output"]
+                    expected_output=tc["expected_output"],
+                    is_hidden=False
+                )
+                db.add(test_case)
+
+            # Create hidden test cases
+            hidden_test_cases = q.get("hidden_test_cases", [])
+            for tc in hidden_test_cases:
+                test_case = TestCase(
+                    question_id=question.id,
+                    setup_sql=tc["setup_sql"],
+                    expected_output=tc["expected_output"],
+                    is_hidden=True
                 )
                 db.add(test_case)
             
-            print(f"   └─ Added {len(q['test_cases'])} test case(s)")
+            print(f"   └─ Added {len(visible_test_cases)} visible and {len(hidden_test_cases)} hidden test case(s)")
         
         # Commit all changes
         db.commit()

@@ -36,8 +36,29 @@ def get_question(question_id: int, db: Session = Depends(get_db)):
         
         if not question:
             raise HTTPException(status_code=404, detail="Question not found")
-        
-        return question
+
+        visible_test_cases = [
+            {
+                "setup_sql": test_case.setup_sql,
+                "expected_output": test_case.expected_output,
+            }
+            for test_case in question.test_cases
+            if not test_case.is_hidden
+        ]
+
+        return {
+            "id": question.id,
+            "title": question.title,
+            "description": question.description,
+            "difficulty": question.difficulty,
+            "topics": question.topics or [],
+            "companies": question.companies or [],
+            "schema": question.schema,
+            "examples": question.examples,
+            "hints": question.hints or [],
+            "solution": question.solution,
+            "test_cases": visible_test_cases,
+        }
 
     except HTTPException:
         raise

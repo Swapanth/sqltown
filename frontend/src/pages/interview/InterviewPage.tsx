@@ -2,6 +2,8 @@ import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardContent, Input } from '../../components/common';
 import { fetchQuestions } from "../../services/questionService";
+import { useAuth } from '../../context/AuthContext';
+import { interviewService } from '../../services/interviewService';
 
 interface Question {
   id: number;
@@ -14,7 +16,7 @@ interface Question {
 }
 
 type NavItemId = 'overview' | 'practice' | 'tracks' | 'filters' | 'questions' | 'analytics';
-type ActiveNavItemId = 'overview' | 'tracks' | 'filters' | 'questions' | 'analytics';
+type ActiveNavItemId = NavItemId;
 
 interface NavChild {
   id: string;
@@ -32,6 +34,7 @@ interface NavItem {
 
 const InterviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState<string | null>('');
   const [selectedCompany, setSelectedCompany] = useState<string | null>('');
@@ -119,16 +122,64 @@ const allCompanies = Array.from(new Set(questions.flatMap(q => q.companies || []
 });
 
 useEffect(() => {
-  fetchQuestions().then((data) => {
-    const formatted = data.map((q: any) => ({
-      ...q,
-      acceptance: 75,
-      status: Math.random() > 0.6 ? "completed" : "not-started"
-    }));
+  let isCancelled = false;
 
-    setQuestions(formatted);
-  });
-}, []);
+  const loadQuestionsWithProgress = async () => {
+    try {
+      const data = await fetchQuestions();
+      const baseQuestions: Question[] = data.map((q: any) => ({
+        ...q,
+        acceptance: q.acceptance ?? 75,
+        status: 'not-started',
+      }));
+
+      if (!isAuthenticated) {
+        if (!isCancelled) {
+          setQuestions(baseQuestions);
+        }
+        return;
+      }
+
+      try {
+        const summary = await interviewService.getSubmissionSummary();
+        const completedSet = new Set<number>(summary.completed_question_ids || []);
+        const attemptedSet = new Set<number>(summary.attempted_question_ids || []);
+
+        const withUserProgress = baseQuestions.map((question) => {
+          if (completedSet.has(question.id)) {
+            return { ...question, status: 'completed' as const };
+          }
+
+          if (attemptedSet.has(question.id)) {
+            return { ...question, status: 'in-progress' as const };
+          }
+
+          return question;
+        });
+
+        if (!isCancelled) {
+          setQuestions(withUserProgress);
+        }
+      } catch (progressError) {
+        console.error('Failed to load user progress summary:', progressError);
+        if (!isCancelled) {
+          setQuestions(baseQuestions);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch questions:', error);
+      if (!isCancelled) {
+        setQuestions([]);
+      }
+    }
+  };
+
+  loadQuestionsWithProgress();
+
+  return () => {
+    isCancelled = true;
+  };
+}, [isAuthenticated]);
 
   // Sort questions
   if (sortColumn) {
@@ -243,12 +294,48 @@ useEffect(() => {
 
 
 
-  const handleSideNavClick = (sectionId: ActiveNavItemId) => {
+  const getScrollTargetId = (itemId: NavItemId) => {
+    if (itemId === 'practice') {
+      return 'questions';
+    }
+
+    if (itemId === 'analytics') {
+      return 'overview';
+    }
+
+    return itemId;
+  };
+
+  const handleSideNavClick = (sectionId: NavItemId) => {
     setActiveNavItem(sectionId);
-    const el = document.getElementById(sectionId);
+    const el = document.getElementById(getScrollTargetId(sectionId));
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
+
+  const handleNavChildClick = (parentId: NavItemId, child: NavChild) => {
+    if (parentId === 'practice') {
+      const queryByChildId: Record<string, string> = {
+        'sql-basics': 'select',
+        joins: 'join',
+        aggregations: 'group by',
+        'window-functions': 'window',
+      };
+
+      setSearchQuery(queryByChildId[child.id] || child.label);
+      setSelectedTrack('Practice');
+      setCurrentPage(1);
+      handleSideNavClick('questions');
+      return;
+    }
+
+    if (parentId === 'analytics') {
+      handleSideNavClick('overview');
+      return;
+    }
+
+    handleSideNavClick(parentId);
   };
 
   return (
@@ -293,11 +380,7 @@ useEffect(() => {
                     <div className="relative">
                       <button
                         onClick={() => {
-                          // Only call if the id is a valid active nav item
-                          const validIds: ActiveNavItemId[] = ['overview', 'tracks', 'filters', 'questions', 'analytics'];
-                          if (validIds.includes(item.id as ActiveNavItemId)) {
-                            handleSideNavClick(item.id as ActiveNavItemId);
-                          }
+                          handleSideNavClick(item.id);
                         }}
                         onMouseEnter={() => setHoveredItem(item.id)}
                         onMouseLeave={() => {
@@ -350,7 +433,7 @@ useEffect(() => {
                                     
                                     <button
                                       onClick={() => {
-                                        console.log('Child clicked:', child.id);
+                                        handleNavChildClick(item.id, child);
                                         setHoveredItem(null); // Close tooltip after click
                                       }}
                                       className="w-full flex items-center justify-between px-3 py-2 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ml-5"
@@ -387,7 +470,7 @@ useEffect(() => {
                             <div className="absolute left-0 top-1/2 w-4 h-px bg-gray-300"></div>
                             
                             <button
-                              onClick={() => console.log('Child clicked:', child.id)}
+                              onClick={() => handleNavChildClick(item.id, child)}
                               onMouseEnter={() => setHoveredItem(child.id)}
                               onMouseLeave={() => setHoveredItem(null)}
                               className="group flex items-center gap-3 rounded-xl transition-all duration-200 px-3 py-2 w-full text-gray-600 hover:bg-gray-50 hover:text-gray-900 ml-4"

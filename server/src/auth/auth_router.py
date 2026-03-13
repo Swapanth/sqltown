@@ -8,6 +8,8 @@ from jose import jwt
 from src.auth.dependencies import get_current_user, get_current_user_with_db
 from src.auth.user_service import UserService
 from src.db.database import get_db
+from src.models.discussion_post import DiscussionPost
+from src.models.interview_submission import InterviewSubmission
 from src.models.user import User
 from src.config.settings import settings
 from pydantic import BaseModel, EmailStr
@@ -114,6 +116,10 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
+
+    user.last_login = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
     
     # Create access token
     access_token = create_access_token(
@@ -183,3 +189,56 @@ async def public_endpoint(user: Dict | None = Depends(get_current_user)):
             "message": "Hello, Guest!",
             "authenticated": False
         }
+
+
+@router.get("/activity")
+async def get_auth_activity(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user_with_db),
+):
+    total_submissions = (
+        db.query(InterviewSubmission)
+        .filter(InterviewSubmission.user_id == current_user.id)
+        .count()
+    )
+    accepted_submissions = (
+        db.query(InterviewSubmission)
+        .filter(
+            InterviewSubmission.user_id == current_user.id,
+            InterviewSubmission.status == "Accepted",
+        )
+        .count()
+    )
+
+    discussion_posts = (
+        db.query(DiscussionPost)
+        .filter(
+            DiscussionPost.user_id == current_user.id,
+            DiscussionPost.parent_id.is_(None),
+        )
+        .count()
+    )
+    discussion_replies = (
+        db.query(DiscussionPost)
+        .filter(
+            DiscussionPost.user_id == current_user.id,
+            DiscussionPost.parent_id.isnot(None),
+        )
+        .count()
+    )
+
+    return {
+        "user": {
+            "id": current_user.id,
+            "name": current_user.name,
+            "email": current_user.email,
+            "auth_provider": current_user.auth_provider,
+            "last_login": current_user.last_login.isoformat() if current_user.last_login else None,
+        },
+        "metrics": {
+            "total_submissions": total_submissions,
+            "accepted_submissions": accepted_submissions,
+            "discussion_posts": discussion_posts,
+            "discussion_replies": discussion_replies,
+        },
+    }

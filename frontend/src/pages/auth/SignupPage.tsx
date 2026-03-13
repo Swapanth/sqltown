@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export const SignupPage: React.FC = () => {
     const [name, setName] = useState('');
@@ -11,6 +11,8 @@ export const SignupPage: React.FC = () => {
 
     const { signup } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTarget = new URLSearchParams(location.search).get('redirect') || '/interview';
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,8 +21,7 @@ export const SignupPage: React.FC = () => {
 
         try {
             await signup(email, password, name);
-            // Redirect to dashboard on success
-            navigate('/interview');
+            navigate(redirectTarget);
         } catch (err: any) {
             const errorMessage = err.message || 'Failed to sign up';
             setError(errorMessage);
@@ -101,7 +102,7 @@ export const SignupPage: React.FC = () => {
 
                 <p className="mt-8 text-center text-sm text-gray-600">
                     Already have an account?{' '}
-                    <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700">
+                    <Link to={`/login?redirect=${encodeURIComponent(redirectTarget)}`} className="font-semibold text-blue-600 hover:text-blue-700">
                         Sign in
                     </Link>
                 </p>
